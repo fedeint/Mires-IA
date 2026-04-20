@@ -3,8 +3,24 @@ let wakeLockHandle = null;
 export async function registerServiceWorker(rootPath = "") {
   if (!("serviceWorker" in navigator)) return null;
 
-  const swUrl = `${rootPath}/sw.js`.replace(/\\+/g, "/");
-  const reg = await navigator.serviceWorker.register(swUrl, { scope: `${rootPath}/` });
+  const scope = `${rootPath}/`;
+  const swUrl = `${rootPath}/sw.js?v=20260420-pwa-v5`.replace(/\\+/g, "/");
+  const registrations = await navigator.serviceWorker.getRegistrations();
+
+  await Promise.all(
+    registrations.map(async (registration) => {
+      const activeScript = registration.active?.scriptURL || registration.waiting?.scriptURL || registration.installing?.scriptURL || "";
+      if (registration.scope.endsWith(scope) && activeScript && !activeScript.includes("20260420-pwa-v5")) {
+        await registration.unregister();
+      }
+    })
+  );
+
+  const reg = await navigator.serviceWorker.register(swUrl, {
+    scope,
+    updateViaCache: "none",
+  });
+  reg.update().catch(() => null);
   return reg;
 }
 

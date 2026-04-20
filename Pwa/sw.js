@@ -1,4 +1,4 @@
-const CACHE_VERSION = "mirest-pwa-v4";
+const CACHE_VERSION = "mirest-pwa-v5";
 
 const CORE_ASSETS = [
   "/",
