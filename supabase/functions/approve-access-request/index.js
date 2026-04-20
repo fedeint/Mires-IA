@@ -1,4 +1,3 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -7,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function jsonResponse(body: Record<string, unknown>, status = 200) {
+function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -57,7 +56,7 @@ Deno.serve(async (request) => {
     );
   }
 
-  let body: { requestId?: string; role?: string; action?: string } | null = null;
+  let body = null;
   try {
     body = await request.json();
   } catch {
@@ -67,6 +66,11 @@ Deno.serve(async (request) => {
   const requestId = body?.requestId;
   const role = body?.role;
   const action = body?.action ?? "approve";
+  const permissions = Array.isArray(body?.permissions)
+    ? body.permissions
+        .map((value) => (typeof value === "string" ? value.trim() : ""))
+        .filter((value) => value.length > 0)
+    : [];
 
   if (!requestId || !role) {
     return jsonResponse({ message: "Faltan requestId o role" }, 400);
@@ -75,6 +79,11 @@ Deno.serve(async (request) => {
   if (action !== "approve" && action !== "resend") {
     return jsonResponse({ message: "Acción no permitida" }, 400);
   }
+
+  const DEFAULT_REDIRECT_ORIGIN = "https://mires-ia.vercel.app";
+  const configuredOrigin = Deno.env.get("ACTIVATION_REDIRECT_ORIGIN")?.trim();
+  const safeOrigin = configuredOrigin || DEFAULT_REDIRECT_ORIGIN;
+  const redirectTo = `${safeOrigin.replace(/\/$/, "")}/activate.html`;
 
   const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
@@ -100,29 +109,41 @@ Deno.serve(async (request) => {
     );
   }
 
-  const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(accessRequest.email, {
-    data: {
-      role,
-      full_name: accessRequest.full_name,
-      access_request_id: accessRequest.id,
+  const inviteMetadata = {
+    role,
+    full_name: accessRequest.full_name,
+    access_request_id: accessRequest.id,
+  };
+  if (permissions.length > 0) {
+    inviteMetadata.permissions = permissions;
+  }
+
+  const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
+    accessRequest.email,
+    {
+      data: inviteMetadata,
+      redirectTo,
     },
-  });
+  );
 
   if (inviteError) {
     return jsonResponse({ message: inviteError.message }, 400);
   }
 
   const now = new Date().toISOString();
+  const updates = {
+    status: "approved",
+    approved_role: role,
+    approved_at: accessRequest.approved_at || now,
+    invite_sent_at: now,
+    approved_by: user.id,
+    rejected_at: null,
+    approved_permissions: permissions.length > 0 ? permissions : null,
+  };
+
   const { error: updateError } = await adminClient
     .from("access_requests")
-    .update({
-      status: "approved",
-      approved_role: role,
-      approved_at: accessRequest.approved_at || now,
-      invite_sent_at: now,
-      approved_by: user.id,
-      rejected_at: null,
-    })
+    .update(updates)
     .eq("id", requestId);
 
   if (updateError) {

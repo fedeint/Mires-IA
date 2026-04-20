@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f07c2a" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260420-activate" />
+  <title>Activar cuenta | MiRest con IA</title>
+
+  <script>
+    document.documentElement.classList.add("js");
+    document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles/tokens.css?v=20260420-activate" />
+  <link rel="stylesheet" href="./styles/base.css?v=20260420-activate" />
+  <link rel="stylesheet" href="./styles/components.css?v=20260420-activate" />
+  <link rel="stylesheet" href="./styles/login.css?v=20260420-activate" />
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body data-theme="light">
+  <div class="login-container">
+    <div class="login-card card">
+      <div class="login-card__accent login-card__accent--warm" aria-hidden="true"></div>
+      <div class="login-card__accent login-card__accent--cool" aria-hidden="true"></div>
+
+      <div class="login-header">
+        <span class="login-badge">
+          <i data-lucide="shield-check"></i>
+          Activación segura
+        </span>
+        <div class="brand-mark" aria-hidden="true">IA</div>
+        <h1 id="activateTitle">Activa tu cuenta</h1>
+        <p id="activateSubtitle">Define la contraseña que usarás para ingresar a MiRest con IA.</p>
+      </div>
+
+      <div id="activateStatus" class="error-banner" style="display: none;"></div>
+
+      <form id="activateForm" class="login-form" hidden>
+        <div class="form-group">
+          <label for="email">Correo de activación</label>
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <i data-lucide="mail"></i>
+            </span>
+            <input type="email" id="email" readonly />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Nueva contraseña</label>
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <i data-lucide="lock"></i>
+            </span>
+            <input type="password" id="password" required minlength="8" placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password" />
+            <button type="button" class="password-toggle" data-toggle="password" aria-label="Mostrar contraseña">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="passwordConfirm">Confirma la contraseña</label>
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <i data-lucide="lock-keyhole"></i>
+            </span>
+            <input type="password" id="passwordConfirm" required minlength="8" placeholder="Repite tu contraseña"
+              autocomplete="new-password" />
+            <button type="button" class="password-toggle" data-toggle="passwordConfirm" aria-label="Mostrar contraseña">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primary login-btn" id="activateSubmit">
+          <i data-lucide="badge-check"></i>
+          Activar y acceder
+        </button>
+
+        <div class="login-helper">
+          <i data-lucide="sparkles"></i>
+          <span>Tu correo es tu usuario. Guarda tu contraseña en un lugar seguro.</span>
+        </div>
+      </form>
+
+      <div id="activateFallback" class="auth-help-row" hidden>
+        <a class="login-text-link" href="./login.html">
+          <i data-lucide="log-in"></i>
+          Ir al inicio de sesión
+        </a>
+        <span>¿Ya activaste tu cuenta?</span>
+      </div>
+    </div>
+  </div>
+
+  <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+    <i data-lucide="moon"></i>
+  </button>
+
+  <script type="module" src="./scripts/activate.js?v=20260420-activate"></script>
+</body>
+
+</html>

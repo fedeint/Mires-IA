@@ -15,6 +15,7 @@ const ACCESS_REQUEST_COLUMNS = `
   source,
   status,
   approved_role,
+  approved_permissions,
   follow_up_notes,
   approved_at,
   rejected_at,
@@ -69,7 +70,7 @@ export async function updateAccessRequest(id, changes) {
     .single();
 }
 
-export async function approveAccessRequest(requestId, role, action = "approve") {
+export async function approveAccessRequest(requestId, role, action = "approve", permissions = []) {
   const {
     data: { session },
     error: sessionError,
@@ -92,7 +93,7 @@ export async function approveAccessRequest(requestId, role, action = "approve") 
         Authorization: `Bearer ${session.access_token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ requestId, role, action }),
+      body: JSON.stringify({ requestId, role, action, permissions }),
     });
 
     const text = await response.text();

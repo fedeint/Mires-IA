@@ -3,8 +3,12 @@ import {
   formatCurrentDate,
   getGreeting,
   getModuleByKey,
+  getRoleLabel,
   initializeThemeToggle,
+  isDemoRole,
   renderSidebar,
+  resolveUserPermissions,
+  resolveUserRole,
   toHref,
 } from "./navigation.js";
 import { initializeDashboard } from "./dashboard.js";
@@ -18,7 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const activeItem = getModuleByKey(activeKey);
   const rootPath = (document.body.dataset.rootPath || "").replace(/\/+$/, "");
 
-  // Guardia de Autenticación
   const isLoginPage = window.location.pathname.includes("login.html") ||
     window.location.pathname.endsWith("/login");
 
@@ -35,34 +38,80 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Guardar rol del usuario en la sesión actual
-  const userRole = user.user_metadata?.role || 'admin'; // Por defecto admin en este mock hasta que se configure la bd
+  const userRole = resolveUserRole(user);
+  const userPermissions = resolveUserPermissions(user, userRole);
+  const profile = buildUserProfile(user, userRole, userPermissions);
   window.currentUserRole = userRole;
+  window.currentUserPermissions = userPermissions;
+  window.currentUserProfile = profile;
 
   document.body.classList.add("page-ready");
+  document.body.dataset.userRole = userRole;
 
-  // Inicialización PWA Core
   registerServiceWorker(rootPath).catch(() => null);
   requestWakeLock();
   enableWakeLockAutoReacquire();
   initializeHapticFeedback();
 
-  renderSidebar(document.getElementById("sidebarNav"), activeKey, userRole);
+  renderSidebar(document.getElementById("sidebarNav"), activeKey, userRole, userPermissions);
   initializeThemeToggle(document.getElementById("themeToggle"));
   initializeResponsiveSidebar(pageType);
   initializePageTransitions();
   setText("currentYear", String(new Date().getFullYear()));
   initializeIAWidget(rootPath);
   setupLogoutBtn(rootPath);
+  applyUserIdentity(profile);
 
   if (pageType === "dashboard") {
-    initializeDashboardPage(user.email);
-    initializeDashboard();
+    initializeDashboardPage(profile);
+    initializeDashboard(profile);
     return;
   }
 
   initializeModulePage(activeItem);
 });
+
+function buildUserProfile(user, role, permissions) {
+  const email = user?.email || "";
+  const meta = user?.user_metadata || {};
+  const fullName = (meta.full_name || meta.name || "").trim();
+  const emailHandle = email.split("@")[0] || "";
+  const displayName = fullName || capitalize(emailHandle.replace(/[._-]+/g, " ")) || "Invitado";
+  const firstName = displayName.split(/\s+/)[0] || displayName;
+  const initials = getInitials(displayName);
+
+  return {
+    email,
+    fullName: displayName,
+    firstName,
+    initials,
+    role,
+    permissions,
+    roleLabel: getRoleLabel(role),
+    isDemo: isDemoRole(role),
+    rawMetadata: meta,
+  };
+}
+
+function getInitials(name) {
+  if (!name) return "MR";
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  return parts.map((part) => part.charAt(0).toUpperCase()).join("") || "MR";
+}
+
+function applyUserIdentity(profile) {
+  const avatar = document.querySelector(".avatar");
+  if (avatar) {
+    avatar.textContent = profile.initials;
+    avatar.setAttribute("aria-label", profile.fullName);
+    avatar.setAttribute("title", `${profile.fullName} · ${profile.roleLabel}`);
+  }
+
+  const chip = document.getElementById("pageContextChip");
+  if (chip) {
+    chip.textContent = profile.roleLabel;
+  }
+}
 
 function setupLogoutBtn(rootPath) {
   const avatar = document.querySelector('.avatar');
@@ -76,14 +125,16 @@ function setupLogoutBtn(rootPath) {
   }
 }
 
-function initializeDashboardPage(userEmail) {
+function initializeDashboardPage(profile) {
   const locationLabel = window.location.hostname || "entorno local";
-  const userGreeting = userEmail ? userEmail.split('@')[0] : "Administrador";
 
-  setText("pageEyebrow", "Panel base");
-  setText("pageTitle", `${getGreeting()}, ${userGreeting}`);
-  setText("pageSubtitle", `${capitalize(formatCurrentDate())} · ${locationLabel} · ${APP_META.envLabel}`);
-  setText("pageContextChip", "Sesión Activa");
+  setText("pageEyebrow", profile.isDemo ? "Modo demo" : "Panel de operación");
+  setText("pageTitle", `${getGreeting()}, ${profile.firstName}`);
+  setText(
+    "pageSubtitle",
+    `${capitalize(formatCurrentDate())} · ${locationLabel} · ${profile.isDemo ? "Vista de demostración" : profile.roleLabel}`,
+  );
+  setText("pageContextChip", profile.isDemo ? "Cuenta demo" : profile.roleLabel);
 }
 
 function initializeModulePage(module) {

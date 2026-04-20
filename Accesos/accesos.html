@@ -159,6 +159,95 @@
       body[data-theme="dark"] .request-role-select {
         background: rgba(10, 15, 29, 0.56);
       }
+      .perm-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 6px;
+        width: 100%;
+        max-width: 360px;
+      }
+      .perm-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease;
+      }
+      .perm-chip input {
+        accent-color: var(--color-accent);
+      }
+      .perm-chip:has(input:checked) {
+        background: rgba(240, 124, 42, 0.12);
+        border-color: rgba(240, 124, 42, 0.4);
+        color: var(--color-accent);
+        font-weight: 600;
+      }
+      body[data-theme="dark"] .perm-chip {
+        background: rgba(10, 15, 29, 0.5);
+      }
+      body[data-theme="dark"] .perm-chip:has(input:checked) {
+        background: rgba(240, 124, 42, 0.18);
+      }
+      .perm-chip--muted {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .perm-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 4px;
+      }
+      .perm-link {
+        background: none;
+        border: none;
+        color: var(--color-accent);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 2px 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .perm-link:hover { text-decoration: underline; }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: var(--space-4);
+      }
+      .modal-card {
+        background: var(--color-surface);
+        border-radius: 20px;
+        padding: var(--space-6);
+        max-width: 520px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+      }
+      .modal-card h3 { margin: 0 0 6px; }
+      .modal-card p { color: var(--color-text-muted); font-size: 14px; margin: 0 0 var(--space-4); }
+      .modal-card .perm-grid { max-width: none; }
+      .modal-actions {
+        display: flex;
+        gap: var(--space-2);
+        justify-content: flex-end;
+        margin-top: var(--space-5);
+      }
+
       @media (max-width: 900px) {
         .accesos-overview {
           grid-template-columns: 1fr;
@@ -167,6 +256,9 @@
       @media (max-width: 700px) {
         .accesos-header {
           flex-direction: column;
+        }
+        .perm-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -252,6 +344,35 @@
               </tbody>
             </table>
           </div>
+
+          <div class="accesos-header" style="margin-top: 32px;">
+            <div>
+              <h2>Usuarios con acceso</h2>
+              <p style="color:var(--color-text-muted); font-size: 14px;">Revoca, restaura o elimina accesos. Los cambios se aplican al instante.</p>
+            </div>
+            <button class="btn btn--secondary" id="refreshUsersBtn" type="button">
+              <i data-lucide="refresh-cw"></i> Actualizar
+            </button>
+          </div>
+
+          <div id="usersFeedback" class="request-feedback" style="display: none;"></div>
+
+          <div class="users-table-container">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Último ingreso</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="5" style="text-align: center;">Cargando usuarios...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </main>
       </div>
     </div>
@@ -260,7 +381,7 @@
       <i data-lucide="moon"></i>
     </button>
 
-    <script type="module" src="../scripts/app.js?v=20260420-accessfix2"></script>
-    <script type="module" src="./accesos.js?v=20260420-accessfix2"></script>
+    <script type="module" src="../scripts/app.js?v=20260420-perms1"></script>
+    <script type="module" src="./accesos.js?v=20260420-perms1"></script>
   </body>
 </html>

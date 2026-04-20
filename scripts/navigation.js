@@ -237,27 +237,82 @@ export function getGreeting() {
 }
 
 export const ROLE_PERMISSIONS = {
-  superadmin: ["*"], // Todos
-  admin: ["*"],      // Todos + Accesos
-  caja: ["caja"],
+  superadmin: ["*"],
+  admin: ["*"],
+  caja: ["caja", "pedidos"],
   chef: ["cocina", "recetas"],
   pedidos: ["pedidos", "delivery-afiliados"],
   almacen: ["almacen"],
-  marketing: ["clientes", "reportes", "ia"]
+  marketing: ["clientes", "reportes", "ia"],
+  demo: [
+    "pedidos",
+    "caja",
+    "cocina",
+    "productos",
+    "recetas",
+    "clientes",
+    "almacen",
+    "ia",
+  ],
 };
 
-export function getModulesByRole(role) {
-  const perms = ROLE_PERMISSIONS[role] || [];
+export const DEMO_EMAILS = new Set(["a@a.com"]);
+
+export function resolveUserRole(user) {
+  if (!user) return "demo";
+  const email = (user.email || "").toLowerCase();
+  if (DEMO_EMAILS.has(email)) return "demo";
+
+  const metaRole = user.user_metadata?.role;
+  if (metaRole && ROLE_PERMISSIONS[metaRole]) return metaRole;
+
+  return "demo";
+}
+
+export function resolveUserPermissions(user, role) {
+  const metaPerms = user?.user_metadata?.permissions;
+  if (Array.isArray(metaPerms) && metaPerms.length > 0) {
+    return metaPerms;
+  }
+  return ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.demo;
+}
+
+export function isDemoRole(role) {
+  return role === "demo";
+}
+
+export function getModulesByRole(role, permissions) {
+  const perms = Array.isArray(permissions) && permissions.length > 0
+    ? permissions
+    : ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.demo;
   if (perms.includes("*")) {
     return NAV_ITEMS;
   }
-  return NAV_ITEMS.filter(item => item.key === 'dashboard' || perms.includes(item.key));
+  return NAV_ITEMS.filter((item) => item.key === "dashboard" || perms.includes(item.key));
 }
 
-export function renderSidebar(target, activeKey, userRole = "admin") {
+export function getAssignableModules() {
+  return MODULES;
+}
+
+export function getRoleLabel(role) {
+  switch (role) {
+    case "superadmin": return "Super Admin";
+    case "admin": return "Administrador";
+    case "caja": return "Caja";
+    case "chef": return "Chef / Cocina";
+    case "pedidos": return "Pedidos";
+    case "almacen": return "Almacén";
+    case "marketing": return "Marketing";
+    case "demo": return "Cuenta demo";
+    default: return "Invitado";
+  }
+}
+
+export function renderSidebar(target, activeKey, userRole = "admin", permissions = null) {
   if (!target) return;
 
-  const allowedItems = getModulesByRole(userRole);
+  const allowedItems = getModulesByRole(userRole, permissions);
   const dashboardItem = allowedItems.find(i => i.key === "dashboard");
   const moduleItems = allowedItems.filter(i => i.key !== "dashboard");
 

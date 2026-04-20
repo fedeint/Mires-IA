@@ -84,23 +84,24 @@
         <main class="dashboard">
           <section class="hero-panel card">
             <div class="hero-panel__content">
-              <span class="chip chip--accent">Skeleton frontend</span>
-              <h2>Base navegable del sistema lista para que cada equipo construya su módulo.</h2>
+              <span class="chip chip--accent">Operación en vivo</span>
+              <h2>Controla ventas, pedidos y stock de tu restaurante en un solo lugar.</h2>
+              <p>Resumen del día con tus métricas clave y acceso rápido a cada módulo operativo.</p>
 
               <div class="hero-panel__actions">
                 <a class="btn btn--primary" href="#moduleGrid">Ver módulos</a>
-                <a class="btn btn--secondary" href="./TECHNICAL_DOCS.md">Guía técnica</a>
+                <a class="btn btn--secondary" href="./IA/ia.html">Hablar con DalIA</a>
               </div>
             </div>
 
-            <div class="hero-panel__metrics" id="dashboardMetrics" aria-label="Resumen general"></div>
+            <div class="hero-panel__metrics" id="dashboardMetrics" aria-label="Métricas del día"></div>
           </section>
 
           <div class="dashboard__content">
             <section class="dashboard__primary">
               <div class="section-heading">
                 <div>
-                  <span class="eyebrow">Navegación del sistema</span>
+                  <span class="eyebrow">Tu cockpit</span>
                   <h2>Módulos disponibles</h2>
                 </div>
               </div>
@@ -111,15 +112,15 @@
             <aside class="dashboard__aside">
               <section class="info-panel card">
                 <div class="panel-heading">
-                  <h3>Hoy en el sistema</h3>
-                  <span class="chip chip--soft">Snapshot</span>
+                  <h3>Hoy en tu restaurante</h3>
+                  <span class="chip chip--soft">En vivo</span>
                 </div>
                 <div id="systemHighlights" class="stack"></div>
               </section>
 
               <section class="info-panel card">
                 <div class="panel-heading">
-                  <h3>DallIA dice</h3>
+                  <h3>DalIA dice</h3>
                   <span class="chip chip--soft">Consejos</span>
                 </div>
                 <ul id="insightsList" class="insight-list"></ul>
@@ -127,20 +128,16 @@
 
               <section class="info-panel card">
                 <div class="panel-heading">
-                  <h3>Checklist base</h3>
+                  <h3>Próximas acciones</h3>
+                  <span class="chip chip--soft">Tu turno</span>
                 </div>
-                <ul class="check-list">
-                  <li>Dashboard raíz.</li>
-                  <li>Módulos por carpeta.</li>
-                  <li>Design System global.</li>
-                  <li>Sin lógica de negocio.</li>
-                </ul>
+                <ul id="operationalChecklist" class="check-list"></ul>
               </section>
             </aside>
           </div>
 
           <footer class="page-footer">
-            MiRest con IA · <span id="currentYear">2026</span> · Frontend base para trabajo colaborativo.
+            MiRest con IA · <span id="currentYear">2026</span> · Plataforma operativa para restaurantes.
           </footer>
         </main>
       </div>
