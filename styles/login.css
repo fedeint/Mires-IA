@@ -268,6 +268,49 @@ body[data-theme="dark"] .demo-credentials__item {
   background: rgba(10, 15, 29, 0.42);
 }
 
+.access-request-entry {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid rgba(14, 165, 233, 0.12);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(240, 249, 255, 0.88), rgba(255, 255, 255, 0.82));
+}
+
+.access-request-entry__copy {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.access-request-entry__eyebrow,
+.request-modal__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-info);
+}
+
+.access-request-entry__copy strong {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.access-request-entry__copy p {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.access-request-entry__button {
+  width: 100%;
+}
+
+body[data-theme="dark"] .access-request-entry {
+  border-color: rgba(14, 165, 233, 0.16);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), rgba(23, 29, 51, 0.72));
+}
+
 .login-btn {
   height: 56px;
   font-size: 16px;
@@ -330,6 +373,125 @@ body[data-theme="dark"] .login-helper {
   animation: spin 1s linear infinite;
 }
 
+.request-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+}
+
+.request-modal--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.request-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+.request-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  padding: var(--space-8);
+  border-radius: 28px;
+}
+
+.request-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.request-modal__header h2 {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: 28px;
+  line-height: 1.08;
+}
+
+.request-modal__header p {
+  max-width: 52ch;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.request-modal__close {
+  flex-shrink: 0;
+}
+
+.request-form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.request-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.request-textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-text);
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.55;
+  resize: vertical;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
+}
+
+body[data-theme="dark"] .request-textarea {
+  background: rgba(10, 15, 29, 0.56);
+}
+
+.request-textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.14);
+  background: var(--color-bg);
+}
+
+.request-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.request-banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.request-banner--success {
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+}
+
+.request-banner--error {
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
 @media (max-width: 560px) {
   .login-container {
     padding: var(--space-4);
@@ -354,5 +516,26 @@ body[data-theme="dark"] .login-helper {
 
   .demo-credentials__grid {
     grid-template-columns: 1fr;
+  }
+
+  .request-modal__dialog {
+    padding: var(--space-6);
+    border-radius: 24px;
+  }
+
+  .request-modal__header {
+    flex-direction: column;
+  }
+
+  .request-modal__header h2 {
+    font-size: 24px;
+  }
+
+  .request-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .request-form__actions {
+    flex-direction: column-reverse;
   }
 }

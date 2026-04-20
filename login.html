@@ -84,6 +84,18 @@
           </div>
         </div>
 
+        <div class="access-request-entry">
+          <div class="access-request-entry__copy">
+            <span class="access-request-entry__eyebrow">Nuevos restaurantes</span>
+            <strong>Solicita tu acceso</strong>
+            <p>Cuéntanos sobre tu negocio y registraremos tu interés para seguimiento comercial y activación.</p>
+          </div>
+          <button type="button" class="btn btn--secondary access-request-entry__button" id="openRequestModal">
+            <i data-lucide="user-plus"></i>
+            Solicitar acceso
+          </button>
+        </div>
+
         <button type="submit" class="btn btn--primary login-btn" id="submitBtn">
           <i data-lucide="log-in"></i>
           Ingresar al Sistema
@@ -101,8 +113,124 @@
     <i data-lucide="moon"></i>
   </button>
 
+  <div class="request-modal" id="requestModal" aria-hidden="true">
+    <div class="request-modal__backdrop" data-close-request-modal></div>
+    <div class="request-modal__dialog card" role="dialog" aria-modal="true" aria-labelledby="requestModalTitle">
+      <div class="request-modal__header">
+        <div>
+          <span class="request-modal__eyebrow">Lead de acceso</span>
+          <h2 id="requestModalTitle">Solicita tu acceso</h2>
+          <p>Déjanos tus datos y te contactaremos para activar tu cuenta cuando la solicitud sea aprobada.</p>
+        </div>
+        <button type="button" class="icon-button request-modal__close" data-close-request-modal aria-label="Cerrar solicitud">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="requestAccessForm" class="request-form">
+        <div id="requestMessage" class="request-banner" style="display: none;"></div>
+
+        <div class="request-form__grid">
+          <div class="form-group">
+            <label for="request_full_name">Tu nombre</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="user"></i>
+              </span>
+              <input type="text" id="request_full_name" required placeholder="Nombre del responsable" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_email">Correo</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="mail"></i>
+              </span>
+              <input type="email" id="request_email" required placeholder="correo@negocio.com" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_restaurant_name">Nombre del restaurante</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="store"></i>
+              </span>
+              <input type="text" id="request_restaurant_name" required placeholder="Mi Restaurante" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_business_count">Cantidad de negocios</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="building-2"></i>
+              </span>
+              <input type="number" id="request_business_count" min="1" value="1" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_phone">Teléfono</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="phone"></i>
+              </span>
+              <input type="text" id="request_phone" placeholder="+51 999 999 999" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_city">Ciudad / país</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="map-pinned"></i>
+              </span>
+              <input type="text" id="request_city" placeholder="Chimbote, Perú" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_applicant_role">Tu rol hoy</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="briefcase-business"></i>
+              </span>
+              <input type="text" id="request_applicant_role" placeholder="Dueño, gerente, administrador..." />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="request_legal_owner_name">Razón social o propietario</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <i data-lucide="badge-check"></i>
+              </span>
+              <input type="text" id="request_legal_owner_name" placeholder="Razón social o nombre legal" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="request_notes">Cuéntanos qué necesitas</label>
+          <textarea id="request_notes" class="request-textarea" rows="4" placeholder="Ejemplo: necesito controlar caja, pedidos y almacén en dos locales."></textarea>
+        </div>
+
+        <div class="request-form__actions">
+          <button type="button" class="btn btn--secondary" data-close-request-modal>Cerrar</button>
+          <button type="submit" class="btn btn--primary" id="requestSubmitBtn">
+            <i data-lucide="send"></i>
+            Enviar solicitud
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script type="module">
     import { supabase } from './scripts/supabase.js';
+    import { submitAccessRequest } from './scripts/access-requests.js';
     import { initializeThemeToggle } from './scripts/navigation.js';
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -122,6 +250,40 @@
       const errorMsg = document.getElementById('errorMessage');
       const passwordInput = document.getElementById('password');
       const passwordToggle = document.getElementById('passwordToggle');
+      const requestModal = document.getElementById('requestModal');
+      const requestForm = document.getElementById('requestAccessForm');
+      const requestMessage = document.getElementById('requestMessage');
+      const requestSubmitBtn = document.getElementById('requestSubmitBtn');
+      const openRequestModalBtn = document.getElementById('openRequestModal');
+      const requestCityInput = document.getElementById('request_city');
+
+      const openRequestModal = () => {
+        requestMessage.style.display = 'none';
+        requestModal.classList.add('request-modal--open');
+        requestModal.setAttribute('aria-hidden', 'false');
+      };
+
+      const closeRequestModal = () => {
+        requestModal.classList.remove('request-modal--open');
+        requestModal.setAttribute('aria-hidden', 'true');
+      };
+
+      openRequestModalBtn?.addEventListener('click', openRequestModal);
+      requestModal?.querySelectorAll('[data-close-request-modal]').forEach((button) => {
+        button.addEventListener('click', closeRequestModal);
+      });
+
+      requestModal?.addEventListener('click', (event) => {
+        if (event.target === requestModal) {
+          closeRequestModal();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && requestModal?.classList.contains('request-modal--open')) {
+          closeRequestModal();
+        }
+      });
 
       passwordToggle?.addEventListener('click', () => {
         const showPassword = passwordInput.type === 'password';
@@ -129,6 +291,54 @@
         passwordToggle.setAttribute('aria-label', showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
         passwordToggle.innerHTML = `<i data-lucide="${showPassword ? 'eye-off' : 'eye'}"></i>`;
         window.lucide.createIcons();
+      });
+
+      requestForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        requestSubmitBtn.disabled = true;
+        requestSubmitBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Enviando...';
+        requestMessage.style.display = 'none';
+        window.lucide.createIcons();
+
+        const rawLocation = requestCityInput.value.trim();
+        const [city = '', country = ''] = rawLocation.split(',').map((value) => value.trim());
+
+        const { error } = await submitAccessRequest({
+          fullName: document.getElementById('request_full_name').value,
+          email: document.getElementById('request_email').value,
+          restaurantName: document.getElementById('request_restaurant_name').value,
+          businessCount: document.getElementById('request_business_count').value,
+          phone: document.getElementById('request_phone').value,
+          city,
+          country,
+          applicantRole: document.getElementById('request_applicant_role').value,
+          legalOwnerName: document.getElementById('request_legal_owner_name').value,
+          notes: document.getElementById('request_notes').value,
+          source: 'login',
+        });
+
+        if (error) {
+          requestMessage.textContent = 'No pudimos registrar tu solicitud ahora mismo. Verifica los datos e intenta nuevamente.';
+          requestMessage.className = 'request-banner request-banner--error';
+          requestMessage.style.display = 'block';
+          requestSubmitBtn.disabled = false;
+          requestSubmitBtn.innerHTML = '<i data-lucide="send"></i> Enviar solicitud';
+          window.lucide.createIcons();
+          return;
+        }
+
+        requestForm.reset();
+        requestMessage.textContent = 'Solicitud enviada. Nuestro equipo revisará tu información y te contactará por correo.';
+        requestMessage.className = 'request-banner request-banner--success';
+        requestMessage.style.display = 'block';
+        requestSubmitBtn.disabled = false;
+        requestSubmitBtn.innerHTML = '<i data-lucide="send"></i> Enviar solicitud';
+        window.lucide.createIcons();
+
+        window.setTimeout(() => {
+          closeRequestModal();
+        }, 1200);
       });
 
       form.addEventListener('submit', async (e) => {

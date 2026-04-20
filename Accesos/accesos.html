@@ -24,8 +24,56 @@
       .accesos-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
+        gap: var(--space-4);
         margin-bottom: var(--space-6);
+      }
+      .accesos-overview {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+      .overview-card {
+        display: grid;
+        gap: var(--space-2);
+        padding: var(--space-5);
+        border: 1px solid var(--color-border);
+        border-radius: 20px;
+        background: linear-gradient(180deg, var(--color-surface), rgba(255, 255, 255, 0.86));
+      }
+      .overview-card span {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+      }
+      .overview-card strong {
+        font-size: 34px;
+        line-height: 1;
+      }
+      .overview-card p {
+        color: var(--color-text-muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .request-feedback {
+        margin-bottom: var(--space-5);
+        padding: var(--space-4);
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .request-feedback--success {
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.16);
+        color: #047857;
+      }
+      .request-feedback--error {
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.18);
+        color: #dc2626;
       }
       .users-table-container {
         overflow-x: auto;
@@ -51,43 +99,74 @@
       }
       .action-btns {
         display: flex;
+        flex-wrap: wrap;
         gap: var(--space-2);
       }
-      .admin-form-group {
+      .request-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px;
+        padding: 0 var(--space-3);
+        border-radius: var(--radius-full);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .request-pill--pending {
+        background: rgba(245, 158, 11, 0.12);
+        color: #b45309;
+      }
+      .request-pill--reviewing {
+        background: rgba(14, 165, 233, 0.12);
+        color: #0369a1;
+      }
+      .request-pill--approved {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+      }
+      .request-pill--rejected {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b91c1c;
+      }
+      .request-meta {
         display: grid;
-        gap: var(--space-2);
-        margin-bottom: var(--space-4);
+        gap: 6px;
       }
-      .admin-form-group select, .admin-form-group input {
-        height: 48px;
-        padding: 0 var(--space-4);
-        border-radius: 12px;
-        border: 1px solid var(--color-border);
-        background: rgba(255, 255, 255, 0.5);
-        color: var(--color-text);
+      .request-meta strong {
         font-size: 15px;
       }
-      body[data-theme="dark"] .admin-form-group select,
-      body[data-theme="dark"] .admin-form-group input {
-        background: rgba(10, 15, 29, 0.5);
+      .request-meta span,
+      .request-meta small {
+        color: var(--color-text-muted);
+        line-height: 1.5;
       }
-      
-      .modal-creation {
-        position: fixed; inset: 0;
-        background: rgba(0,0,0,0.5);
-        display: flex; justify-content: center; align-items: center;
-        z-index: 100;
-        opacity: 0; pointer-events: none;
-        transition: opacity 0.2s;
+      .request-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
       }
-      .modal-creation.active {
-        opacity: 1; pointer-events: auto;
+      .request-role-select {
+        height: 40px;
+        min-width: 150px;
+        padding: 0 var(--space-3);
+        border-radius: 12px;
+        border: 1px solid var(--color-border);
+        background: rgba(255, 255, 255, 0.65);
+        color: var(--color-text);
+        font-size: 14px;
       }
-      .modal-content {
-        background: var(--color-bg);
-        width: 100%; max-width: 450px;
-        padding: var(--space-6);
-        border-radius: 24px;
+      body[data-theme="dark"] .request-role-select {
+        background: rgba(10, 15, 29, 0.56);
+      }
+      @media (max-width: 900px) {
+        .accesos-overview {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 700px) {
+        .accesos-header {
+          flex-direction: column;
+        }
       }
     </style>
   </head>
@@ -128,65 +207,51 @@
         <main class="dashboard">
           <div class="accesos-header">
             <div>
-              <h2>Usuarios del sistema</h2>
-              <p style="color:var(--color-text-muted); font-size: 14px;">Administra los empleados y sus roles</p>
+              <h2>Solicitudes de acceso</h2>
+              <p style="color:var(--color-text-muted); font-size: 14px;">Seguimiento comercial, revisión y aprobación de nuevos restaurantes.</p>
             </div>
-            <button class="btn btn--primary" onclick="window.toggleModal(true)">
-              <i data-lucide="plus"></i> Crear Nuevo Usuario
+            <button class="btn btn--secondary" id="refreshRequestsBtn">
+              <i data-lucide="refresh-cw"></i> Actualizar
             </button>
           </div>
+
+          <div class="accesos-overview">
+            <div class="overview-card">
+              <span>Pendientes</span>
+              <strong id="metricPending">0</strong>
+              <p>Solicitudes nuevas listas para primer contacto.</p>
+            </div>
+            <div class="overview-card">
+              <span>En revisión</span>
+              <strong id="metricReviewing">0</strong>
+              <p>Leads que ya están siendo gestionados por tu equipo.</p>
+            </div>
+            <div class="overview-card">
+              <span>Aprobadas</span>
+              <strong id="metricApproved">0</strong>
+              <p>Solicitudes que ya recibieron invitación al sistema.</p>
+            </div>
+          </div>
+
+          <div id="requestFeedback" class="request-feedback" style="display: none;"></div>
 
           <div class="users-table-container">
             <table class="users-table">
               <thead>
                 <tr>
-                  <th>Correo</th>
-                  <th>Rol</th>
+                  <th>Solicitante</th>
+                  <th>Negocio</th>
+                  <th>Seguimiento</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
-              <tbody id="usersTableBody">
-                <tr><td colspan="4" style="text-align: center;">Cargando usuarios...</td></tr>
+              <tbody id="requestsTableBody">
+                <tr><td colspan="5" style="text-align: center;">Cargando solicitudes...</td></tr>
               </tbody>
             </table>
           </div>
         </main>
-      </div>
-    </div>
-
-    <!-- Modal de Creación -->
-    <div class="modal-creation" id="creationModal">
-      <div class="modal-content card">
-        <h3 style="margin-bottom: var(--space-4)">Nuevo Usuario</h3>
-        <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: var(--space-4);">El usuario recibirá un correo con instrucciones para iniciar sesión.</p>
-        
-        <form id="createUserForm">
-          <div class="admin-form-group">
-            <label for="new_email">Correo Electrónico</label>
-            <input type="email" id="new_email" required />
-          </div>
-          <div class="admin-form-group">
-            <label for="new_password">Contraseña (Temporal)</label>
-            <input type="text" id="new_password" required />
-          </div>
-          <div class="admin-form-group">
-            <label for="new_role">Rol Asignado</label>
-            <select id="new_role" required>
-              <option value="admin">Administrador Central</option>
-              <option value="caja">Caja</option>
-              <option value="chef">Chef / Cocina</option>
-              <option value="pedidos">Pedidos / Delivery</option>
-              <option value="almacen">Almacén</option>
-              <option value="marketing">Marketing / Fidelización</option>
-            </select>
-          </div>
-          
-          <div style="display: flex; gap: var(--space-3); justify-content: flex-end; margin-top: var(--space-6);">
-            <button type="button" class="btn btn--secondary" onclick="window.toggleModal(false)">Cancelar</button>
-            <button type="submit" class="btn btn--primary" id="btnCreateUser">Crear y Enviar Acceso</button>
-          </div>
-        </form>
       </div>
     </div>
 
