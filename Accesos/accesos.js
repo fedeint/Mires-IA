@@ -6,7 +6,7 @@ import {
   getStatusLabel,
   listAccessRequests,
   updateAccessRequest,
-} from "../scripts/access-requests.js";
+} from "../scripts/access-requests.js?v=20260420-accessfix2";
 
 const tableBody = document.getElementById("requestsTableBody");
 const feedback = document.getElementById("requestFeedback");

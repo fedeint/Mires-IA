@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase, supabaseKey, supabaseUrl } from "./supabase.js";
 
 const ACCESS_REQUEST_COLUMNS = `
   id,
@@ -84,9 +84,38 @@ export async function approveAccessRequest(requestId, role, action = "approve") 
     };
   }
 
-  return supabase.functions.invoke("approve-access-request", {
-    body: { requestId, role, action },
-  });
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/approve-access-request`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ requestId, role, action }),
+    });
+
+    const text = await response.text();
+    const payload = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: {
+          message: payload?.message || `No se pudo completar la activación (${response.status}).`,
+        },
+      };
+    }
+
+    return { data: payload, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: {
+        message: error instanceof Error ? error.message : "Error inesperado al contactar la función de activación.",
+      },
+    };
+  }
 }
 
 export function getStatusLabel(status) {

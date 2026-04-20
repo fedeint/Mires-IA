@@ -4,6 +4,7 @@ const supabaseUrl = 'https://twneirdsvyxsdsneidhi.supabase.co';
 const supabaseKey = 'sb_publishable_A0yo_kDAGY3OamrUOOL9Bw_ShVWdBMF';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+export { supabaseUrl, supabaseKey };
 
 // Obtenemos los metadatos del usuario logueado actualmente
 export async function getCurrentUser() {
