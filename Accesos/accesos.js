@@ -5,8 +5,9 @@ import {
   formatRequestDate,
   getStatusLabel,
   listAccessRequests,
+  notifyAccessRequestEvent,
   updateAccessRequest,
-} from "../scripts/access-requests.js?v=20260420-perms5";
+} from "../scripts/access-requests.js?v=20260420-resend1";
 import {
   deleteUser,
   listUsers,
@@ -295,7 +296,19 @@ window.setRequestStatus = async (requestId, status) => {
     return;
   }
 
-  setFeedback(`Solicitud actualizada a ${getStatusLabel(status).toLowerCase()}.`, "success");
+  let notifySuffix = "";
+  if (status === ACCESS_REQUEST_STATUS.REVIEWING || status === ACCESS_REQUEST_STATUS.REJECTED) {
+    const notifyType = status === ACCESS_REQUEST_STATUS.REVIEWING ? "reviewing" : "rejected";
+    const { error: notifyError } = await notifyAccessRequestEvent(notifyType, requestId);
+    notifySuffix = notifyError
+      ? " (el correo al solicitante no pudo enviarse)"
+      : " y se notificó al solicitante por correo";
+  }
+
+  setFeedback(
+    `Solicitud actualizada a ${getStatusLabel(status).toLowerCase()}${notifySuffix}.`,
+    "success",
+  );
   await loadRequests();
 };
 

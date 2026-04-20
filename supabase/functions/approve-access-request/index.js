@@ -1,9 +1,22 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail } from "../_shared/resend.js";
+import { buildInvitationEmail } from "../_shared/email-templates.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const ROLE_LABELS = {
+  superadmin: "Superadministrador",
+  admin: "Administrador",
+  caja: "Caja",
+  chef: "Chef / Cocina",
+  pedidos: "Pedidos / Delivery",
+  almacen: "Almacén",
+  marketing: "Marketing",
+  demo: "Demo",
 };
 
 function jsonResponse(body, status = 200) {
@@ -130,16 +143,48 @@ Deno.serve(async (request) => {
     inviteMetadata.permissions = permissions;
   }
 
-  const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
-    accessRequest.email,
-    {
+  // Generate the invite link without sending Supabase's default email, so we can
+  // deliver our own branded message through Resend.
+  const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
+    type: "invite",
+    email: accessRequest.email,
+    options: {
       data: inviteMetadata,
       redirectTo,
     },
-  );
+  });
 
-  if (inviteError) {
-    return jsonResponse({ message: inviteError.message }, 400);
+  if (linkError) {
+    return jsonResponse({ message: linkError.message }, 400);
+  }
+
+  const activationUrl = linkData?.properties?.action_link;
+  if (!activationUrl) {
+    return jsonResponse({ message: "No pudimos generar el enlace de activación." }, 500);
+  }
+
+  const { subject, html, text } = buildInvitationEmail({
+    fullName: accessRequest.full_name,
+    restaurantName: accessRequest.restaurant_name,
+    activationUrl,
+    roleLabel: ROLE_LABELS[role] || role,
+  });
+
+  try {
+    await sendEmail({
+      to: accessRequest.email,
+      subject,
+      html,
+      text,
+    });
+  } catch (emailError) {
+    return jsonResponse(
+      {
+        message: "No pudimos enviar el correo de activación vía Resend.",
+        detail: emailError?.message ?? null,
+      },
+      502,
+    );
   }
 
   const now = new Date().toISOString();

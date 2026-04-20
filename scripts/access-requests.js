@@ -49,9 +49,61 @@ export function normalizeAccessRequestPayload(payload) {
 }
 
 export async function submitAccessRequest(payload) {
-  return supabase
+  const insertResult = await supabase
     .from("access_requests")
-    .insert(normalizeAccessRequestPayload(payload));
+    .insert(normalizeAccessRequestPayload(payload))
+    .select("id")
+    .single();
+
+  if (!insertResult.error && insertResult.data?.id) {
+    // Notificación best-effort: confirma al solicitante + avisa al superadmin.
+    // Si falla el envío de correo no rompemos el alta de la solicitud.
+    try {
+      await fetch(`${supabaseUrl}/functions/v1/notify-access-request`, {
+        method: "POST",
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "created", requestId: insertResult.data.id }),
+      });
+    } catch (err) {
+      console.warn("No se pudo enviar la notificación de solicitud recibida:", err);
+    }
+  }
+
+  return insertResult;
+}
+
+export async function notifyAccessRequestEvent(type, requestId) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return { data: null, error: { message: "Sin sesión activa." } };
+  }
+
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/notify-access-request`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type, requestId }),
+    });
+    const text = await response.text();
+    const payload = text ? JSON.parse(text) : null;
+    if (!response.ok) {
+      return { data: null, error: { message: payload?.message || `Error ${response.status}` } };
+    }
+    return { data: payload, error: null };
+  } catch (err) {
+    return { data: null, error: { message: err?.message || "Error al notificar." } };
+  }
 }
 
 export async function listAccessRequests() {

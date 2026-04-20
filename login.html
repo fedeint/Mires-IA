@@ -337,9 +337,9 @@
   </div>
 
   <script type="module">
-    import { supabase } from './scripts/supabase.js?v=20260420-loginfix2';
-    import { submitAccessRequest } from './scripts/access-requests.js?v=20260420-loginfix2';
-    import { initializeThemeToggle } from './scripts/navigation.js?v=20260420-loginfix2';
+    import { supabase, supabaseUrl, supabaseKey } from './scripts/supabase.js?v=20260420-resend1';
+    import { submitAccessRequest } from './scripts/access-requests.js?v=20260420-resend1';
+    import { initializeThemeToggle } from './scripts/navigation.js?v=20260420-resend1';
 
     document.addEventListener("DOMContentLoaded", async () => {
       // CRÍTICO: Activa la visibilidad del body si el CSS lo oculta inicialmente
@@ -543,30 +543,37 @@
         recoveryMessage.style.display = 'none';
         window.lucide.createIcons();
 
-        const basePath = window.location.pathname.endsWith('login.html')
-          ? window.location.pathname.replace('login.html', '')
-          : window.location.pathname;
+        const email = recoveryEmailInput.value.trim().toLowerCase();
 
-        const { error } = await supabase.auth.resetPasswordForEmail(recoveryEmailInput.value, {
-          redirectTo: `${window.location.origin}${basePath}`,
-        });
+        try {
+          const response = await fetch(`${supabaseUrl}/functions/v1/send-recovery-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+            },
+            body: JSON.stringify({ email }),
+          });
 
-        if (error) {
+          if (!response.ok) {
+            const detail = await response.json().catch(() => ({}));
+            throw new Error(detail?.message || 'No se pudo enviar el correo.');
+          }
+
+          recoveryMessage.textContent = 'Si el correo existe, te enviaremos un enlace de recuperación en unos segundos.';
+          recoveryMessage.className = 'request-banner request-banner--success';
+          recoveryMessage.style.display = 'block';
+        } catch (err) {
+          console.error('[recovery]', err);
           recoveryMessage.textContent = 'No pudimos enviar la recuperación. Verifica el correo e inténtalo otra vez.';
           recoveryMessage.className = 'request-banner request-banner--error';
           recoveryMessage.style.display = 'block';
+        } finally {
           recoverySubmitBtn.disabled = false;
           recoverySubmitBtn.innerHTML = '<i data-lucide="send"></i> Enviar recuperación';
           window.lucide.createIcons();
-          return;
         }
-
-        recoveryMessage.textContent = 'Te enviamos un correo para restablecer tu contraseña.';
-        recoveryMessage.className = 'request-banner request-banner--success';
-        recoveryMessage.style.display = 'block';
-        recoverySubmitBtn.disabled = false;
-        recoverySubmitBtn.innerHTML = '<i data-lucide="send"></i> Enviar recuperación';
-        window.lucide.createIcons();
       });
 
       form.addEventListener('submit', async (e) => {

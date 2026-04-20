@@ -1,4 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  sendAccessRevokedToUser,
+  sendAccessRestoredToUser,
+  sendPermissionsUpdatedToUser,
+} from "../_shared/mailer.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,6 +24,11 @@ function jsonResponse(body, status = 200) {
 function isSuperadmin(user) {
   const role = typeof user?.user_metadata?.role === "string" ? user.user_metadata.role : undefined;
   return role === "superadmin";
+}
+
+function getFullName(user) {
+  const name = user?.user_metadata?.full_name;
+  return typeof name === "string" && name.trim() ? name.trim() : null;
 }
 
 Deno.serve(async (request) => {
@@ -123,6 +133,7 @@ Deno.serve(async (request) => {
   }
 
   const targetEmail = (targetData.user.email || "").toLowerCase();
+  const targetFullName = getFullName(targetData.user);
   const protectedAction = action === "revoke" || action === "delete";
   if (PROTECTED_EMAILS.has(targetEmail) && protectedAction) {
     return jsonResponse(
@@ -136,7 +147,15 @@ Deno.serve(async (request) => {
       ban_duration: BAN_DURATION_REVOKE,
     });
     if (error) return jsonResponse({ message: error.message }, 500);
-    return jsonResponse({ message: `Acceso revocado para ${targetEmail}.` });
+
+    const mail = targetEmail
+      ? await sendAccessRevokedToUser({ email: targetEmail, fullName: targetFullName })
+      : { ok: false, error: { message: "Usuario sin correo" } };
+
+    return jsonResponse({
+      message: `Acceso revocado para ${targetEmail}.`,
+      mail,
+    });
   }
 
   if (action === "restore") {
@@ -144,7 +163,15 @@ Deno.serve(async (request) => {
       ban_duration: "none",
     });
     if (error) return jsonResponse({ message: error.message }, 500);
-    return jsonResponse({ message: `Acceso restaurado para ${targetEmail}.` });
+
+    const mail = targetEmail
+      ? await sendAccessRestoredToUser({ email: targetEmail, fullName: targetFullName })
+      : { ok: false, error: { message: "Usuario sin correo" } };
+
+    return jsonResponse({
+      message: `Acceso restaurado para ${targetEmail}.`,
+      mail,
+    });
   }
 
   if (action === "delete") {
@@ -162,7 +189,20 @@ Deno.serve(async (request) => {
       user_metadata: { ...currentMetadata, role: newRole },
     });
     if (error) return jsonResponse({ message: error.message }, 500);
-    return jsonResponse({ message: `Rol de ${targetEmail} actualizado a ${newRole}.` });
+
+    const mail = targetEmail
+      ? await sendPermissionsUpdatedToUser({
+          email: targetEmail,
+          fullName: targetFullName,
+          role: newRole,
+          permissions: Array.isArray(currentMetadata.permissions) ? currentMetadata.permissions : [],
+        })
+      : { ok: false, error: { message: "Usuario sin correo" } };
+
+    return jsonResponse({
+      message: `Rol de ${targetEmail} actualizado a ${newRole}.`,
+      mail,
+    });
   }
 
   if (action === "update_permissions") {
@@ -184,8 +224,19 @@ Deno.serve(async (request) => {
       user_metadata: nextMetadata,
     });
     if (error) return jsonResponse({ message: error.message }, 500);
+
+    const mail = targetEmail
+      ? await sendPermissionsUpdatedToUser({
+          email: targetEmail,
+          fullName: targetFullName,
+          role: nextRole,
+          permissions: cleaned,
+        })
+      : { ok: false, error: { message: "Usuario sin correo" } };
+
     return jsonResponse({
       message: `Módulos actualizados para ${targetEmail} (${cleaned.length} habilitados).`,
+      mail,
     });
   }
 
