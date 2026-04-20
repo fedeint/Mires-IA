@@ -1,4 +1,4 @@
-const CACHE_VERSION = "mirest-pwa-v3";
+const CACHE_VERSION = "mirest-pwa-v4";
 
 const CORE_ASSETS = [
   "/",
@@ -51,17 +51,25 @@ self.addEventListener("fetch", (event) => {
   const isStaticAsset = ["script", "style", "worker"].includes(req.destination);
   const shouldUseNetworkFirst = isDocument || isStaticAsset || url.pathname === "/login.html";
 
+  const cacheResponse = (response) => {
+    const isCacheable =
+      response &&
+      response.ok &&
+      response.status !== 206 &&
+      !req.headers.has("range") &&
+      !url.pathname.startsWith("/api/");
+
+    if (!isCacheable) return response;
+
+    const clone = response.clone();
+    caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone)).catch(() => null);
+    return response;
+  };
+
   if (shouldUseNetworkFirst) {
     event.respondWith(
       fetch(req)
-        .then((resp) => {
-          const isCacheable = resp && resp.ok && !url.pathname.startsWith("/api/");
-          if (isCacheable) {
-            const clone = resp.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone));
-          }
-          return resp;
-        })
+        .then(cacheResponse)
         .catch(() => caches.match(req))
     );
     return;
@@ -72,14 +80,7 @@ self.addEventListener("fetch", (event) => {
       if (cached) return cached;
 
       return fetch(req)
-        .then((resp) => {
-          const isCacheable = resp && resp.ok && !url.pathname.startsWith("/api/");
-          if (isCacheable) {
-            const clone = resp.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone));
-          }
-          return resp;
-        })
+        .then(cacheResponse)
         .catch(() => cached)
     })
   );

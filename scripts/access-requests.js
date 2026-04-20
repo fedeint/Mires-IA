@@ -70,6 +70,20 @@ export async function updateAccessRequest(id, changes) {
 }
 
 export async function approveAccessRequest(requestId, role, action = "approve") {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session) {
+    return {
+      data: null,
+      error: {
+        message: "Tu sesión de administrador expiró. Vuelve a iniciar sesión antes de gestionar activaciones.",
+      },
+    };
+  }
+
   return supabase.functions.invoke("approve-access-request", {
     body: { requestId, role, action },
   });
