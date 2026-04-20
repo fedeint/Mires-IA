@@ -329,6 +329,34 @@ body[data-theme="dark"] .access-request-entry {
   height: 18px;
 }
 
+.auth-help-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.login-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-primary-500);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-text-link svg {
+  width: 15px;
+  height: 15px;
+}
+
 .login-helper {
   display: flex;
   align-items: flex-start;
@@ -405,6 +433,10 @@ body[data-theme="dark"] .login-helper {
   border-radius: 28px;
 }
 
+.request-modal__dialog--compact {
+  width: min(520px, 100%);
+}
+
 .request-modal__header {
   display: flex;
   align-items: flex-start;
@@ -435,9 +467,70 @@ body[data-theme="dark"] .login-helper {
   gap: var(--space-5);
 }
 
+.request-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.request-progress__item {
+  display: grid;
+  gap: 6px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.66);
+  transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-base);
+}
+
+.request-progress__item span {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.request-progress__item strong {
+  font-size: 13px;
+}
+
+.request-progress__item--active {
+  border-color: rgba(240, 124, 42, 0.22);
+  background: rgba(255, 241, 230, 0.72);
+  transform: translateY(-1px);
+}
+
+.request-progress__item--active span,
+.request-progress__item--complete span {
+  background: var(--color-primary-gradient);
+  color: #ffffff;
+}
+
+.request-progress__item--complete {
+  border-color: rgba(16, 185, 129, 0.18);
+}
+
+.request-form__step {
+  display: none;
+}
+
+.request-form__step--active {
+  display: block;
+}
+
 .request-form__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.request-form__stack {
+  display: grid;
   gap: var(--space-4);
 }
 
@@ -470,6 +563,7 @@ body[data-theme="dark"] .request-textarea {
 .request-form__actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-3);
 }
 
@@ -490,6 +584,66 @@ body[data-theme="dark"] .request-textarea {
   border: 1px solid rgba(239, 68, 68, 0.18);
   background: rgba(239, 68, 68, 0.08);
   color: #dc2626;
+}
+
+.request-review {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid rgba(14, 165, 233, 0.12);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(240, 249, 255, 0.74), rgba(255, 255, 255, 0.82));
+}
+
+.request-review__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-info);
+}
+
+.request-review__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.request-review__item {
+  display: grid;
+  gap: 6px;
+  padding: var(--space-3);
+  border: 1px solid rgba(14, 165, 233, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.request-review__item span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.request-review__item strong {
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+body[data-theme="dark"] .request-progress__item {
+  background: rgba(10, 15, 29, 0.48);
+}
+
+body[data-theme="dark"] .request-progress__item--active {
+  background: rgba(246, 164, 86, 0.12);
+}
+
+body[data-theme="dark"] .request-review {
+  border-color: rgba(14, 165, 233, 0.16);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), rgba(23, 29, 51, 0.72));
+}
+
+body[data-theme="dark"] .request-review__item {
+  border-color: rgba(14, 165, 233, 0.14);
+  background: rgba(10, 15, 29, 0.42);
 }
 
 @media (max-width: 560px) {
@@ -535,7 +689,17 @@ body[data-theme="dark"] .request-textarea {
     grid-template-columns: 1fr;
   }
 
+  .request-progress,
+  .request-review__grid {
+    grid-template-columns: 1fr;
+  }
+
   .request-form__actions {
     flex-direction: column-reverse;
+  }
+
+  .auth-help-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

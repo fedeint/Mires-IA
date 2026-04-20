@@ -1,4 +1,4 @@
-const CACHE_VERSION = "mirest-pwa-v2";
+const CACHE_VERSION = "mirest-pwa-v3";
 
 const CORE_ASSETS = [
   "/",
@@ -46,6 +46,26 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  const isDocument = req.mode === "navigate" || req.destination === "document";
+  const isStaticAsset = ["script", "style", "worker"].includes(req.destination);
+  const shouldUseNetworkFirst = isDocument || isStaticAsset || url.pathname === "/login.html";
+
+  if (shouldUseNetworkFirst) {
+    event.respondWith(
+      fetch(req)
+        .then((resp) => {
+          const isCacheable = resp && resp.ok && !url.pathname.startsWith("/api/");
+          if (isCacheable) {
+            const clone = resp.clone();
+            caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone));
+          }
+          return resp;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(req).then((cached) => {

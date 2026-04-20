@@ -54,7 +54,7 @@ Deno.serve(async (request) => {
     return jsonResponse({ message: "Sesión inválida o expirada" }, 401);
   }
 
-  const { requestId, role } = await request.json();
+  const { requestId, role, action = "approve" } = await request.json();
   if (!requestId || !role) {
     return jsonResponse({ message: "Faltan requestId o role" }, 400);
   }
@@ -76,8 +76,12 @@ Deno.serve(async (request) => {
     return jsonResponse({ message: "No se encontró la solicitud de acceso" }, 404);
   }
 
-  if (accessRequest.status === "approved") {
-    return jsonResponse({ message: "La solicitud ya fue aprobada anteriormente" }, 409);
+  if (action !== "approve" && action !== "resend") {
+    return jsonResponse({ message: "Acción no permitida" }, 400);
+  }
+
+  if (action === "approve" && accessRequest.status === "approved") {
+    return jsonResponse({ message: "La solicitud ya fue aprobada. Usa reenvío si necesitas reenviar la activación." }, 409);
   }
 
   const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(accessRequest.email, {
@@ -98,7 +102,7 @@ Deno.serve(async (request) => {
     .update({
       status: "approved",
       approved_role: role,
-      approved_at: now,
+      approved_at: accessRequest.approved_at || now,
       invite_sent_at: now,
       approved_by: user.id,
       rejected_at: null,
@@ -110,6 +114,9 @@ Deno.serve(async (request) => {
   }
 
   return jsonResponse({
-    message: `Solicitud aprobada e invitación enviada a ${accessRequest.email}.`,
+    message:
+      action === "resend"
+        ? `Activación reenviada a ${accessRequest.email}.`
+        : `Solicitud aprobada e invitación enviada a ${accessRequest.email}.`,
   });
 });

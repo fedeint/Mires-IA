@@ -50,9 +50,7 @@ export function normalizeAccessRequestPayload(payload) {
 export async function submitAccessRequest(payload) {
   return supabase
     .from("access_requests")
-    .insert(normalizeAccessRequestPayload(payload))
-    .select("id, status, created_at")
-    .single();
+    .insert(normalizeAccessRequestPayload(payload));
 }
 
 export async function listAccessRequests() {
@@ -71,9 +69,9 @@ export async function updateAccessRequest(id, changes) {
     .single();
 }
 
-export async function approveAccessRequest(requestId, role) {
+export async function approveAccessRequest(requestId, role, action = "approve") {
   return supabase.functions.invoke("approve-access-request", {
-    body: { requestId, role },
+    body: { requestId, role, action },
   });
 }
 

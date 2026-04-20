@@ -59,6 +59,10 @@ function buildRow(request) {
   const notes = request.notes ? `<small>${escapeHtml(request.notes)}</small>` : "<small>Sin notas registradas.</small>";
   const roleValue = request.approved_role || "admin";
 
+  const activationCta = request.status === ACCESS_REQUEST_STATUS.APPROVED
+    ? `<button class="btn btn--secondary" type="button" onclick="window.resendActivation('${request.id}')">Reenviar activación</button>`
+    : `<button class="btn btn--primary" type="button" onclick="window.approveRequest('${request.id}')">Aprobar y enviar activación</button>`;
+
   return `
     <tr>
       <td>
@@ -99,7 +103,7 @@ function buildRow(request) {
             <option value="marketing" ${roleValue === "marketing" ? "selected" : ""}>Marketing</option>
           </select>
           <button class="btn btn--secondary" type="button" onclick="window.setRequestStatus('${request.id}', 'reviewing')">En revisión</button>
-          <button class="btn btn--primary" type="button" onclick="window.approveRequest('${request.id}')">Aprobar</button>
+          ${activationCta}
           <button class="btn btn--secondary" type="button" onclick="window.setRequestStatus('${request.id}', 'rejected')">Rechazar</button>
         </div>
       </td>
@@ -163,11 +167,25 @@ window.approveRequest = async (requestId) => {
 
   const { data, error } = await approveAccessRequest(requestId, role);
   if (error) {
-    setFeedback(error.message || "No se pudo aprobar la solicitud ni enviar la invitación.", "error");
+    setFeedback(error.message || "No se pudo aprobar la solicitud ni enviar la activación.", "error");
     return;
   }
 
-  setFeedback(data?.message || "Solicitud aprobada. La invitación fue enviada por correo.", "success");
+  setFeedback(data?.message || "Solicitud aprobada. La activación fue enviada por correo.", "success");
+  await loadRequests();
+};
+
+window.resendActivation = async (requestId) => {
+  const roleSelect = document.querySelector(`[data-role-select="${requestId}"]`);
+  const role = roleSelect?.value || "admin";
+
+  const { data, error } = await approveAccessRequest(requestId, role, "resend");
+  if (error) {
+    setFeedback(error.message || "No se pudo reenviar la activación.", "error");
+    return;
+  }
+
+  setFeedback(data?.message || "La activación fue reenviada por correo.", "success");
   await loadRequests();
 };
 
