@@ -1,3 +1,26 @@
+/* Páginas auth (html.auth-shell vía login/activate/recuperar): scroll sin barra visible */
+html.auth-shell {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.auth-shell::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+html.auth-shell body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.auth-shell body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .login-container {
   /* flex-start: en móvil el contenido puede superar 100dvh; el grid + place-items:center
      centraba en una “ventana” de altura fija y impedía hacer scroll hasta el final. */
@@ -482,9 +505,17 @@ body[data-theme="dark"] .error-banner--info {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-base);
+}
+
+.request-modal::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .request-modal--open {
