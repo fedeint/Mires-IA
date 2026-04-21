@@ -516,9 +516,18 @@ body[data-theme="dark"] .error-banner--info {
   position: fixed;
   inset: 0;
   z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: var(--space-4);
+  /* Antes: grid + place-items:center → en móvil el diálogo alto quedaba recortado y no había scroll */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: max(var(--space-4), env(safe-area-inset-top))
+    max(var(--space-4), env(safe-area-inset-right))
+    max(var(--space-4), env(safe-area-inset-bottom))
+    max(var(--space-4), env(safe-area-inset-left));
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-base);
@@ -530,8 +539,9 @@ body[data-theme="dark"] .error-banner--info {
 }
 
 .request-modal__backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 0;
   background: rgba(15, 23, 42, 0.42);
   backdrop-filter: blur(6px);
 }
@@ -539,7 +549,10 @@ body[data-theme="dark"] .error-banner--info {
 .request-modal__dialog {
   position: relative;
   z-index: 1;
+  flex: 0 0 auto;
   width: min(760px, 100%);
+  max-width: 100%;
+  margin-bottom: var(--space-6);
   padding: var(--space-8);
   border-radius: 28px;
 }
@@ -731,9 +744,15 @@ body[data-theme="dark"] .request-progress__item--active {
     grid-template-columns: 1fr;
   }
 
+  .request-modal {
+    padding-top: max(var(--space-3), env(safe-area-inset-top));
+    padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  }
+
   .request-modal__dialog {
     padding: var(--space-6);
     border-radius: 24px;
+    margin-bottom: var(--space-8);
   }
 
   .request-modal__header {
