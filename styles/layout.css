@@ -170,6 +170,8 @@ body[data-theme="dark"] .topbar {
   .app-main {
     width: 100%;
     padding-top: calc(96px + env(safe-area-inset-top));
+    overflow-x: hidden;
+    overflow-y: visible;
   }
 
   .sidebar {

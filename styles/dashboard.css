@@ -682,6 +682,14 @@ body[data-theme="dark"] .checklist-progress {
   }
 }
 
+@media (max-width: 860px) {
+  /* overflow:hidden en el hero recortaba sombras; en móvil solo recortamos el eje X */
+  .hero-panel {
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+}
+
 @media (max-width: 640px) {
   .hero-panel {
     padding: var(--space-5);

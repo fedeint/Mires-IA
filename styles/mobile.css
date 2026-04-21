@@ -580,15 +580,25 @@
   }
 }
 
-/* ---------- Prevent horizontal scroll ---------- */
-html,
+/* ---------- Scroll móvil: no bloquear el eje Y ----------
+   Poner overflow-x en html y body a la vez hace que WebKit/iOS traten el
+   documento como “viewport rígido” y el contenido largo no se desplace. */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 860px) {
   body {
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: auto;
   }
 }
 
