@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f07c2a" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="./scripts/gtag-config.js"></script>
     <title>MiRest con IA | Dashboard base</title>
     <meta
       name="description"
@@ -84,12 +86,6 @@
             </div>
           </div>
         </nav>
-
-        <div class="sidebar__footer card card--sidebar">
-          <span class="sidebar__footer-label">Estado del shell</span>
-          <strong>Listo para trabajo en paralelo</strong>
-          <p>Navegación y estructura listas.</p>
-        </div>
       </aside>
 
       <button
@@ -130,9 +126,9 @@
         <main class="dashboard">
           <section class="hero-panel card">
             <div class="hero-panel__content">
-              <span class="chip chip--accent">Operación en vivo</span>
+              <span class="chip chip--accent">Resumen operativo</span>
               <h2>Controla ventas, pedidos y stock de tu restaurante en un solo lugar.</h2>
-              <p>Resumen del día con tus métricas clave y acceso rápido a cada módulo operativo.</p>
+              <p>Las cifras se calculan con datos de tu cuenta (Supabase). Si aún no hay movimiento operativo, verás ceros.</p>
 
               <div class="hero-panel__actions">
                 <a class="btn btn--primary" href="#moduleGrid">Ver módulos</a>
@@ -242,9 +238,9 @@
                     <span class="eyebrow">Operación actual</span>
                     <h3>Hoy en tu restaurante</h3>
                   </div>
-                  <span class="live-chip">
+                  <span class="live-chip live-chip--muted" title="Valores al cargar el panel">
                     <span class="live-chip__dot"></span>
-                    En vivo
+                    Datos del sistema
                   </span>
                 </div>
                 <div id="systemHighlights" class="ops-grid">
@@ -292,7 +288,7 @@
                       <h3>DalIA dice</h3>
                     </div>
                   </div>
-                  <span class="chip chip--soft">Consejos</span>
+                  <span class="chip chip--soft">Resumen</span>
                 </div>
                 <ul id="insightsList" class="insight-list">
                   <li class="insight-skeleton" aria-hidden="true">
@@ -377,7 +373,7 @@
       <i data-lucide="moon"></i>
     </button>
 
-    <script type="module" src="./scripts/app.js?v=20260421-skeleton-dash"></script>
+    <script type="module" src="./scripts/app.js?v=20260421-dashboard-real"></script>
     <script src="./scripts/dalia-widget.js?v=20260422-dalia-dock"></script>
   </body>
 </html>

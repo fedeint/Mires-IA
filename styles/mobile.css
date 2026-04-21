@@ -226,6 +226,29 @@
   }
 }
 
+@media (max-width: 860px) {
+  .submenu-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .submenu-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .submenu-card__label {
+    font-size: 1rem;
+  }
+  .submenu-card__desc {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .submenu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Dashboard aside: tighter panels ---------- */
 @media (max-width: 860px) {
   .info-panel {

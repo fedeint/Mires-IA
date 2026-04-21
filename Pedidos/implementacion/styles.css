@@ -317,31 +317,6 @@ body[data-module-key="pedidos"].sidebar-open .sidebar-backdrop {
   color: #fff;
 }
 
-.active-module-card {
-  margin: 12px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  display: grid;
-  gap: 4px;
-}
-
-.active-module-card .sidebar__label {
-  padding: 0;
-  margin-bottom: 4px;
-}
-
-.active-module-card strong {
-  font-size: 17px;
-  color: #fff;
-}
-
-.active-module-card span {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.48);
-}
-
 .profile-card {
   display: flex;
   align-items: center;

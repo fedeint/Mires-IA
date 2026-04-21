@@ -1,110 +1,171 @@
 import { getModulesByRole, toHref } from "./navigation.js";
+import { fetchDashboardSnapshot } from "./dashboard-metrics.js";
+import { supabase } from "./supabase.js";
 
-const DEMO_METRICS = [
-  { value: "S/ 2,845", label: "Ventas de hoy", delta: "+12% vs ayer", icon: "banknote", tone: "accent" },
-  { value: "18", label: "Pedidos en curso", delta: "8 delivery · 10 salón", icon: "shopping-bag", tone: "info" },
-  { value: "S/ 42.10", label: "Ticket promedio", delta: "+S/ 3.40 vs ayer", icon: "receipt", tone: "success" },
-  { value: "4", label: "Insumos en riesgo", delta: "Revisar almacén", icon: "package-open", tone: "warning" },
-];
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
-const DEMO_OPERATIONS = [
-  {
-    label: "Mesas activas",
-    value: "12/18",
-    hint: "Ocupación 67%",
-    icon: "utensils-crossed",
-    tone: "accent",
-    progress: 67,
-    delta: "+4 vs hora previa",
-    trend: "up",
-  },
-  {
-    label: "Delivery en ruta",
-    value: "6",
-    hint: "Tiempo estimado 22 min",
-    icon: "bike",
-    tone: "info",
-    progress: null,
-    delta: "2 zonas activas",
-    trend: "neutral",
-  },
-  {
-    label: "Tiempo cocina",
-    value: "14 min",
-    hint: "Objetivo < 18 min",
-    icon: "timer",
-    tone: "success",
-    progress: 78,
-    delta: "-2 min vs ayer",
-    trend: "down",
-  },
-];
+function formatPen(value) {
+  const n = Number(value) || 0;
+  return `S/ ${n.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
 
-const DEMO_INSIGHTS = {
-  admin: [
-    { icon: "trending-up", tag: "Oportunidad", text: "Activa el módulo de reportes para ver márgenes por categoría." },
-    { icon: "banknote", tag: "Ventas", text: "Tu ticket promedio subió S/ 3.40. Revisa qué promociones ayudaron." },
-    { icon: "package-open", tag: "Alerta", text: "Cuatro insumos bajaron del stock mínimo. Genera orden de compra." },
-  ],
-  caja: [
-    { icon: "receipt", tag: "Cierre", text: "Cierra caja con el reporte Z antes de salir de turno." },
-    { icon: "wallet", tag: "Conciliación", text: "Reconcilia Yape/Plin con el total cobrado hoy." },
-    { icon: "gift", tag: "Control", text: "Registra las cortesías para no descuadrar el inventario." },
-  ],
-  chef: [
-    { icon: "flame", tag: "Prioridad", text: "Prioriza pedidos con más de 12 minutos en cola." },
-    { icon: "package", tag: "Stock", text: "Revisa el stock de insumos antes del rush de la noche." },
-    { icon: "chef-hat", tag: "Recetas", text: "Usa el módulo de recetas para mantener porciones estándar." },
-  ],
-  pedidos: [
-    { icon: "map-pin", tag: "Ruta", text: "Asigna delivery por zona para reducir tiempos de entrega." },
-    { icon: "check-circle", tag: "Seguimiento", text: "Actualiza el estado de los pedidos en cada fase operativa." },
-    { icon: "clock", tag: "Alerta", text: "Las rutas largas suman más de 35 min, considera redistribuirlas." },
-  ],
-  almacen: [
-    { icon: "box", tag: "Stock", text: "Revisa el reporte de insumos críticos antes de cerrar el día." },
-    { icon: "trash-2", tag: "Mermas", text: "Registra las mermas con motivo para mejorar la trazabilidad." },
-    { icon: "calendar", tag: "Planificación", text: "Agenda el conteo cíclico cada lunes al abrir." },
-  ],
-  marketing: [
-    { icon: "heart", tag: "Crecimiento", text: "Los clientes frecuentes crecieron 8% esta semana." },
-    { icon: "megaphone", tag: "Campaña", text: "Lanza una promoción para el segundo turno de la noche." },
-    { icon: "sparkles", tag: "IA", text: "Activa el módulo de IA para segmentar campañas por historial." },
-  ],
-  demo: [
-    { icon: "sparkles", tag: "Demo", text: "Estás viendo datos de demostración. Conecta tu punto de venta para ver datos reales." },
-    { icon: "compass", tag: "Explora", text: "Explora los módulos: Pedidos, Caja, Cocina, Productos y más." },
-    { icon: "shield", tag: "Acceso", text: "Los módulos de Configuración y Accesos están reservados al administrador." },
-  ],
-};
+function salesDeltaText(salesToday, salesYesterday) {
+  if (salesToday === 0 && salesYesterday === 0) return "Sin cobros registrados hoy";
+  if (salesYesterday <= 0) return salesToday > 0 ? "Sin cobros de referencia ayer" : "Sin cobros hoy";
+  const pct = Math.round(((salesToday - salesYesterday) / salesYesterday) * 1000) / 10;
+  const sign = pct >= 0 ? "+" : "";
+  return `${sign}${pct}% vs ayer (cobros)`;
+}
 
-const DEMO_CHECKLIST = {
-  demo: [
-    { text: "Solicita tu acceso real desde la pantalla de login", done: false, priority: "alta", icon: "user-plus" },
-    { text: "Explora Pedidos y Caja con datos de ejemplo", done: true, priority: "media", icon: "compass" },
-    { text: "Prueba el asistente IA desde el botón de DalIA", done: false, priority: "baja", icon: "sparkles" },
-  ],
-  default: [
-    { text: "Revisar pedidos pendientes del turno", done: false, priority: "alta", icon: "list-checks" },
-    { text: "Reponer insumos marcados como críticos", done: false, priority: "alta", icon: "package" },
-    { text: "Cuadrar caja antes del cierre", done: false, priority: "media", icon: "receipt" },
-    { text: "Actualizar carta de productos con novedades", done: true, priority: "baja", icon: "menu" },
-  ],
-};
+function ticketDeltaText(avgToday, avgYesterday) {
+  if (avgToday === 0 && avgYesterday === 0) return "Sin tickets calculados hoy";
+  if (avgYesterday <= 0) return avgToday > 0 ? "Sin ticket de referencia ayer" : "Sin datos";
+  const diff = Math.round((avgToday - avgYesterday) * 100) / 100;
+  const sign = diff >= 0 ? "+" : "";
+  return `${sign}${formatPen(diff)} vs ayer (promedio)`;
+}
 
-export function initializeDashboard(profile) {
+function buildHeroMetrics(snapshot) {
+  const ordersDeltaParts = [
+    snapshot.activeDelivery ? `${snapshot.activeDelivery} delivery` : null,
+    snapshot.activeSalon ? `${snapshot.activeSalon} salón` : null,
+    snapshot.activeTakeaway ? `${snapshot.activeTakeaway} para llevar` : null,
+  ].filter(Boolean);
+  const ordersDelta =
+    ordersDeltaParts.length > 0 ? ordersDeltaParts.join(" · ") : "Sin pedidos activos en este momento";
+
+  const stockDelta =
+    snapshot.atRiskStockCount > 0
+      ? `${snapshot.atRiskStockCount} ítem(s) bajo mínimo o crítico`
+      : "Sin ítems de inventario en alerta";
+
+  return [
+    {
+      value: formatPen(snapshot.salesToday),
+      label: "Ventas de hoy (cobros)",
+      delta: salesDeltaText(snapshot.salesToday, snapshot.salesYesterday),
+      icon: "banknote",
+      tone: "accent",
+    },
+    {
+      value: String(snapshot.activeOrders),
+      label: "Pedidos en curso",
+      delta: ordersDelta,
+      icon: "shopping-bag",
+      tone: "info",
+    },
+    {
+      value: formatPen(snapshot.avgTicketToday),
+      label: "Ticket promedio (hoy)",
+      delta: ticketDeltaText(snapshot.avgTicketToday, snapshot.avgTicketYesterday),
+      icon: "receipt",
+      tone: "success",
+    },
+    {
+      value: String(snapshot.atRiskStockCount),
+      label: "Insumos en riesgo",
+      delta: stockDelta,
+      icon: "package-open",
+      tone: "warning",
+    },
+  ];
+}
+
+function buildOperationsCards(snapshot) {
+  const pctOccupancy =
+    snapshot.tablesTotal > 0
+      ? Math.round((snapshot.tablesOccupied / snapshot.tablesTotal) * 1000) / 10
+      : 0;
+
+  return [
+    {
+      label: "Mesas ocupadas",
+      value: snapshot.tablesTotal > 0 ? `${snapshot.tablesOccupied}/${snapshot.tablesTotal}` : "0/0",
+      hint: snapshot.tablesTotal > 0 ? `Ocupación ${pctOccupancy}%` : "Sin mesas configuradas",
+      icon: "utensils-crossed",
+      tone: "accent",
+      progress: snapshot.tablesTotal > 0 ? pctOccupancy : null,
+      delta: snapshot.tablesTotal > 0 ? "Datos de comedor en tiempo real" : "Alta de mesas en el módulo Pedidos",
+      trend: "neutral",
+    },
+    {
+      label: "Delivery activo",
+      value: String(snapshot.deliveryActive),
+      hint: "Pedidos canal delivery no cerrados",
+      icon: "bike",
+      tone: "info",
+      progress: null,
+      delta: snapshot.deliveryActive > 0 ? "Pedidos en flujo delivery" : "Sin pedidos delivery activos",
+      trend: "neutral",
+    },
+    {
+      label: "Pedidos en cocina",
+      value: String(snapshot.kitchenOrders),
+      hint: "Órdenes en estado «en cocina»",
+      icon: "timer",
+      tone: "success",
+      progress: null,
+      delta: snapshot.kitchenOrders > 0 ? "En preparación ahora" : "Sin pedidos en cocina",
+      trend: "neutral",
+    },
+  ];
+}
+
+function buildChecklistItems(snapshot) {
+  /** @type {{ text: string; href: string; icon: string; priority: string }[]} */
+  const items = [];
+
+  if (snapshot.activeOrders > 0) {
+    items.push({
+      text: `Hay ${snapshot.activeOrders} pedido(s) activo(s)`,
+      href: toHref("Pedidos/implementacion/pedidos.html"),
+      icon: "list-checks",
+      priority: snapshot.activeOrders >= 8 ? "alta" : "media",
+    });
+  }
+
+  if (snapshot.atRiskStockCount > 0) {
+    items.push({
+      text: `${snapshot.atRiskStockCount} insumo(s) bajo mínimo o en estado crítico`,
+      href: toHref("Almacen/almacen.html"),
+      icon: "package",
+      priority: "alta",
+    });
+  }
+
+  if (snapshot.openCashSessions > 0) {
+    items.push({
+      text: `Sesión de caja abierta (${snapshot.openCashSessions}) — cerrar al finalizar el turno`,
+      href: toHref("Caja/caja.html"),
+      icon: "receipt",
+      priority: "media",
+    });
+  }
+
+  return items;
+}
+
+export async function initializeDashboard(profile) {
   const activeProfile = profile || window.currentUserProfile || {
     role: window.currentUserRole || "demo",
     isDemo: true,
     firstName: "Invitado",
   };
 
+  const snapshot = await fetchDashboardSnapshot(supabase);
+
   renderDemoBanner(activeProfile);
-  renderHeroMetrics();
-  renderOperationsSummary();
+  renderHeroMetrics(snapshot);
+  renderOperationsSummary(snapshot);
   renderModuleGrid(activeProfile);
-  renderInsights(activeProfile);
-  renderChecklist(activeProfile);
+  renderInsights(snapshot, activeProfile);
+  renderChecklist(snapshot);
 
   if (window.lucide) window.lucide.createIcons();
 }
@@ -130,7 +191,7 @@ function renderDemoBanner(profile) {
     </div>
     <div class="demo-banner__copy">
       <strong>Estás navegando como cuenta demo</strong>
-      <p>Los datos que ves son de ejemplo. Configuración, Accesos, Facturación y Reportes están reservados para administradores con credenciales reales.</p>
+      <p>Las métricas y tareas se calculan con datos reales de tu tenant; si aún no hay operación, verás ceros. Configuración y Accesos siguen restringidos según rol.</p>
     </div>
     <a class="btn btn--secondary" href="${toHref("login.html")}">
       <i data-lucide="user-plus"></i>
@@ -140,11 +201,24 @@ function renderDemoBanner(profile) {
   host.prepend(banner);
 }
 
-function renderHeroMetrics() {
+function renderHeroMetrics(snapshot) {
   const target = document.getElementById("dashboardMetrics");
   if (!target) return;
 
-  target.innerHTML = DEMO_METRICS.map((metric) => `
+  const rows = buildHeroMetrics(snapshot);
+  const warnText =
+    snapshot.warnings && snapshot.warnings.length > 0
+      ? snapshot.warnings.slice(0, 2).join(" · ")
+      : snapshot.loadError || "";
+  const note = warnText
+    ? `<p class="dashboard-metrics-note" style="grid-column: 1 / -1; font-size: 12px; color: var(--color-text-muted); margin: 0;">${escapeHtml(warnText)}</p>`
+    : "";
+
+  target.innerHTML =
+    note +
+    rows
+      .map(
+        (metric) => `
     <article class="stat-card stat-card--${metric.tone}">
       <span class="stat-card__icon" aria-hidden="true">
         <i data-lucide="${metric.icon}"></i>
@@ -153,10 +227,12 @@ function renderHeroMetrics() {
       <span>${metric.label}</span>
       <small class="stat-card__delta">${metric.delta}</small>
     </article>
-  `).join("");
+  `,
+      )
+      .join("");
 }
 
-function renderOperationsSummary() {
+function renderOperationsSummary(snapshot) {
   const target = document.getElementById("systemHighlights");
   if (!target) return;
 
@@ -166,14 +242,18 @@ function renderOperationsSummary() {
     neutral: "minus",
   };
 
-  target.innerHTML = DEMO_OPERATIONS.map((item) => {
-    const progressBar = typeof item.progress === "number"
-      ? `<div class="ops-card__progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.progress}">
+  const items = buildOperationsCards(snapshot);
+
+  target.innerHTML = items
+    .map((item) => {
+      const progressBar =
+        typeof item.progress === "number"
+          ? `<div class="ops-card__progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.progress}">
            <div class="ops-card__progress-bar" style="width: ${Math.min(100, Math.max(0, item.progress))}%;"></div>
          </div>`
-      : `<div class="ops-card__progress ops-card__progress--empty"></div>`;
+          : `<div class="ops-card__progress ops-card__progress--empty"></div>`;
 
-    return `
+      return `
       <article class="ops-card ops-card--${item.tone}">
         <div class="ops-card__head">
           <span class="ops-card__icon" aria-hidden="true">
@@ -192,7 +272,8 @@ function renderOperationsSummary() {
         <small class="ops-card__delta">${item.delta}</small>
       </article>
     `;
-  }).join("");
+    })
+    .join("");
 }
 
 function renderModuleGrid(profile) {
@@ -211,15 +292,15 @@ function renderModuleGrid(profile) {
     return;
   }
 
-  target.innerHTML = allowed.map((module) => {
-    const iconName = module.icon || "circle";
-    return `
+  target.innerHTML = allowed
+    .map((module) => {
+      const iconName = module.icon || "circle";
+      return `
       <a class="module-card" href="${toHref(module.path)}">
         <div class="module-card__header">
           <span class="module-card__token">
             <i data-lucide="${iconName}" style="width:28px;height:28px;color:var(--color-accent)"></i>
           </span>
-          <span class="chip chip--soft">Activo</span>
         </div>
         <h3>${module.label}</h3>
         <p style="font-size: 13px; color: var(--color-text-muted); line-height: 1.45; margin-top: 4px;">
@@ -230,86 +311,121 @@ function renderModuleGrid(profile) {
         </div>
       </a>
     `;
-  }).join("");
+    })
+    .join("");
 }
 
-function renderInsights(profile) {
+function renderInsights(snapshot, profile) {
   const target = document.getElementById("insightsList");
   if (!target) return;
 
-  const insights = DEMO_INSIGHTS[profile.role] || DEMO_INSIGHTS.demo;
-  target.innerHTML = insights.map((item) => {
-    if (typeof item === "string") {
-      return `<li class="insight-chip"><span class="insight-chip__bullet"></span><div class="insight-chip__body"><p>${item}</p></div></li>`;
-    }
-    return `
+  const lines = [];
+
+  if (snapshot.warnings && snapshot.warnings.length > 0) {
+    lines.push({
+      icon: "alert-triangle",
+      tag: "Conexión parcial",
+      text: snapshot.warnings.slice(0, 3).join(" · "),
+    });
+  } else if (snapshot.loadError) {
+    lines.push({
+      icon: "alert-circle",
+      tag: "Sistema",
+      text: `No se pudo completar la lectura de métricas: ${snapshot.loadError}`,
+    });
+  }
+
+  lines.push({
+    icon: "activity",
+    tag: "Resumen",
+    text: `Pedidos activos: ${snapshot.activeOrders}. Cobros del día: ${formatPen(snapshot.salesToday)}.`,
+  });
+
+  if (profile?.isDemo) {
+    lines.push({
+      icon: "info",
+      tag: "Demo",
+      text: "Las cifras se leen de tu base de datos (RLS por tenant), no de valores fijos en el front.",
+    });
+  }
+
+  target.innerHTML = lines
+    .map(
+      (item) => `
       <li class="insight-chip">
         <span class="insight-chip__icon" aria-hidden="true">
           <i data-lucide="${item.icon || "sparkles"}"></i>
         </span>
         <div class="insight-chip__body">
-          ${item.tag ? `<span class="insight-chip__tag">${item.tag}</span>` : ""}
-          <p>${item.text}</p>
+          ${item.tag ? `<span class="insight-chip__tag">${escapeHtml(item.tag)}</span>` : ""}
+          <p>${escapeHtml(item.text)}</p>
         </div>
       </li>
-    `;
-  }).join("");
+    `,
+    )
+    .join("");
 }
 
-function renderChecklist(profile) {
+function renderChecklist(snapshot) {
   const target = document.getElementById("operationalChecklist");
   if (!target) return;
 
-  const items = profile.isDemo ? DEMO_CHECKLIST.demo : DEMO_CHECKLIST.default;
+  const items = buildChecklistItems(snapshot);
   const total = items.length;
-  const done = items.filter((item) => item.done).length;
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+  const percent = 0;
 
   const progressHost = document.getElementById("checklistProgress");
   if (progressHost) {
-    progressHost.innerHTML = `
+    if (total === 0) {
+      progressHost.innerHTML = `
       <div class="checklist-progress__meta">
-        <span><strong>${done}</strong> de <strong>${total}</strong> completadas</span>
-        <span class="checklist-progress__percent">${percent}%</span>
+        <span>Sin tareas operativas pendientes</span>
+        <span class="checklist-progress__percent">—</span>
+      </div>
+      <div class="checklist-progress__bar checklist-progress__bar--empty" role="presentation">
+        <div class="checklist-progress__fill" style="width:0%;"></div>
+      </div>
+    `;
+    } else {
+      progressHost.innerHTML = `
+      <div class="checklist-progress__meta">
+        <span><strong>${total}</strong> acción(es) sugerida(s) por datos reales</span>
+        <span class="checklist-progress__percent">Pendiente</span>
       </div>
       <div class="checklist-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}">
         <div class="checklist-progress__fill" style="width:${percent}%;"></div>
       </div>
     `;
+    }
   }
 
-  target.innerHTML = items.map((item, index) => {
-    const priority = item.priority || "media";
-    const iconName = item.icon || "circle";
-    const checkIcon = item.done ? "check" : "circle";
-    return `
-      <li class="action-row ${item.done ? "action-row--done" : ""}" data-priority="${priority}">
-        <button type="button"
-          class="action-row__check ${item.done ? "action-row__check--done" : ""}"
-          data-checklist-index="${index}"
-          aria-label="${item.done ? "Marcar como pendiente" : "Marcar como completada"}">
-          <i data-lucide="${checkIcon}"></i>
-        </button>
-        <span class="action-row__icon" aria-hidden="true">
-          <i data-lucide="${iconName}"></i>
-        </span>
+  if (items.length === 0) {
+    target.innerHTML = `
+      <li class="action-row action-row--informational" data-priority="baja">
+        <span class="action-row__icon" aria-hidden="true"><i data-lucide="check-circle-2"></i></span>
         <div class="action-row__body">
-          <p>${item.text}</p>
-          <span class="action-row__priority action-row__priority--${priority}">
-            Prioridad ${priority}
-          </span>
+          <p>No hay alertas operativas: sin pedidos activos, sin inventario en riesgo ni caja abierta detectada.</p>
         </div>
       </li>
     `;
-  }).join("");
+    return;
+  }
 
-  target.querySelectorAll("[data-checklist-index]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const idx = Number(btn.dataset.checklistIndex);
-      if (!Number.isInteger(idx)) return;
-      items[idx].done = !items[idx].done;
-      renderChecklist(profile);
-      if (window.lucide) window.lucide.createIcons();
-    });
-  });
+  target.innerHTML = items
+    .map(
+      (item) => `
+      <li class="action-row" data-priority="${escapeHtml(item.priority)}">
+        <span class="action-row__icon" aria-hidden="true">
+          <i data-lucide="${escapeHtml(item.icon)}"></i>
+        </span>
+        <div class="action-row__body">
+          <p><a href="${escapeHtml(item.href)}" style="color: inherit; font-weight: 600;">${escapeHtml(item.text)}</a></p>
+          <span class="action-row__priority action-row__priority--${escapeHtml(item.priority)}">
+            Prioridad ${escapeHtml(item.priority)}
+          </span>
+        </div>
+      </li>
+    `,
+    )
+    .join("");
 }

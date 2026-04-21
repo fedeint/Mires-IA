@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>MiRest con IA · Pedidos</title>
-    <meta name="description" content="Módulo Pedidos de MiRest con IA para salón, delivery y para llevar con enfoque operativo unificado." />
+    <title>MiRest con IA ? Pedidos</title>
+    <meta name="description" content="M?dulo Pedidos de MiRest con IA para sal?n, delivery y para llevar con enfoque operativo unificado." />
     <meta name="theme-color" content="#de5a25" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="../../scripts/gtag-config.js"></script>
     <script>
       document.documentElement.classList.add("js");
       document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
@@ -58,7 +60,7 @@
 
     <body data-theme="light" data-mode="salon" data-module="pedidos" data-root-path="../../" data-page-type="module" data-module-key="pedidos">
         <div class="app-shell" id="appShell">
-            <aside class="sidebar" id="appSidebar" aria-label="Navegación principal">
+            <aside class="sidebar" id="appSidebar" aria-label="Navegaci?n principal">
                 <div class="sidebar__brand">
                   <div class="brand-mark" aria-hidden="true">IA</div>
                   <div class="brand-copy">
@@ -68,27 +70,21 @@
                   </div>
                 </div>
 
-                <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
-
-                <div class="sidebar__footer card card--sidebar">
-                  <span class="sidebar__footer-label" id="moduleStatusLabel">Módulo activo</span>
-                  <strong id="moduleTitleDisplay">Pedidos</strong>
-                  <p id="moduleDescriptionDisplay">Gestión de atención y ventas.</p>
-                </div>
+                <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegaci?n principal"></nav>
             </aside>
 
-        <button type="button" class="sidebar-backdrop" id="sidebarBackdrop" aria-label="Cerrar navegación"></button>
+        <button type="button" class="sidebar-backdrop" id="sidebarBackdrop" aria-label="Cerrar navegaci?n"></button>
 
         <div class="app-main">
             <header class="topbar">
                 <div class="topbar__lead">
-                    <button class="icon-button topbar__menu-toggle mobile-only" id="sidebarToggle" type="button" aria-label="Abrir navegación lateral" aria-controls="appSidebar" aria-expanded="false">
+                    <button class="icon-button topbar__menu-toggle mobile-only" id="sidebarToggle" type="button" aria-label="Abrir navegaci?n lateral" aria-controls="appSidebar" aria-expanded="false">
                         <i data-lucide="menu"></i>
                     </button>
                     <!-- Este es el ID usado en app.js pero le daremos display none para no romper la UI local -->
                     <button type="button" class="icon-button icon-button--ghost mobile-only" id="mobileSidebarToggle" style="display:none;"></button>
                     <div class="topbar__copy">
-                        <span class="eyebrow" id="topbarEyebrow">Operación</span>
+                        <span class="eyebrow" id="topbarEyebrow">Operaci?n</span>
                         <h1 id="topbarTitle">Pedidos</h1>
                     </div>
                 </div>
@@ -100,7 +96,7 @@
                     <label class="theme-toggle" for="themeToggleLocal" aria-label="Alternar modo oscuro" style="display:none;">
                         <input id="themeToggleLocal" type="checkbox" />
                     </label>
-                    <div class="avatar" id="pageAvatar" aria-label="Iniciales del módulo">DA</div>
+                    <div class="avatar" id="pageAvatar" aria-label="Iniciales del m?dulo">DA</div>
                 </div>
             </header>
 
@@ -112,7 +108,7 @@
                 </nav>
 
                 <section id="modeHero"></section>
-                <section class="mod-metrics-grid" id="summaryStats" style="padding: 0 1.5rem;" aria-label="Resumen del módulo Pedidos"></section>
+                <section class="mod-metrics-grid" id="summaryStats" style="padding: 0 1.5rem;" aria-label="Resumen del m?dulo Pedidos"></section>
 
                 <section class="workspace-layout" id="workspaceLayout" data-mode="salon">
                     <div class="workspace-main">

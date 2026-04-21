@@ -381,6 +381,94 @@ body[data-theme="dark"] .module-card {
   font-weight: 700;
 }
 
+/* Landing de submódulos (p. ej. Almacén): misma paleta y lectura que las tarjetas del dashboard */
+.submenu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.submenu-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--color-surface), rgba(255, 255, 255, 0.86));
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: var(--color-text);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+body[data-theme="dark"] .submenu-card {
+  background: linear-gradient(180deg, rgba(23, 29, 51, 0.96), rgba(23, 29, 51, 0.82));
+}
+
+.submenu-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(240, 124, 42, 0.38);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.submenu-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.submenu-card__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.submenu-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.submenu-card__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.submenu-card__desc {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.module-submenu-section {
+  padding: var(--space-6);
+}
+
+.module-submenu-section__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.module-submenu-section__lead {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
 .stat-card,
 .highlight-card,
 .meta-card {

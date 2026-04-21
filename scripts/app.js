@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (pageType === "dashboard") {
     initializeDashboardPage(profile);
-    initializeDashboard(profile);
+    await initializeDashboard(profile);
     return;
   }
 
