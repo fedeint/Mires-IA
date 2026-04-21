@@ -381,12 +381,17 @@ body[data-theme="dark"] .access-request-entry {
 
 .auth-help-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-3);
   color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.auth-help-row > span:last-child {
+  margin-left: auto;
 }
 
 .login-text-link {
@@ -400,6 +405,7 @@ body[data-theme="dark"] .access-request-entry {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .login-text-link svg {
@@ -728,6 +734,10 @@ body[data-theme="dark"] .request-progress__item--active {
   .auth-help-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .auth-help-row > span:last-child {
+    margin-left: 0;
   }
 }
 

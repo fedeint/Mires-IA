@@ -589,11 +589,20 @@
           <div class="accesos-header" style="margin-top: 32px;">
             <div>
               <h2>Usuarios con acceso</h2>
-              <p style="color:var(--color-text-muted); font-size: 14px;">Revoca, restaura o elimina accesos. Los cambios se aplican al instante.</p>
+              <p style="color:var(--color-text-muted); font-size: 14px;">Revoca, restaura o elimina accesos. Las contraseñas no son visibles para nadie; usa <strong>Enviar recuperación</strong> para que el usuario reciba un enlace seguro y elija una nueva.</p>
             </div>
             <button class="btn btn--secondary" id="refreshUsersBtn" type="button">
               <i data-lucide="refresh-cw"></i> Actualizar
             </button>
+          </div>
+
+          <div
+            class="request-feedback"
+            style="display: block; margin-bottom: var(--space-4); border-color: rgba(14, 165, 233, 0.25); background: rgba(14, 165, 233, 0.08); color: var(--color-text);"
+            role="note"
+          >
+            <strong>Seguridad:</strong> Supabase guarda las contraseñas solo como hash (irreversible). No existe forma legítima de “ver” la contraseña de un usuario. Para soporte, reenvía recuperación o comparte la guía pública
+            <a href="../recuperar-contrasena.html" style="color: var(--color-accent); font-weight: 600;">Recuperar contraseña</a>.
           </div>
 
           <div id="usersFeedback" class="request-feedback" style="display: none;"></div>

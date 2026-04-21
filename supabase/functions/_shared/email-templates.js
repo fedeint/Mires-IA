@@ -127,29 +127,38 @@ export function buildInvitationEmail({ fullName, restaurantName, activationUrl, 
   };
 }
 
-export function buildRecoveryEmail({ fullName, recoveryUrl }) {
-  const greet = fullName ? `Hola ${escapeHtml(fullName.split(" ")[0])},` : "Hola,";
+export function buildRecoveryEmail({ fullName, recoveryUrl, helpPageUrl }) {
+  const first = fullName ? escapeHtml(String(fullName).trim().split(/\s+/)[0]) : "";
+  const greet = fullName ? `Hola ${first},` : "Hola,";
+  const helpBlock = helpPageUrl
+    ? `<p style="margin:0 0 14px;">Si no ves el correo en la bandeja principal, revisa <strong>spam o promociones</strong>. En la web tienes una <a href="${escapeHtml(helpPageUrl)}" style="color:#f07c2a;font-weight:600;">guía para recuperar tu contraseña</a> con los mismos pasos que te ayudará el equipo si lo necesitas.</p>`
+    : `<p style="margin:0 0 14px;">Si no ves el correo en la bandeja principal, revisa <strong>spam o promociones</strong>.</p>`;
+
   const body = `
     <p style="margin:0 0 14px;">${greet}</p>
-    <p style="margin:0 0 14px;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en MiRest con IA.</p>
-    <p style="margin:0 0 14px;">Haz clic en el botón para definir una nueva contraseña. Este enlace es personal, de un solo uso y expira en 60 minutos.</p>
+    <p style="margin:0 0 14px;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>MiRest con IA</strong>.</p>
+    <p style="margin:0 0 14px;">Usa el botón de abajo para abrir la página segura y <strong>elegir una contraseña nueva</strong>. El enlace es personal, de un solo uso y caduca al cabo de un tiempo por seguridad.</p>
+    ${helpBlock}
   `;
 
+  const textLines = [
+    greet.replace(/<[^>]+>/g, ""),
+    "Recibimos una solicitud para restablecer tu contraseña en MiRest con IA.",
+    `Abre este enlace para definir una contraseña nueva: ${recoveryUrl}`,
+    helpPageUrl ? `Guía en la web: ${helpPageUrl}` : null,
+    "Si no solicitaste este cambio, ignora este correo; tu contraseña actual seguirá vigente.",
+  ].filter(Boolean);
+
   return {
-    subject: "Restablece tu contraseña · MiRest con IA",
+    subject: "Recuperación de contraseña · MiRest con IA",
     html: baseLayout({
-      title: "Restablece tu contraseña",
-      preheader: "Define una nueva contraseña para tu cuenta de MiRest con IA.",
+      title: "Recupera el acceso a tu cuenta",
+      preheader: "Enlace seguro para definir una nueva contraseña en MiRest con IA.",
       body,
-      ctaLabel: "Restablecer contraseña",
+      ctaLabel: "Definir nueva contraseña",
       ctaUrl: recoveryUrl,
-      footnote: "Si no solicitaste este correo, simplemente ignóralo. Tu contraseña actual seguirá funcionando.",
+      footnote: "Por seguridad, nadie (ni el administrador) puede ver tu contraseña: solo tú puedes restablecerla con este enlace.",
     }),
-    text: [
-      `${greet}`,
-      "Recibimos una solicitud para restablecer tu contraseña en MiRest con IA.",
-      `Restablécela aquí: ${recoveryUrl}`,
-      "Si no la solicitaste, puedes ignorar este correo.",
-    ].join("\n\n"),
+    text: textLines.join("\n\n"),
   };
 }

@@ -62,3 +62,8 @@ export function updateUserPermissions(userId, permissions, role) {
   if (role) payload.role = role;
   return callManageUser(payload);
 }
+
+/** Solo superadmin. Envía correo con enlace seguro (Resend) para nueva contraseña. */
+export function sendPasswordRecoveryToUser(userId) {
+  return callManageUser({ action: "send_recovery_email", userId });
+}

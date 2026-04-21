@@ -14,8 +14,9 @@ import {
   listUsers,
   restoreUser,
   revokeUser,
+  sendPasswordRecoveryToUser,
   updateUserPermissions,
-} from "../scripts/user-access.js?v=20260420-perms5";
+} from "../scripts/user-access.js?v=20260422-recovery";
 import {
   getAssignableModules,
   getRoleLabel,
@@ -550,6 +551,50 @@ function openDangerConfirmModal({ title, description, detail, confirmLabel }) {
   });
 }
 
+function openNeutralConfirmModal({ title, description, confirmLabel }) {
+  return new Promise((resolve) => {
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.innerHTML = `
+      <div class="modal-card modal-card--confirm" role="dialog" aria-label="${escapeHtml(title)}">
+        <div class="confirm-header">
+          <div class="confirm-icon" aria-hidden="true">
+            <i data-lucide="mail"></i>
+          </div>
+          <div>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(description)}</p>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn--secondary" type="button" data-confirm-cancel>Cancelar</button>
+          <button class="btn btn--primary" type="button" data-confirm-ok>${escapeHtml(confirmLabel)}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    if (window.lucide) window.lucide.createIcons();
+
+    const cleanup = (result) => {
+      backdrop.remove();
+      document.removeEventListener("keydown", onKey);
+      resolve(result);
+    };
+    function onKey(event) {
+      if (event.key === "Escape") cleanup(false);
+    }
+    backdrop.addEventListener("click", (event) => {
+      if (event.target === backdrop) cleanup(false);
+    });
+    backdrop.querySelector("[data-confirm-cancel]").addEventListener("click", () => cleanup(false));
+    backdrop.querySelector("[data-confirm-ok]").addEventListener("click", () => cleanup(true));
+    document.addEventListener("keydown", onKey);
+    setTimeout(() => {
+      backdrop.querySelector("[data-confirm-ok]")?.focus();
+    }, 10);
+  });
+}
+
 window.approveRequest = async (requestId) => {
   const request = accessRequests.find((item) => item.id === requestId);
   if (!request) return;
@@ -681,19 +726,31 @@ function buildUserRow(user) {
 
   let actions = "";
   if (user.protected) {
+    const recoveryDemo = user.email
+      ? `<button class="btn btn--secondary" type="button" title="Correo con enlace seguro para nueva contraseña" onclick="window.sendUserPasswordRecoveryEmail('${user.id}')">Enviar recuperación</button>`
+      : "";
     actions = `
       <button class="btn btn--secondary" type="button" onclick="window.editUserPermissions('${user.id}')">Editar módulos</button>
+      ${recoveryDemo}
       <small style="color: var(--color-text-muted);">Demo: no se puede revocar.</small>
     `;
   } else if (banned) {
+    const recoveryBtnBanned = user.email
+      ? `<button class="btn btn--secondary" type="button" title="Correo con enlace seguro para nueva contraseña" onclick="window.sendUserPasswordRecoveryEmail('${user.id}')">Enviar recuperación</button>`
+      : "";
     actions = `
       <button class="btn btn--primary" type="button" onclick="window.restoreUserAccess('${user.id}')">Restaurar acceso</button>
       <button class="btn btn--secondary" type="button" onclick="window.editUserPermissions('${user.id}')">Editar módulos</button>
+      ${recoveryBtnBanned}
       <button class="btn btn--secondary" type="button" onclick="window.deleteUserAccount('${user.id}')">Eliminar</button>
     `;
   } else {
+    const recoveryBtn = user.email
+      ? `<button class="btn btn--secondary" type="button" title="Correo con enlace seguro para nueva contraseña" onclick="window.sendUserPasswordRecoveryEmail('${user.id}')">Enviar recuperación</button>`
+      : "";
     actions = `
       <button class="btn btn--primary" type="button" onclick="window.editUserPermissions('${user.id}')">Editar módulos</button>
+      ${recoveryBtn}
       <button class="btn btn--secondary" type="button" onclick="window.revokeUserAccess('${user.id}')">Revocar acceso</button>
       <button class="btn btn--secondary" type="button" onclick="window.deleteUserAccount('${user.id}')">Eliminar</button>
     `;
@@ -803,6 +860,32 @@ window.restoreUserAccess = async (userId) => {
     await loadUsers();
   } catch (error) {
     setUsersFeedback(error.message || "No pudimos restaurar el acceso.", "error");
+  }
+};
+
+window.sendUserPasswordRecoveryEmail = async (userId) => {
+  const user = usersList.find((item) => item.id === userId);
+  if (!user?.email) {
+    setUsersFeedback("Este usuario no tiene correo registrado.", "error");
+    return;
+  }
+  const label = user.email;
+  const confirmed = await openNeutralConfirmModal({
+    title: "Enviar recuperación de contraseña",
+    description:
+      `Se enviará un correo a ${label} con un enlace seguro para que elija una nueva contraseña. Por diseño de seguridad, ni tú ni el sistema pueden ver la contraseña actual (solo existe un hash cifrado).`,
+    confirmLabel: "Enviar correo",
+  });
+  if (!confirmed) return;
+
+  clearUsersFeedback();
+  setUsersFeedback(`Enviando recuperación a ${label}…`, "success");
+
+  try {
+    const data = await sendPasswordRecoveryToUser(userId);
+    setUsersFeedback(data?.message || "Correo de recuperación enviado.", "success");
+  } catch (error) {
+    setUsersFeedback(error.message || "No se pudo enviar el correo de recuperación.", "error");
   }
 };
 

@@ -96,13 +96,14 @@ function layout({ title, preheader, bodyHtml, ctaLabel, ctaUrl, footerNote }) {
 </html>`;
 }
 
-async function send({ to, subject, html, replyTo }) {
+async function send({ to, subject, html, text, replyTo }) {
   try {
     const { data, error } = await resend.emails.send({
       from: mailConfig.from,
       to,
       subject,
       html,
+      ...(text ? { text } : {}),
       ...(replyTo ? { reply_to: replyTo } : {}),
     });
     if (error) {
@@ -255,6 +256,11 @@ export async function sendAccessRestoredToUser({ email, fullName }) {
       ctaUrl: `${mailConfig.appOrigin}/login.html`,
     }),
   });
+}
+
+/** Correo transaccional genérico (p. ej. recuperación de contraseña con plantilla HTML propia). */
+export async function sendPasswordResetBrandedEmail({ to, subject, html, text }) {
+  return send({ to, subject, html, text });
 }
 
 export async function sendPermissionsUpdatedToUser({ email, fullName, role, permissions }) {

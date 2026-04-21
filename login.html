@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="./styles/tokens.css?v=20260420-loginfix2" />
   <link rel="stylesheet" href="./styles/base.css?v=20260420-loginfix2" />
   <link rel="stylesheet" href="./styles/components.css?v=20260420-loginfix2" />
-  <link rel="stylesheet" href="./styles/login.css?v=20260421-phone-digits" />
+  <link rel="stylesheet" href="./styles/login.css?v=20260422-recovery-flow" />
   <link rel="stylesheet" href="./styles/mobile.css?v=20260420-mobilev1" />
 
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -117,6 +117,7 @@
             <i data-lucide="key-round"></i>
             Olvidé mi contraseña
           </button>
+          <a class="login-text-link" href="./recuperar-contrasena.html">Guía de recuperación</a>
           <span>Tu usuario siempre será tu correo aprobado.</span>
         </div>
 
@@ -301,7 +302,11 @@
         <div>
           <span class="request-modal__eyebrow">Recuperación</span>
           <h2 id="recoveryModalTitle">Recupera tu contraseña</h2>
-          <p>Te enviaremos un correo para restablecer el acceso a la cuenta aprobada.</p>
+          <p>
+            Te enviaremos un correo con enlace seguro para elegir una contraseña nueva en la misma página donde activaste tu cuenta.
+            Si no llega nada, revisa spam o abre la
+            <a href="./recuperar-contrasena.html" style="color: var(--color-accent); font-weight: 600;">guía paso a paso</a>.
+          </p>
         </div>
         <button type="button" class="icon-button request-modal__close" data-close-recovery-modal aria-label="Cerrar recuperación">
           <i data-lucide="x"></i>
@@ -576,21 +581,29 @@
         const email = recoveryEmailInput.value.trim().toLowerCase();
 
         try {
-          const redirectTo = `${window.location.origin}/activate.html`;
-          const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo,
+          const res = await fetch(`${supabaseUrl}/functions/v1/send-recovery-email`, {
+            method: 'POST',
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
           });
-
-          if (recoveryError) {
-            throw new Error(recoveryError.message || 'No se pudo enviar el correo.');
+          const payload = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(payload?.message || 'No se pudo enviar el correo.');
           }
-
-          recoveryMessage.textContent = 'Si el correo existe, te enviaremos un enlace de recuperación en unos segundos.';
+          recoveryMessage.textContent =
+            payload?.message ||
+            'Si el correo está registrado, enviamos un enlace. Revisa la bandeja principal y la carpeta de spam.';
           recoveryMessage.className = 'request-banner request-banner--success';
           recoveryMessage.style.display = 'block';
         } catch (err) {
           console.error('[recovery]', err);
-          recoveryMessage.textContent = 'No pudimos enviar la recuperación. Verifica el correo e inténtalo otra vez.';
+          recoveryMessage.textContent =
+            err?.message ||
+            'No pudimos enviar el correo. Comprueba la configuración del servidor (Resend) o inténtalo más tarde.';
           recoveryMessage.className = 'request-banner request-banner--error';
           recoveryMessage.style.display = 'block';
         } finally {
@@ -621,7 +634,8 @@
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i data-lucide="log-in"></i> Ingresar al Sistema';
           window.lucide.createIcons();
-          errorMsg.textContent = 'Correo o contraseña incorrectos. Si olvidaste tu contraseña pide al administrador que te reestablezca el acceso.';
+          errorMsg.textContent =
+            'Correo o contraseña incorrectos. Si olvidaste la contraseña, usa «Olvidé mi contraseña», la guía en recuperar-contrasena.html o pide a tu administrador «Enviar recuperación» desde Accesos.';
           errorMsg.style.display = 'block';
         } else {
           submitBtn.innerHTML = '<i data-lucide="check"></i> ¡Bienvenido!';

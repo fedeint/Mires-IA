@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f07c2a" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260422-recovery" />
+  <title>Recuperar contraseña | MiRest con IA</title>
+  <meta name="description" content="Pasos para restablecer tu acceso a MiRest con IA de forma segura." />
+
+  <script>
+    document.documentElement.classList.add("js");
+    document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles/tokens.css?v=20260422-recovery" />
+  <link rel="stylesheet" href="./styles/base.css?v=20260422-recovery" />
+  <link rel="stylesheet" href="./styles/components.css?v=20260422-recovery" />
+  <link rel="stylesheet" href="./styles/login.css?v=20260422-recovery" />
+  <link rel="stylesheet" href="./styles/mobile.css?v=20260422-recovery" />
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body data-theme="light">
+  <div class="login-container">
+    <div class="login-card card" style="max-width: 520px;">
+      <div class="login-card__accent login-card__accent--warm" aria-hidden="true"></div>
+      <div class="login-card__accent login-card__accent--cool" aria-hidden="true"></div>
+
+      <div class="login-header">
+        <span class="eyebrow">MiRest con IA</span>
+        <h1>Recuperar contraseña</h1>
+        <p>
+          Si olvidaste tu contraseña, el proceso es seguro: recibirás un <strong>enlace de un solo uso</strong> al correo
+          con el que te registraron. Nadie (ni el administrador) puede ver tu contraseña actual.
+        </p>
+      </div>
+
+      <ol style="margin: 0 0 var(--space-6); padding-left: 1.25rem; color: var(--color-text-muted); font-size: 14px; line-height: 1.65;">
+        <li>Escribe abajo el mismo correo que usas para entrar.</li>
+        <li>Pulsa <strong>Enviar enlace</strong>. El correo llega desde nuestro sistema (revisa spam).</li>
+        <li>Abre el correo y pulsa <strong>Definir nueva contraseña</strong>; se abrirá la página de activación segura.</li>
+        <li>Elige una contraseña nueva y confírmala. Luego ya puedes iniciar sesión en <a href="./login.html">login</a>.</li>
+      </ol>
+
+      <form id="publicRecoveryForm" class="request-form" style="padding: 0;">
+        <div id="recoveryPageMessage" class="request-banner" style="display: none;"></div>
+        <div class="form-group">
+          <label for="recovery_page_email">Correo de tu cuenta</label>
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <i data-lucide="mail"></i>
+            </span>
+            <input type="email" id="recovery_page_email" required placeholder="tu-correo@ejemplo.com" autocomplete="email" />
+          </div>
+        </div>
+        <div class="request-form__actions" style="padding: 0; margin-top: var(--space-4);">
+          <button type="submit" class="btn btn--primary" id="recoveryPageSubmit">
+            <i data-lucide="send"></i>
+            Enviar enlace
+          </button>
+          <a class="btn btn--secondary" href="./login.html">Volver al inicio de sesión</a>
+        </div>
+      </form>
+
+      <div class="login-helper" style="margin-top: var(--space-6);">
+        <i data-lucide="life-buoy"></i>
+        <span>Si no recibes nada en unos minutos, pide a tu administrador que use «Enviar recuperación» desde el panel de Accesos o revisa que el correo sea exactamente el aprobado.</span>
+      </div>
+    </div>
+  </div>
+
+  <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+    <i data-lucide="moon"></i>
+  </button>
+
+  <script type="module">
+    import { supabaseUrl, supabaseKey } from "./scripts/supabase.js?v=20260422-recovery";
+    import { initializeThemeToggle } from "./scripts/navigation.js?v=20260422-recovery";
+
+    document.body.classList.add("page-ready");
+    window.lucide.createIcons();
+    initializeThemeToggle(document.getElementById("themeToggle"));
+
+    const form = document.getElementById("publicRecoveryForm");
+    const emailInput = document.getElementById("recovery_page_email");
+    const msg = document.getElementById("recoveryPageMessage");
+    const submitBtn = document.getElementById("recoveryPageSubmit");
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim().toLowerCase();
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Enviando...';
+      msg.style.display = "none";
+      window.lucide.createIcons();
+
+      try {
+        const res = await fetch(`${supabaseUrl}/functions/v1/send-recovery-email`, {
+          method: "POST",
+          headers: {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(payload?.message || "No se pudo enviar el correo.");
+        }
+        msg.textContent =
+          payload?.message ||
+          "Si el correo está registrado, enviamos un enlace. Revisa la bandeja de entrada y la carpeta de spam.";
+        msg.className = "request-banner request-banner--success";
+        msg.style.display = "block";
+      } catch (err) {
+        console.error("[recovery-page]", err);
+        msg.textContent = err?.message || "Intenta de nuevo en unos minutos.";
+        msg.className = "request-banner request-banner--error";
+        msg.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="send"></i> Enviar enlace';
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+
+</html>
