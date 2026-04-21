@@ -464,19 +464,20 @@
               </button>
             </div>
 
-            <!-- Meseros -->
+            <!-- Meseros / ranking: solo si el permiso "Caja: meseros y ranking" está marcado en Accesos -->
+            <div id="cajaMeserosBlock" class="cj-meseros-block" style="display: none;">
             <div class="cj-section-title">
               <i data-lucide="users" style="width: 22px; height: 22px; color: var(--cj-orange);"></i>
               Meseros
             </div>
             <div class="cj-meseros" id="meserosGrid"></div>
 
-            <!-- Ranking -->
             <div class="cj-section-title">
               <i data-lucide="award" style="width: 22px; height: 22px; color: var(--cj-orange);"></i>
               Ranking del día
             </div>
             <div class="cj-ranking" id="rankingList"></div>
+            </div>
 
             <!-- Movimientos -->
             <div id="cajaHistoryContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">

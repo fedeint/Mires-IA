@@ -50,8 +50,8 @@ function dismissForever() {
 
 function resolveIconSrc(rootPath) {
   const raw = (rootPath || ".").trim().replace(/\/+$/, "") || ".";
-  if (raw === "." || raw === "./") return "./IA/DalIA.png";
-  return `${raw}/IA/DalIA.png`.replace(/\/+/g, "/");
+  if (raw === "." || raw === "./") return "./IA/DalIA.webp";
+  return `${raw}/IA/DalIA.webp`.replace(/\/+/g, "/");
 }
 
 function isMobileUi() {

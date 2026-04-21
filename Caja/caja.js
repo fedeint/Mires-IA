@@ -5,6 +5,13 @@
 
 import { render } from './render.js';
 import { showToast, openModal, closeModal } from '../scripts/ui-utils.js';
+import {
+  resolveUserRole,
+  resolveUserPermissions,
+  hasFeaturePermission,
+  FEATURE_CAJA_MESEROS,
+} from '../scripts/navigation.js';
+import { supabase } from '../scripts/supabase.js';
 
 /* ── Estado ── */
 let cajaOpen = false;
@@ -13,11 +20,34 @@ let transactions = [];
 let passwordAction = null; // 'open' o 'close'
 const CAJA_PASSWORD = '9090';
 
-const meseros = [
+const meserosMock = [
   { name: 'Carlos', mesa: 'Mesa 1', products: 0, status: 'available' },
   { name: 'Maria',  mesa: 'Mesa 2', products: 0, status: 'busy' },
   { name: 'Pedro',  mesa: 'Mesa 3', products: 0, status: 'available' },
 ];
+
+function meserosForSession() {
+  return window.__mirestCajaMeserosEnabled ? meserosMock : [];
+}
+
+async function initCajaMeserosVisibility() {
+  const block = document.getElementById('cajaMeserosBlock');
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.__mirestCajaMeserosEnabled = false;
+    } else {
+      const role = resolveUserRole(user);
+      const perms = resolveUserPermissions(user, role);
+      window.__mirestCajaMeserosEnabled = hasFeaturePermission(perms, FEATURE_CAJA_MESEROS);
+    }
+  } catch {
+    window.__mirestCajaMeserosEnabled = false;
+  }
+  if (block) {
+    block.style.display = window.__mirestCajaMeserosEnabled ? '' : 'none';
+  }
+}
 
 /* ── Referencias DOM ── */
 const closedScreen  = document.getElementById('cajaClosedScreen');
@@ -30,13 +60,12 @@ const cajaBadge     = document.getElementById('cajaBadge');
 const cajaTimeEl    = document.getElementById('cajaTime');
 
 /* ── Inicialización ── */
-document.addEventListener('DOMContentLoaded', () => {
-  // Selectores de botones
+document.addEventListener('DOMContentLoaded', async () => {
+  await initCajaMeserosVisibility();
   initSelectableButtons('incConceptGroup', 'incConcept');
   initSelectableButtons('incMethodGroup', 'incMethod');
   initSelectableButtons('expConceptGroup', 'expConcept');
-  
-  // Lucide icons para elementos estáticos
+
   if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
@@ -88,7 +117,7 @@ function performOpenCaja() {
   if (openContent) openContent.style.display  = 'block';
 
   showToast('welcomeToast', 'welcomeToastMsg', '¡Bienvenido, Cajero! <strong>Turno iniciado</strong>', 'welcomeToastIcon', 'check-circle');
-  render(transactions, meseros);
+  render(transactions, meserosForSession());
   
   // Iniciar onboarding si corresponde
   if (window.startCajaOnboarding) window.startCajaOnboarding();
@@ -172,7 +201,7 @@ if (submitIncome) {
     document.getElementById('incAmount').value = '';
     document.getElementById('incNote').value   = '';
     closeAllModals();
-    render(transactions, meseros);
+    render(transactions, meserosForSession());
   });
 }
 
@@ -194,6 +223,6 @@ if (submitExpense) {
     document.getElementById('expAmount').value = '';
     document.getElementById('expNote').value   = '';
     closeAllModals();
-    render(transactions, meseros);
+    render(transactions, meserosForSession());
   });
 }

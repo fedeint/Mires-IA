@@ -16,16 +16,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
+    rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap"
-    rel="stylesheet" />
+    media="print"
+    onload="this.media='all'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" />
+  </noscript>
 
-  <link rel="stylesheet" href="./styles/tokens.css?v=20260420-loginfix2" />
-  <link rel="stylesheet" href="./styles/base.css?v=20260420-loginfix2" />
-  <link rel="stylesheet" href="./styles/components.css?v=20260420-loginfix2" />
-  <link rel="stylesheet" href="./styles/login.css?v=20260424-auth-scrollbar" />
-  <link rel="stylesheet" href="./styles/mobile.css?v=20260420-mobilev1" />
+  <link rel="preload" as="image" href="./IA/DalIA.webp" type="image/webp" fetchpriority="high" />
+  <link rel="stylesheet" href="./styles/auth-bundle.css?v=20260429-auth-perf" />
 
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body data-theme="light">
@@ -40,12 +43,14 @@
         </span>
         <div class="brand-mark login-header__mascot" aria-hidden="true">
           <img
-            src="./IA/DalIA.png"
+            src="./IA/DalIA.webp"
             alt=""
-            width="80"
-            height="80"
+            width="270"
+            height="266"
             decoding="async"
+            fetchpriority="high"
             class="login-header__mascot-img"
+            onerror="this.onerror=null;this.src='./IA/DalIA.png'"
           />
         </div>
         <h1>Bienvenido a MiRest</h1>
@@ -323,7 +328,7 @@
     </div>
   </div>
 
-  <script type="module">
+  <script type="module" defer>
     import { supabase } from './scripts/supabase.js?v=20260423-recovery-hybrid';
     import { requestPasswordRecoveryEmail } from './scripts/password-recovery-client.js?v=20260424-no-resend-recovery';
     import { submitAccessRequest } from './scripts/access-requests.js?v=20260420-rls401fix';

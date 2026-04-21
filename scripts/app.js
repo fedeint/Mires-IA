@@ -95,6 +95,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 function buildUserProfile(user, role, permissions) {
   const email = user?.email || "";
   const meta = user?.user_metadata || {};
+  const rawAvatar = typeof meta.avatar_url === "string" ? meta.avatar_url.trim() : "";
+  const avatarUrl =
+    rawAvatar.length > 12 && (rawAvatar.startsWith("data:") || rawAvatar.startsWith("http"))
+      ? rawAvatar
+      : null;
   const fullName = (meta.full_name || meta.name || "").trim();
   const emailHandle = email.split("@")[0] || "";
   const displayName = fullName || capitalize(emailHandle.replace(/[._-]+/g, " ")) || "Invitado";
@@ -106,6 +111,7 @@ function buildUserProfile(user, role, permissions) {
     fullName: displayName,
     firstName,
     initials,
+    avatarUrl,
     role,
     permissions,
     roleLabel: getRoleLabel(role),
@@ -123,7 +129,19 @@ function getInitials(name) {
 function applyUserIdentity(profile) {
   const avatar = document.querySelector(".avatar");
   if (avatar) {
-    avatar.textContent = profile.initials;
+    if (profile.avatarUrl) {
+      avatar.classList.add("avatar--photo");
+      avatar.textContent = "";
+      const img = document.createElement("img");
+      img.alt = "";
+      img.src = profile.avatarUrl;
+      img.referrerPolicy = "no-referrer";
+      avatar.appendChild(img);
+    } else {
+      avatar.classList.remove("avatar--photo");
+      avatar.replaceChildren();
+      avatar.textContent = profile.initials;
+    }
     avatar.setAttribute("aria-label", profile.fullName);
     avatar.setAttribute("title", `${profile.fullName} · ${profile.roleLabel}`);
   }
@@ -321,7 +339,8 @@ function initializeIAWidget(rootPath) {
   if (!topbarActions) return;
 
   const iaRoot = rootPath ? `${rootPath}/IA` : "./IA";
-  const imgSrc = `${iaRoot}/DalIA.png`;
+  const imgSrc = `${iaRoot}/DalIA.webp`;
+  const imgFallback = `${iaRoot}/DalIA.png`;
   const vidSrc = `${iaRoot}/dallA.webm`;
 
   // ── Botón topbar: avatar con video de DalIA ────────────────────────────────
@@ -334,7 +353,7 @@ function initializeIAWidget(rootPath) {
     <video src="${vidSrc}" autoplay muted loop playsinline
       onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
     </video>
-    <img src="${imgSrc}" alt="DallIA" style="display:none;" />
+    <img src="${imgSrc}" alt="DallIA" style="display:none;" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${imgFallback}'" />
     <span class="ia-widget-btn__dot"></span>
   `;
   topbarActions.prepend(btn);
@@ -350,7 +369,7 @@ function initializeIAWidget(rootPath) {
         <video src="${vidSrc}" autoplay muted loop playsinline
           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
         </video>
-        <img src="${imgSrc}" alt="DallIA" style="display:none;" />
+        <img src="${imgSrc}" alt="DallIA" style="display:none;" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${imgFallback}'" />
         <span class="ia-widget-mascot__dot" title="En línea"></span>
       </div>
       <div class="ia-widget-hactions" style="position:absolute;top:10px;right:10px;">

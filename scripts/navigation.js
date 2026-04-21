@@ -165,6 +165,19 @@ export const MODULES = [
     ],
   },
   {
+    key: "soporte",
+    label: "Soporte",
+    short: "SP",
+    icon: "life-buoy",
+    path: "Soporte/soporte.html",
+    description: "Ayuda, contacto y recursos para resolver incidencias.",
+    owner: "Canal único de soporte para equipos operativos.",
+    handoff: [
+      "Centralizar FAQs y enlaces útiles.",
+      "Mantener coherencia con el shell y tokens globales.",
+    ],
+  },
+  {
     key: "configuracion",
     label: "Configuración",
     short: "CF",
@@ -240,14 +253,36 @@ export function getGreeting() {
   return "Buenas noches";
 }
 
+/** Permisos de función (no son entradas de menú); se marcan en Accesos junto a los módulos. */
+export const FEATURE_CAJA_MESEROS = "caja_meseros";
+
+export const FEATURE_ACCESS_ITEMS = [
+  {
+    key: FEATURE_CAJA_MESEROS,
+    label: "Caja: meseros y ranking",
+    description: "Muestra el panel de meseros y el ranking del día dentro de Caja.",
+  },
+];
+
+export function getAssignablePermissionKeys() {
+  return [...MODULES.map((m) => m.key), ...FEATURE_ACCESS_ITEMS.map((f) => f.key)];
+}
+
+/** Comprueba permisos extra o comodín * (superadmin). */
+export function hasFeaturePermission(permissions, featureKey) {
+  const perms = Array.isArray(permissions) ? permissions : [];
+  if (perms.includes("*")) return true;
+  return perms.includes(featureKey);
+}
+
 export const ROLE_PERMISSIONS = {
   superadmin: ["*"],
   admin: ADMIN_MODULE_KEYS,
-  caja: ["caja", "pedidos"],
-  chef: ["cocina", "recetas"],
-  pedidos: ["pedidos", "delivery-afiliados"],
-  almacen: ["almacen"],
-  marketing: ["clientes", "reportes", "ia"],
+  caja: ["caja", "pedidos", "soporte"],
+  chef: ["cocina", "recetas", "soporte"],
+  pedidos: ["pedidos", "delivery-afiliados", "soporte"],
+  almacen: ["almacen", "soporte"],
+  marketing: ["clientes", "reportes", "ia", "soporte"],
   demo: [
     "pedidos",
     "caja",
@@ -257,6 +292,7 @@ export const ROLE_PERMISSIONS = {
     "clientes",
     "almacen",
     "ia",
+    "soporte",
   ],
 };
 
@@ -315,6 +351,7 @@ export function getRoleLabel(role) {
     case "pedidos": return "Pedidos";
     case "almacen": return "Almacén";
     case "marketing": return "Marketing";
+    case "soporte": return "Soporte";
     case "demo": return "Cuenta demo";
     default: return "Invitado";
   }

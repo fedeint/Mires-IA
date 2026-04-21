@@ -16,16 +16,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
+    rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap"
-    rel="stylesheet" />
+    media="print"
+    onload="this.media='all'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" />
+  </noscript>
 
-  <link rel="stylesheet" href="./styles/tokens.css?v=20260420-activate" />
-  <link rel="stylesheet" href="./styles/base.css?v=20260420-activate" />
-  <link rel="stylesheet" href="./styles/components.css?v=20260420-activate" />
-  <link rel="stylesheet" href="./styles/login.css?v=20260424-auth-scrollbar" />
-  <link rel="stylesheet" href="./styles/mobile.css?v=20260420-mobilev1" />
+  <link rel="stylesheet" href="./styles/auth-bundle.css?v=20260429-auth-perf" />
 
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
   <!-- Antes del módulo: el cliente de Supabase puede limpiar el hash; guardamos URL completa del callback. -->
   <script>
     window.__MIREST_ACTIVATE_RAW__ = {
@@ -125,6 +127,13 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <label for="profilePhoto">Foto de perfil (opcional)</label>
+          <input type="file" id="profilePhoto" class="activate-photo-input" accept="image/jpeg,image/png,image/webp,image/gif" />
+          <div id="profilePhotoPreview" class="activate-avatar-preview" hidden></div>
+          <p class="activate-photo-hint">Puedes elegir una imagen tuya; se guarda en tu cuenta y se muestra en el panel. Máx. recomendado 2&nbsp;MB.</p>
+        </div>
+
         <button type="submit" class="btn btn--primary login-btn" id="activateSubmit">
           <i data-lucide="badge-check"></i>
           Guardar contraseña e ir al inicio de sesión
@@ -150,7 +159,7 @@
     <i data-lucide="moon"></i>
   </button>
 
-  <script type="module" src="./scripts/activate.js?v=20260421-activate-gate"></script>
+  <script type="module" defer src="./scripts/activate.js?v=20260429-activate-photo"></script>
 </body>
 
 </html>

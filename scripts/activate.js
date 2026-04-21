@@ -7,6 +7,75 @@ const emailEl = document.getElementById("email");
 const passwordEl = document.getElementById("password");
 const passwordConfirmEl = document.getElementById("passwordConfirm");
 const submitBtn = document.getElementById("activateSubmit");
+const profilePhotoInput = document.getElementById("profilePhoto");
+const profilePhotoPreview = document.getElementById("profilePhotoPreview");
+
+let profilePhotoDataUrl = null;
+
+function fileToResizedJpegDataUrl(file, maxEdge = 400, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("No se pudo leer el archivo."));
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const scale = Math.min(1, maxEdge / Math.max(w, h));
+        const cw = Math.max(1, Math.round(w * scale));
+        const ch = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Tu navegador no permite procesar la imagen."));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, cw, ch);
+        try {
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        } catch {
+          reject(new Error("No se pudo convertir la imagen."));
+        }
+      };
+      img.onerror = () => reject(new Error("Formato de imagen no válido."));
+      img.src = String(reader.result || "");
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+profilePhotoInput?.addEventListener("change", async () => {
+  if (profilePhotoPreview) {
+    profilePhotoPreview.hidden = true;
+    profilePhotoPreview.innerHTML = "";
+  }
+  profilePhotoDataUrl = null;
+  const file = profilePhotoInput.files?.[0];
+  if (!file) return;
+  if (file.size > 2.5 * 1024 * 1024) {
+    setStatus("La imagen es demasiado grande (máx. 2,5 MB). Elige otra.", "error");
+    profilePhotoInput.value = "";
+    return;
+  }
+  try {
+    let dataUrl = await fileToResizedJpegDataUrl(file, 400, 0.85);
+    if (dataUrl.length > 450000) {
+      dataUrl = await fileToResizedJpegDataUrl(file, 260, 0.78);
+    }
+    profilePhotoDataUrl = dataUrl;
+    if (profilePhotoPreview) {
+      profilePhotoPreview.innerHTML = `<img src="${dataUrl}" alt="" />`;
+      profilePhotoPreview.hidden = false;
+    }
+    setStatus("", "info");
+    statusEl.style.display = "none";
+  } catch (e) {
+    setStatus(e?.message || "No pudimos usar esa imagen.", "error");
+    profilePhotoInput.value = "";
+  }
+});
 
 function hideLoadingOverlay() {
   const el = document.getElementById("activateLoadingPanel");
@@ -268,7 +337,16 @@ formEl.addEventListener("submit", async (event) => {
   submitBtn.disabled = true;
   setStatus("Guardando tu contraseña...", "info");
 
-  const { error: updateError } = await supabase.auth.updateUser({ password });
+  const { data: userPayload } = await supabase.auth.getUser();
+  const mergedMeta = { ...(userPayload?.user?.user_metadata || {}) };
+  if (profilePhotoDataUrl) {
+    mergedMeta.avatar_url = profilePhotoDataUrl;
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    password,
+    data: mergedMeta,
+  });
 
   if (updateError) {
     setStatus(updateError.message || "No pudimos guardar tu contraseña. Vuelve a intentarlo.", "error");

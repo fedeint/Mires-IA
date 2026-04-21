@@ -21,7 +21,9 @@ import {
   getAssignableModules,
   getRoleLabel,
   ROLE_PERMISSIONS,
-} from "../scripts/navigation.js?v=20260420-perms5";
+  FEATURE_ACCESS_ITEMS,
+  getAssignablePermissionKeys,
+} from "../scripts/navigation.js?v=20260429-perms-features";
 
 const tableBody = document.getElementById("requestsTableBody");
 const feedback = document.getElementById("requestFeedback");
@@ -42,7 +44,15 @@ let showRejected = false;
 let showApproved = false;
 
 const ASSIGNABLE_MODULES = getAssignableModules();
-const ASSIGNABLE_KEYS = ASSIGNABLE_MODULES.map((m) => m.key);
+const ASSIGNABLE_KEYS = getAssignablePermissionKeys();
+
+function permLabel(key) {
+  return (
+    ASSIGNABLE_MODULES.find((m) => m.key === key)?.label ||
+    FEATURE_ACCESS_ITEMS.find((f) => f.key === key)?.label ||
+    key
+  );
+}
 const ROLE_OPTIONS = [
   { value: "admin", label: "Administrador" },
   { value: "caja", label: "Caja" },
@@ -140,9 +150,7 @@ function resolveInitialPermissions(request) {
 
 function renderPermGrid({ contextId, selected, disabled = false }) {
   const disabledClass = disabled ? " perm-chip--muted" : "";
-  return `
-    <div class="perm-grid" data-perm-grid="${contextId}">
-      ${ASSIGNABLE_MODULES.map((mod) => `
+  const moduleChips = ASSIGNABLE_MODULES.map((mod) => `
         <label class="perm-chip${disabledClass}" title="${escapeHtml(mod.description || mod.label)}">
           <input
             type="checkbox"
@@ -153,7 +161,26 @@ function renderPermGrid({ contextId, selected, disabled = false }) {
           />
           <span>${escapeHtml(mod.label)}</span>
         </label>
-      `).join("")}
+      `).join("");
+  const featureChips = FEATURE_ACCESS_ITEMS.map((f) => `
+        <label class="perm-chip perm-chip--feature${disabledClass}" title="${escapeHtml(f.description || f.label)}">
+          <input
+            type="checkbox"
+            data-perm-checkbox="${contextId}"
+            value="${f.key}"
+            ${selected.includes(f.key) ? "checked" : ""}
+            ${disabled ? "disabled" : ""}
+          />
+          <span>${escapeHtml(f.label)}</span>
+        </label>
+      `).join("");
+  return `
+    <div class="perm-grid" data-perm-grid="${contextId}">
+      ${moduleChips}
+    </div>
+    <p class="perm-section-hint" style="margin:0.75rem 0 0.35rem;font-size:0.8rem;color:var(--color-text-muted);font-weight:600;">Opciones por módulo</p>
+    <div class="perm-grid perm-grid--features" data-perm-grid-features="${contextId}">
+      ${featureChips}
     </div>
     <div class="perm-actions">
       <button class="perm-link" type="button" onclick="window.permSelectAll('${contextId}')">Todos</button>
@@ -194,9 +221,7 @@ function summarizeRequestPermissions(request) {
   }
   if (!perms.length) return "Sin módulos asignados";
   if (perms.length <= 3) {
-    return perms
-      .map((key) => ASSIGNABLE_MODULES.find((m) => m.key === key)?.label || key)
-      .join(", ");
+    return perms.map((key) => permLabel(key)).join(", ");
   }
   return `${perms.length} módulos habilitados`;
 }
@@ -424,7 +449,7 @@ function buildActivationSummary(request, role, permissions) {
       ? `<span class="confirm-perm confirm-perm--warn">Sin módulos asignados</span>`
       : permissions
           .map((key) => {
-            const label = ASSIGNABLE_MODULES.find((m) => m.key === key)?.label || key;
+            const label = permLabel(key);
             return `<span class="confirm-perm">${escapeHtml(label)}</span>`;
           })
           .join("");
@@ -708,9 +733,7 @@ function summarizePermissions(user) {
     : permissionsForRole(user.role);
   if (perms.length === 0) return "Sin módulos asignados";
   if (perms.length <= 3) {
-    return perms
-      .map((key) => ASSIGNABLE_MODULES.find((m) => m.key === key)?.label || key)
-      .join(", ");
+    return perms.map((key) => permLabel(key)).join(", ");
   }
   return `${perms.length} módulos habilitados`;
 }

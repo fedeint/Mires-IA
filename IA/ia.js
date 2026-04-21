@@ -289,7 +289,7 @@ function renderMessage(role, content) {
   const avatarEl = document.createElement("div");
   avatarEl.classList.add("message__avatar");
   if (role === "assistant") {
-    avatarEl.innerHTML = `<img src="./DalIA.png" alt="DallA" />`;
+    avatarEl.innerHTML = `<img src="./DalIA.webp" alt="DallA" width="270" height="266" decoding="async" onerror="this.onerror=null;this.src='./DalIA.png'" />`;
   } else {
     avatarEl.textContent = "Tú";
     avatarEl.style.fontSize = "10px";
@@ -421,7 +421,7 @@ function showApiKeyModal() {
     ">
       <!-- Header -->
       <div style="text-align:center; margin-bottom:24px;">
-        <img src="./DalIA.png" alt="DallA" style="width:72px;height:72px;border-radius:50%;border:3px solid #f07c2a;box-shadow:0 0 0 6px rgba(240,124,42,.15);margin-bottom:12px;" onerror="this.style.display='none'" />
+        <img src="./DalIA.webp" alt="DallA" style="width:72px;height:72px;border-radius:50%;border:3px solid #f07c2a;box-shadow:0 0 0 6px rgba(240,124,42,.15);margin-bottom:12px;" width="270" height="266" decoding="async" onerror="this.onerror=null;this.src='./DalIA.png'" />
         <h2 style="font-size:20px;font-weight:800;color:var(--color-text,#fff);margin:0 0 6px;">Configura DallA</h2>
         <p style="font-size:13px;color:var(--color-text-muted,#999);margin:0;">Elige tu proveedor de IA y pega tu API key</p>
       </div>
