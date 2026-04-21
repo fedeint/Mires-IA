@@ -36,7 +36,12 @@ async function clearBrokenSession() {
   }
 }
 
-// Obtenemos los metadatos del usuario logueado actualmente
+// Obtenemos los metadatos del usuario logueado actualmente.
+// Evitamos llamar a supabase.auth.getUser() (que pega a /auth/v1/user y puede
+// devolver 401 visible en consola si el token fue revocado). Si la sesión
+// local es válida, devolvemos session.user directamente; si alguna llamada
+// real a Supabase falla más tarde con 401, la lógica de cada módulo se
+// encarga de redirigir a login.
 export async function getCurrentUser() {
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error) {
@@ -55,13 +60,7 @@ export async function getCurrentUser() {
     return null;
   }
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    await clearBrokenSession();
-    return null;
-  }
-
-  return user;
+  return session.user ?? null;
 }
 
 // Cerramos sesión Global

@@ -124,6 +124,13 @@ export async function updateAccessRequest(id, changes) {
     .single();
 }
 
+export async function deleteAccessRequest(id) {
+  return supabase
+    .from("access_requests")
+    .delete()
+    .eq("id", id);
+}
+
 export async function approveAccessRequest(requestId, role, action = "approve", permissions = []) {
   const {
     data: { session },

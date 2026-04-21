@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f07c2a" />
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=20260420-accessfix" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=20260421-approvefix" />
     <title>Accesos | MiRest con IA</title>
     <meta name="description" content="Gestión de usuarios y accesos" />
     <script>
@@ -15,12 +15,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
     <link rel="manifest" href="../Pwa/manifest.webmanifest" />
-    <link rel="stylesheet" href="../styles/tokens.css?v=20260420-accessfix" />
-    <link rel="stylesheet" href="../styles/base.css?v=20260420-accessfix" />
-    <link rel="stylesheet" href="../styles/layout.css?v=20260420-accessfix" />
-    <link rel="stylesheet" href="../styles/components.css?v=20260420-accessfix" />
-    <link rel="stylesheet" href="../styles/dashboard.css?v=20260420-accessfix" />
-    <link rel="stylesheet" href="../styles/mobile.css?v=20260420-mobilev1" />
+    <link rel="stylesheet" href="../styles/tokens.css?v=20260421-approvefix" />
+    <link rel="stylesheet" href="../styles/base.css?v=20260421-approvefix" />
+    <link rel="stylesheet" href="../styles/layout.css?v=20260421-approvefix" />
+    <link rel="stylesheet" href="../styles/components.css?v=20260421-approvefix" />
+    <link rel="stylesheet" href="../styles/dashboard.css?v=20260421-approvefix" />
+    <link rel="stylesheet" href="../styles/mobile.css?v=20260421-approvefix" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
       .accesos-header {
@@ -365,6 +365,126 @@
         margin-top: var(--space-5);
       }
 
+      .modal-card--confirm {
+        max-width: 460px;
+      }
+      .modal-card--confirm h3 {
+        margin: 0 0 4px;
+        font-size: 18px;
+      }
+      .modal-card--confirm p {
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .confirm-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: var(--space-4);
+      }
+      .confirm-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: rgba(240, 124, 42, 0.14);
+        color: var(--color-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .confirm-icon i {
+        width: 22px;
+        height: 22px;
+      }
+      .confirm-icon--danger {
+        background: rgba(239, 68, 68, 0.14);
+        color: #dc2626;
+      }
+      .confirm-grid {
+        display: grid;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.6);
+      }
+      body[data-theme="dark"] .confirm-grid {
+        background: rgba(10, 15, 29, 0.5);
+      }
+      .confirm-row {
+        display: grid;
+        gap: 2px;
+      }
+      .confirm-row__label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted);
+      }
+      .confirm-row strong {
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .confirm-row small {
+        color: var(--color-text-muted);
+        font-size: 12px;
+        word-break: break-all;
+      }
+      .confirm-perms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 2px;
+      }
+      .confirm-perm {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: var(--radius-full);
+        background: rgba(240, 124, 42, 0.12);
+        color: var(--color-accent);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .confirm-perm--all {
+        background: rgba(16, 185, 129, 0.14);
+        color: #047857;
+      }
+      .confirm-perm--warn {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b91c1c;
+      }
+      .confirm-detail {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--color-border);
+        background: rgba(0, 0, 0, 0.02);
+        font-size: 13px;
+        color: var(--color-text-muted);
+      }
+      body[data-theme="dark"] .confirm-detail {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .btn--danger {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        color: #ffffff;
+        border: none;
+      }
+      .btn--danger:hover {
+        filter: brightness(1.05);
+      }
+      .request-actions__danger {
+        color: #b91c1c;
+        border-color: rgba(239, 68, 68, 0.35);
+      }
+      .request-actions__danger:hover {
+        background: rgba(239, 68, 68, 0.08);
+      }
+
       @media (max-width: 900px) {
         .accesos-overview {
           grid-template-columns: 1fr;
@@ -420,9 +540,12 @@
               <h2>Solicitudes de acceso</h2>
               <p style="color:var(--color-text-muted); font-size: 14px;">Seguimiento comercial, revisión y aprobación de nuevos restaurantes.</p>
             </div>
-            <button class="btn btn--secondary" id="refreshRequestsBtn">
-              <i data-lucide="refresh-cw"></i> Actualizar
-            </button>
+            <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+              <button class="btn btn--secondary" id="toggleRejectedBtn" type="button" style="display: none;">Mostrar rechazadas</button>
+              <button class="btn btn--secondary" id="refreshRequestsBtn">
+                <i data-lucide="refresh-cw"></i> Actualizar
+              </button>
+            </div>
           </div>
 
           <div class="accesos-overview">
@@ -498,7 +621,7 @@
       <i data-lucide="moon"></i>
     </button>
 
-    <script type="module" src="../scripts/app.js?v=20260420-mobilev1"></script>
-    <script type="module" src="./accesos.js?v=20260420-mobilev1"></script>
+    <script type="module" src="../scripts/app.js?v=20260421-approvefix"></script>
+    <script type="module" src="./accesos.js?v=20260421-approvefix"></script>
   </body>
 </html>

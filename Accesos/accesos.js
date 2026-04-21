@@ -1,13 +1,14 @@
 import {
   ACCESS_REQUEST_STATUS,
   approveAccessRequest,
+  deleteAccessRequest,
   escapeHtml,
   formatRequestDate,
   getStatusLabel,
   listAccessRequests,
   notifyAccessRequestEvent,
   updateAccessRequest,
-} from "../scripts/access-requests.js?v=20260420-rls401fix";
+} from "../scripts/access-requests.js?v=20260421-approvefix";
 import {
   deleteUser,
   listUsers,
@@ -36,6 +37,7 @@ let accessRequests = [];
 let usersList = [];
 let isRendering = false;
 let isLoadingUsers = false;
+let showRejected = false;
 
 const ASSIGNABLE_MODULES = getAssignableModules();
 const ASSIGNABLE_KEYS = ASSIGNABLE_MODULES.map((m) => m.key);
@@ -87,9 +89,25 @@ function getStatusClass(status) {
 }
 
 function updateOverviewMetrics(requests) {
+  // Las métricas siempre se calculan sobre el total (incluidas rechazadas),
+  // aunque la tabla se muestre filtrada por el toggle.
   metricPending.textContent = String(requests.filter((item) => item.status === ACCESS_REQUEST_STATUS.PENDING).length);
   metricReviewing.textContent = String(requests.filter((item) => item.status === ACCESS_REQUEST_STATUS.REVIEWING).length);
   metricApproved.textContent = String(requests.filter((item) => item.status === ACCESS_REQUEST_STATUS.APPROVED).length);
+}
+
+function getVisibleRequests(requests) {
+  if (showRejected) return requests;
+  return requests.filter((item) => item.status !== ACCESS_REQUEST_STATUS.REJECTED);
+}
+
+function updateRejectedToggleLabel() {
+  const toggle = document.getElementById("toggleRejectedBtn");
+  if (!toggle) return;
+  const rejectedCount = accessRequests.filter((r) => r.status === ACCESS_REQUEST_STATUS.REJECTED).length;
+  const suffix = rejectedCount > 0 ? ` (${rejectedCount})` : "";
+  toggle.textContent = (showRejected ? "Ocultar rechazadas" : "Mostrar rechazadas") + suffix;
+  toggle.style.display = rejectedCount > 0 ? "" : "none";
 }
 
 function permissionsForRole(role) {
@@ -189,9 +207,40 @@ function buildRow(request) {
   const roleLabel = escapeHtml(getRoleLabel(request.approved_role || "admin") || "Administrador");
   const permsSummary = escapeHtml(summarizeRequestPermissions(request));
 
-  const activationCta = request.status === ACCESS_REQUEST_STATUS.APPROVED
-    ? `<button class="btn btn--secondary" type="button" onclick="window.resendActivation('${request.id}')">Reenviar activación</button>`
-    : `<button class="btn btn--primary" type="button" onclick="window.approveRequest('${request.id}')">Aprobar y enviar activación</button>`;
+  const isRejected = request.status === ACCESS_REQUEST_STATUS.REJECTED;
+  const isApproved = request.status === ACCESS_REQUEST_STATUS.APPROVED;
+
+  let actionsHtml;
+  if (isRejected) {
+    // Solicitud rechazada: reabrirla o eliminarla definitivamente del panel.
+    actionsHtml = `
+      <button class="btn btn--secondary request-actions__wide" type="button" onclick="window.setRequestStatus('${request.id}', 'reviewing')">
+        Reabrir (pasar a revisión)
+      </button>
+      <button class="btn btn--secondary request-actions__wide request-actions__danger" type="button" onclick="window.deleteAccessRequestRow('${request.id}')">
+        <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+        Eliminar definitivamente
+      </button>
+    `;
+  } else {
+    const activationCta = isApproved
+      ? `<button class="btn btn--secondary" type="button" onclick="window.resendActivation('${request.id}')">Reenviar activación</button>`
+      : `<button class="btn btn--primary" type="button" onclick="window.approveRequest('${request.id}')">Aprobar y enviar activación</button>`;
+
+    actionsHtml = `
+      <button class="btn btn--primary request-actions__wide" type="button" onclick="window.configureRequestPermissions('${request.id}')">
+        <i data-lucide="shield-check" style="width:16px;height:16px;"></i>
+        Definir permisos
+      </button>
+      <div class="request-actions__row">
+        <button class="btn btn--secondary" type="button" onclick="window.setRequestStatus('${request.id}', 'reviewing')">En revisión</button>
+        <button class="btn btn--secondary" type="button" onclick="window.setRequestStatus('${request.id}', 'rejected')">Rechazar</button>
+      </div>
+      <div class="request-actions__wide">
+        ${activationCta}
+      </div>
+    `;
+  }
 
   return `
     <tr>
@@ -232,17 +281,7 @@ function buildRow(request) {
       </td>
       <td data-label="Acciones">
         <div class="request-actions--stack">
-          <button class="btn btn--primary request-actions__wide" type="button" onclick="window.configureRequestPermissions('${request.id}')">
-            <i data-lucide="shield-check" style="width:16px;height:16px;"></i>
-            Definir permisos
-          </button>
-          <div class="request-actions__row">
-            <button class="btn btn--secondary" type="button" onclick="window.setRequestStatus('${request.id}', 'reviewing')">En revisión</button>
-            <button class="btn btn--secondary" type="button" onclick="window.setRequestStatus('${request.id}', 'rejected')">Rechazar</button>
-          </div>
-          <div class="request-actions__wide">
-            ${activationCta}
-          </div>
+          ${actionsHtml}
         </div>
       </td>
     </tr>
@@ -250,14 +289,21 @@ function buildRow(request) {
 }
 
 function renderTable(requests) {
+  updateOverviewMetrics(requests);
+  updateRejectedToggleLabel();
+
+  const visible = getVisibleRequests(requests);
+
   if (requests.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Todavía no hay solicitudes registradas.</td></tr>`;
-    updateOverviewMetrics([]);
+    return;
+  }
+  if (visible.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No hay solicitudes activas. Todas las solicitudes están rechazadas.</td></tr>`;
     return;
   }
 
-  tableBody.innerHTML = requests.map(buildRow).join("");
-  updateOverviewMetrics(requests);
+  tableBody.innerHTML = visible.map(buildRow).join("");
 }
 
 async function loadRequests() {
@@ -354,7 +400,143 @@ window.configureRequestPermissions = (requestId) => {
   });
 };
 
-window.approveRequest = (requestId) => {
+function buildActivationSummary(request, role, permissions) {
+  const roleLabel = getRoleLabel(role) || "Administrador";
+  const isFullAccess = role === "admin" || role === "superadmin";
+  const permsHtml = isFullAccess
+    ? `<span class="confirm-perm confirm-perm--all">Todos los módulos</span>`
+    : permissions.length === 0
+      ? `<span class="confirm-perm confirm-perm--warn">Sin módulos asignados</span>`
+      : permissions
+          .map((key) => {
+            const label = ASSIGNABLE_MODULES.find((m) => m.key === key)?.label || key;
+            return `<span class="confirm-perm">${escapeHtml(label)}</span>`;
+          })
+          .join("");
+
+  return `
+    <div class="confirm-grid">
+      <div class="confirm-row">
+        <span class="confirm-row__label">Solicitante</span>
+        <strong>${escapeHtml(request.full_name || "Sin nombre")}</strong>
+        <small>${escapeHtml(request.email)}</small>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row__label">Negocio</span>
+        <strong>${escapeHtml(request.restaurant_name || "Sin negocio")}</strong>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row__label">Rol asignado</span>
+        <strong>${escapeHtml(roleLabel)}</strong>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row__label">Módulos habilitados</span>
+        <div class="confirm-perms">${permsHtml}</div>
+      </div>
+    </div>
+  `;
+}
+
+function openActivationConfirmModal({ request, role, permissions, mode }) {
+  return new Promise((resolve) => {
+    const isResend = mode === "resend";
+    const title = isResend ? "Reenviar activación" : "Aprobar solicitud";
+    const description = isResend
+      ? "Volveremos a enviar el correo de activación a este solicitante con la configuración actual."
+      : "Se creará la invitación y enviaremos el correo de activación al solicitante.";
+    const confirmLabel = isResend ? "Sí, reenviar" : "Sí, aprobar y enviar";
+    const confirmClass = isResend ? "btn--secondary" : "btn--primary";
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.innerHTML = `
+      <div class="modal-card modal-card--confirm" role="dialog" aria-label="${escapeHtml(title)}">
+        <div class="confirm-header">
+          <div class="confirm-icon" aria-hidden="true">
+            <i data-lucide="${isResend ? "send" : "shield-check"}"></i>
+          </div>
+          <div>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(description)}</p>
+          </div>
+        </div>
+        ${buildActivationSummary(request, role, permissions)}
+        <div class="modal-actions">
+          <button class="btn btn--secondary" type="button" data-confirm-cancel>Cancelar</button>
+          <button class="btn ${confirmClass}" type="button" data-confirm-ok>${escapeHtml(confirmLabel)}</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+    if (window.lucide) window.lucide.createIcons();
+
+    const cleanup = (result) => {
+      backdrop.remove();
+      document.removeEventListener("keydown", onKey);
+      resolve(result);
+    };
+
+    function onKey(event) {
+      if (event.key === "Escape") cleanup(false);
+      if (event.key === "Enter") cleanup(true);
+    }
+
+    backdrop.addEventListener("click", (event) => {
+      if (event.target === backdrop) cleanup(false);
+    });
+    backdrop.querySelector("[data-confirm-cancel]").addEventListener("click", () => cleanup(false));
+    backdrop.querySelector("[data-confirm-ok]").addEventListener("click", () => cleanup(true));
+    document.addEventListener("keydown", onKey);
+    setTimeout(() => {
+      backdrop.querySelector("[data-confirm-ok]")?.focus();
+    }, 10);
+  });
+}
+
+function openDangerConfirmModal({ title, description, detail, confirmLabel }) {
+  return new Promise((resolve) => {
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.innerHTML = `
+      <div class="modal-card modal-card--confirm" role="dialog" aria-label="${escapeHtml(title)}">
+        <div class="confirm-header">
+          <div class="confirm-icon confirm-icon--danger" aria-hidden="true">
+            <i data-lucide="alert-triangle"></i>
+          </div>
+          <div>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(description)}</p>
+          </div>
+        </div>
+        ${detail ? `<div class="confirm-detail">${escapeHtml(detail)}</div>` : ""}
+        <div class="modal-actions">
+          <button class="btn btn--secondary" type="button" data-confirm-cancel>Cancelar</button>
+          <button class="btn btn--danger" type="button" data-confirm-ok>${escapeHtml(confirmLabel)}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    if (window.lucide) window.lucide.createIcons();
+
+    const cleanup = (result) => {
+      backdrop.remove();
+      document.removeEventListener("keydown", onKey);
+      resolve(result);
+    };
+    function onKey(event) {
+      if (event.key === "Escape") cleanup(false);
+    }
+    backdrop.addEventListener("click", (event) => {
+      if (event.target === backdrop) cleanup(false);
+    });
+    backdrop.querySelector("[data-confirm-cancel]").addEventListener("click", () => cleanup(false));
+    backdrop.querySelector("[data-confirm-ok]").addEventListener("click", () => cleanup(true));
+    document.addEventListener("keydown", onKey);
+  });
+}
+
+window.approveRequest = async (requestId) => {
   const request = accessRequests.find((item) => item.id === requestId);
   if (!request) return;
 
@@ -362,45 +544,76 @@ window.approveRequest = (requestId) => {
   const permissions = resolveInitialPermissions(request);
 
   if (permissions.length === 0 && role !== "admin" && role !== "superadmin") {
-    setFeedback("Primero configura los permisos de esta solicitud desde el botón Permisos.", "error");
+    setFeedback("Primero configura los permisos de esta solicitud desde \"Definir permisos\".", "error");
     return;
   }
 
-  if (!window.confirm(`¿Aprobar la solicitud de ${request.email} con la configuración actual?`)) {
+  const confirmed = await openActivationConfirmModal({
+    request,
+    role,
+    permissions,
+    mode: "approve",
+  });
+  if (!confirmed) return;
+
+  clearFeedback();
+  setFeedback("Procesando aprobación y enviando correo de activación…", "success");
+
+  const { data, error } = await approveAccessRequest(requestId, role, "approve", permissions);
+  if (error) {
+    setFeedback(error.message || "No se pudo aprobar la solicitud ni enviar la activación.", "error");
     return;
   }
-
-  (async () => {
-    const { data, error } = await approveAccessRequest(requestId, role, "approve", permissions);
-    if (error) {
-      setFeedback(error.message || "No se pudo aprobar la solicitud ni enviar la activación.", "error");
-      return;
-    }
-    setFeedback(data?.message || "Solicitud aprobada. La activación fue enviada por correo.", "success");
-    await loadRequests();
-  })();
+  setFeedback(data?.message || "Solicitud aprobada. La activación fue enviada por correo.", "success");
+  await loadRequests();
 };
 
-window.resendActivation = (requestId) => {
+window.resendActivation = async (requestId) => {
   const request = accessRequests.find((item) => item.id === requestId);
   if (!request) return;
 
   const role = request.approved_role || "admin";
   const permissions = resolveInitialPermissions(request);
 
-  if (!window.confirm(`¿Reenviar activación a ${request.email} usando la configuración actual?`)) {
+  const confirmed = await openActivationConfirmModal({
+    request,
+    role,
+    permissions,
+    mode: "resend",
+  });
+  if (!confirmed) return;
+
+  clearFeedback();
+  setFeedback("Reenviando correo de activación…", "success");
+
+  const { data, error } = await approveAccessRequest(requestId, role, "resend", permissions);
+  if (error) {
+    setFeedback(error.message || "No se pudo reenviar la activación.", "error");
     return;
   }
+  setFeedback(data?.message || "La activación fue reenviada por correo.", "success");
+  await loadRequests();
+};
 
-  (async () => {
-    const { data, error } = await approveAccessRequest(requestId, role, "resend", permissions);
-    if (error) {
-      setFeedback(error.message || "No se pudo reenviar la activación.", "error");
-      return;
-    }
-    setFeedback(data?.message || "La activación fue reenviada por correo.", "success");
-    await loadRequests();
-  })();
+window.deleteAccessRequestRow = async (requestId) => {
+  const request = accessRequests.find((item) => item.id === requestId);
+  if (!request) return;
+
+  const confirmed = await openDangerConfirmModal({
+    title: "Eliminar solicitud del panel",
+    description: "Esta acción borra la solicitud de forma permanente. Si el solicitante vuelve a enviar el formulario se creará una solicitud nueva.",
+    detail: `${request.full_name || "Sin nombre"} · ${request.email}`,
+    confirmLabel: "Sí, eliminar",
+  });
+  if (!confirmed) return;
+
+  const { error } = await deleteAccessRequest(requestId);
+  if (error) {
+    setFeedback(error.message || "No se pudo eliminar la solicitud.", "error");
+    return;
+  }
+  setFeedback("Solicitud eliminada del panel.", "success");
+  await loadRequests();
 };
 
 function isBanned(user) {
@@ -668,6 +881,16 @@ function openConfigModal({ title, subject, initialRole, initialPerms, confirmLab
 document.addEventListener("DOMContentLoaded", () => {
   refreshBtn.addEventListener("click", loadRequests);
   if (refreshUsersBtn) refreshUsersBtn.addEventListener("click", loadUsers);
+
+  const toggleRejectedBtn = document.getElementById("toggleRejectedBtn");
+  if (toggleRejectedBtn) {
+    toggleRejectedBtn.addEventListener("click", () => {
+      showRejected = !showRejected;
+      renderTable(accessRequests);
+      if (window.lucide) window.lucide.createIcons();
+    });
+  }
+
   loadRequests();
   loadUsers();
 });

@@ -34,6 +34,42 @@ function isSuperadmin(user) {
   return role === "superadmin";
 }
 
+// Busca un usuario existente en auth.users por email. Supabase no expone un
+// endpoint directo `getUserByEmail`, así que paginamos listUsers. Para el
+// tamaño esperado de esta base es suficiente y evita usar SQL crudo.
+async function findAuthUserByEmail(adminClient, email) {
+  if (!email) return null;
+  const target = email.trim().toLowerCase();
+  const perPage = 200;
+  let page = 1;
+  while (page <= 50) {
+    const { data, error } = await adminClient.auth.admin.listUsers({ page, perPage });
+    if (error) throw new Error(error.message);
+    const users = data?.users ?? [];
+    const match = users.find((u) => (u.email || "").toLowerCase() === target);
+    if (match) return match;
+    if (users.length < perPage) return null;
+    page += 1;
+  }
+  return null;
+}
+
+function isAlreadyRegisteredError(error) {
+  if (!error) return false;
+  const message = String(error.message || error.msg || "").toLowerCase();
+  return (
+    message.includes("already been registered") ||
+    message.includes("already registered") ||
+    message.includes("user already exists") ||
+    message.includes("email address has already")
+  );
+}
+
+function isUserConfirmed(user) {
+  if (!user) return false;
+  return Boolean(user.email_confirmed_at || user.confirmed_at || user.last_sign_in_at);
+}
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -145,14 +181,58 @@ Deno.serve(async (request) => {
 
   // Generate the invite link without sending Supabase's default email, so we can
   // deliver our own branded message through Resend.
-  const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
-    type: "invite",
-    email: accessRequest.email,
-    options: {
-      data: inviteMetadata,
-      redirectTo,
-    },
-  });
+  async function generateInviteLink() {
+    return adminClient.auth.admin.generateLink({
+      type: "invite",
+      email: accessRequest.email,
+      options: {
+        data: inviteMetadata,
+        redirectTo,
+      },
+    });
+  }
+
+  let { data: linkData, error: linkError } = await generateInviteLink();
+
+  // Si el email ya figura en auth.users (invitación previa sin activar, o
+  // solicitudes rechazadas que dejaron residuo), reciclamos al usuario en vez
+  // de fallar con 400. Sólo lo hacemos si la cuenta NUNCA fue confirmada para
+  // no destruir usuarios activos por accidente.
+  if (linkError && isAlreadyRegisteredError(linkError)) {
+    let existingUser = null;
+    try {
+      existingUser = await findAuthUserByEmail(adminClient, accessRequest.email);
+    } catch (lookupError) {
+      return jsonResponse(
+        { message: "No pudimos verificar al usuario existente.", detail: lookupError?.message ?? null },
+        500,
+      );
+    }
+
+    if (existingUser && isUserConfirmed(existingUser)) {
+      return jsonResponse(
+        {
+          message: `El correo ${accessRequest.email} ya tiene una cuenta activa. Edita sus módulos desde "Usuarios con acceso" en lugar de reinvitarlo.`,
+        },
+        409,
+      );
+    }
+
+    if (existingUser) {
+      const { error: deleteError } = await adminClient.auth.admin.deleteUser(existingUser.id);
+      if (deleteError) {
+        return jsonResponse(
+          {
+            message: "Había una invitación previa sin activar y no pudimos reciclarla automáticamente.",
+            detail: deleteError.message,
+          },
+          500,
+        );
+      }
+
+      ({ data: linkData, error: linkError } = await generateInviteLink());
+    }
+  }
 
   if (linkError) {
     return jsonResponse({ message: linkError.message }, 400);
@@ -205,6 +285,20 @@ Deno.serve(async (request) => {
 
   if (updateError) {
     return jsonResponse({ message: updateError.message }, 500);
+  }
+
+  // Limpieza: elimina solicitudes rechazadas previas del mismo email para que
+  // no ensucien el panel una vez que ya aprobamos una nueva petición.
+  try {
+    await adminClient
+      .from("access_requests")
+      .delete()
+      .eq("email", accessRequest.email)
+      .eq("status", "rejected")
+      .neq("id", requestId);
+  } catch (cleanupError) {
+    // La limpieza es best-effort; si falla no rompemos la aprobación.
+    console.warn("No se pudieron limpiar solicitudes rechazadas previas:", cleanupError);
   }
 
   return jsonResponse({
