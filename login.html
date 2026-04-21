@@ -364,6 +364,7 @@
         if (postBanner) {
           postBanner.textContent =
             "Contraseña configurada. Ingresa con tu correo y la contraseña que acabas de elegir para acceder a tus módulos.";
+          postBanner.className = "error-banner error-banner--success";
           postBanner.style.display = "block";
         }
         const preEmail = urlParams.get("email");
@@ -375,6 +376,15 @@
           }
         }
         emailInput?.focus();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (urlParams.get("activacion") === "solo-correo") {
+        const postBanner = document.getElementById("postActivateBanner");
+        if (postBanner) {
+          postBanner.textContent =
+            "La activación de cuenta solo funciona desde el botón del correo que te envía el administrador. Abre ese mensaje y pulsa el enlace; no entres a la página de activación a mano.";
+          postBanner.className = "error-banner error-banner--info";
+          postBanner.style.display = "block";
+        }
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 

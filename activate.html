@@ -33,6 +33,21 @@
       search: window.location.search || "",
     };
   </script>
+  <!-- Solo se muestra esta página con enlace del correo (tokens, code PKCE o error de Auth). El resto → login. -->
+  <script>
+    (function () {
+      var raw = window.__MIREST_ACTIVATE_RAW__ || { hash: "", search: "" };
+      var h = raw.hash || "";
+      var s = raw.search || "";
+      var hasCode = /(?:^|[?&])code=/.test(s);
+      var hasTokens = /access_token=/.test(h) && /refresh_token=/.test(h);
+      var hasError = /error=/.test(h) || /error=/.test(s);
+      var hasTokenHash = /(?:^|[?&])token_hash=/.test(s);
+      if (!hasCode && !hasTokens && !hasError && !hasTokenHash) {
+        window.location.replace("./login.html?activacion=solo-correo");
+      }
+    })();
+  </script>
 </head>
 
 <!-- page-ready: sin esto, base.css deja body en opacity:0 (html.js body) y la página se ve “en blanco”. -->
@@ -128,7 +143,7 @@
     <i data-lucide="moon"></i>
   </button>
 
-  <script type="module" src="./scripts/activate.js?v=20260421-activate-opacity-fix"></script>
+  <script type="module" src="./scripts/activate.js?v=20260421-activate-gate"></script>
 </body>
 
 </html>
