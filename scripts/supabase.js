@@ -12,6 +12,10 @@ if (!globalScope[SUPABASE_SINGLETON_KEY]) {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      // Implícito: enlaces de invitación/recuperación llevan tokens en el hash (#access_token…),
+      // suelen durar lo que marque "Mailer OTP expiration" en el panel. PKCE (?code=) caduca ~5 min
+      // y el intercambio exige verificador en el mismo navegador donde empezó el flujo (malo para correo).
+      flowType: "implicit",
     },
   });
 }

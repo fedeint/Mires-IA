@@ -1,5 +1,7 @@
-import { buildRecoveryEmail } from "./email-templates.js";
-import { sendPasswordResetBrandedEmail } from "./mailer.js";
+/**
+ * Recuperación de contraseña solo vía Supabase Auth (SMTP / plantillas del panel).
+ * No usa Resend: el enlace lo envía GoTrue con la configuración de Authentication → Emails.
+ */
 
 const DEFAULT_ORIGIN = "https://mires-ia.vercel.app";
 
@@ -15,54 +17,31 @@ export function getActivateRedirectUrl() {
   return `${getAppBaseOrigin()}/activate.html`;
 }
 
-export function getRecoveryHelpPageUrl() {
-  return `${getAppBaseOrigin()}/recuperar-contrasena.html`;
-}
-
 /**
- * Genera el enlace de recuperación en Auth y envía el correo con plantilla MiRest (Resend).
- * Si el correo no existe en Auth, no envía nada (sin filtrar enumeración al llamador público).
+ * POST /auth/v1/recover (mismo flujo que resetPasswordForEmail en el cliente).
+ * redirect_to va en query string, igual que auth-js.
  */
-export async function deliverPasswordRecoveryBrandedEmail(adminClient, rawEmail) {
+export async function deliverPasswordRecoveryViaSupabaseAuth(supabaseUrl, anonKey, rawEmail) {
   const email = rawEmail.trim().toLowerCase();
   const redirectTo = getActivateRedirectUrl();
-  const helpPageUrl = getRecoveryHelpPageUrl();
+  const base = supabaseUrl.replace(/\/$/, "");
+  const url = new URL(`${base}/auth/v1/recover`);
+  url.searchParams.set("redirect_to", redirectTo);
 
-  const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
-    type: "recovery",
-    email,
-    options: { redirectTo },
+  const res = await fetch(url.toString(), {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
   });
 
-  if (linkError || !linkData?.properties?.action_link) {
-    console.warn("[recovery-delivery] generateLink:", linkError?.message);
-    return { sent: false, reason: "no_link" };
-  }
-
-  const recoveryUrl = linkData.properties.action_link;
-  const fullName =
-    typeof linkData?.user?.user_metadata?.full_name === "string"
-      ? linkData.user.user_metadata.full_name
-      : null;
-
-  const { subject, html, text } = buildRecoveryEmail({
-    fullName,
-    recoveryUrl,
-    helpPageUrl,
-  });
-
-  const result = await sendPasswordResetBrandedEmail({
-    to: email,
-    subject,
-    html,
-    text,
-  });
-
-  if (!result.ok) {
-    const msg = result.error?.message || "Error al enviar correo";
-    const err = new Error(msg);
-    err.mailError = result.error;
-    throw err;
+  const bodyText = await res.text();
+  if (!res.ok) {
+    console.warn("[recovery-delivery] /recover", res.status, bodyText);
+    return { sent: false, reason: "recover_failed", detail: bodyText };
   }
 
   return { sent: true };

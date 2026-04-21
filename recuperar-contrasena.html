@@ -74,7 +74,7 @@
 
       <div class="login-helper" style="margin-top: var(--space-6);">
         <i data-lucide="life-buoy"></i>
-        <span>Si no recibes nada en unos minutos, pide a tu administrador que use «Enviar recuperación» desde el panel de Accesos o revisa que el correo sea exactamente el aprobado.</span>
+        <span>Si no recibes nada en unos minutos, revisa en Supabase que Authentication → Emails / SMTP esté activo, pide «Enviar recuperación» desde Accesos, o confirma que el correo sea exactamente el de la cuenta.</span>
       </div>
     </div>
   </div>
@@ -84,7 +84,7 @@
   </button>
 
   <script type="module">
-    import { requestPasswordRecoveryEmail } from "./scripts/password-recovery-client.js?v=20260423-recovery-hybrid";
+    import { requestPasswordRecoveryEmail } from "./scripts/password-recovery-client.js?v=20260424-no-resend-recovery";
     import { initializeThemeToggle } from "./scripts/navigation.js?v=20260422-recovery";
 
     document.body.classList.add("page-ready");
@@ -113,7 +113,7 @@
         console.error("[recovery-page]", err);
         msg.textContent =
           err?.message ||
-          "Intenta de nuevo en unos minutos. Si administras el proyecto, revisa Resend y el SMTP de Supabase (Authentication → Emails).";
+          "Intenta de nuevo en unos minutos. Si administras el proyecto, revisa SMTP y plantillas en Supabase (Authentication → Emails).";
         msg.className = "request-banner request-banner--error";
         msg.style.display = "block";
       } finally {

@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="./styles/tokens.css?v=20260420-activate" />
   <link rel="stylesheet" href="./styles/base.css?v=20260420-activate" />
   <link rel="stylesheet" href="./styles/components.css?v=20260420-activate" />
-  <link rel="stylesheet" href="./styles/login.css?v=20260421-activate-overlay" />
+  <link rel="stylesheet" href="./styles/login.css?v=20260421-activate-expiry" />
   <link rel="stylesheet" href="./styles/mobile.css?v=20260420-mobilev1" />
 
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -74,6 +74,13 @@
         <p id="activateSubtitle">
           Define tu contraseña en este paso. Luego te llevamos al inicio de sesión: ahí entra con tu correo y esa contraseña
           para ver los módulos que te asignó el administrador.
+        </p>
+        <p class="activate-expiry-hint" id="activateExpiryHint">
+          <strong>Si el enlace “caduca” muy pronto:</strong> en Supabase ve a
+          <strong>Authentication → Providers → Email</strong> y sube
+          <strong>Mailer OTP expiration</strong> / caducidad del enlace (hasta 86400&nbsp;s = 24&nbsp;h es lo habitual permitido).
+          Además, Outlook <em>Safe Links</em> o antivirus a veces <strong>abren el enlace solos</strong> y lo gastan: abre el correo en la
+          <strong>web</strong> del proveedor o pide <strong>reenviar invitación</strong> desde Accesos.
         </p>
       </div>
 

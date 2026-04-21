@@ -336,7 +336,7 @@
 
   <script type="module">
     import { supabase } from './scripts/supabase.js?v=20260423-recovery-hybrid';
-    import { requestPasswordRecoveryEmail } from './scripts/password-recovery-client.js?v=20260423-recovery-hybrid';
+    import { requestPasswordRecoveryEmail } from './scripts/password-recovery-client.js?v=20260424-no-resend-recovery';
     import { submitAccessRequest } from './scripts/access-requests.js?v=20260420-rls401fix';
     import { initializeThemeToggle } from './scripts/navigation.js?v=20260420-resend1';
 
@@ -590,7 +590,7 @@
           console.error('[recovery]', err);
           recoveryMessage.textContent =
             err?.message ||
-            'No pudimos enviar la recuperación. Revisa SMTP/correo en Supabase (Authentication) y que Resend tenga API key si usas la plantilla MiRest.';
+            'No pudimos enviar la recuperación. Revisa SMTP y plantillas en Supabase (Authentication → Emails) y que la URL de redirección a activate.html esté permitida.';
           recoveryMessage.className = 'request-banner request-banner--error';
           recoveryMessage.style.display = 'block';
         } finally {

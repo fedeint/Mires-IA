@@ -107,7 +107,7 @@ function bindPasswordToggles() {
   });
 }
 
-function waitForSession(timeoutMs = 8000) {
+function waitForSession(timeoutMs = 12000) {
   return new Promise((resolve) => {
     let settled = false;
     const finish = (session) => {
@@ -173,11 +173,22 @@ async function bootstrap() {
     const snapCode = new URLSearchParams(getActivateSnapshot().search || "").get("code");
     if (snapCode) {
       setStatus("Validando enlace de activación…", "info");
-      const { error: exchErr } = await supabase.auth.exchangeCodeForSession(snapCode);
+      let exchErr = (await supabase.auth.exchangeCodeForSession(snapCode)).error;
       if (exchErr) {
+        await new Promise((r) => setTimeout(r, 400));
+        exchErr = (await supabase.auth.exchangeCodeForSession(snapCode)).error;
+      }
+      if (exchErr) {
+        const baseMsg = exchErr.message || "No pudimos validar el enlace.";
+        const isPkceHint =
+          /pkce|code verifier|flow_state|expired/i.test(String(exchErr.message || "")) ||
+          String(exchErr.message || "").toLowerCase().includes("invalid");
         setStatus(
-          exchErr.message ||
-            "No pudimos validar el enlace (por ejemplo si lo abriste en otro navegador). Pide al administrador que reenvíe la invitación y ábrela en este mismo dispositivo y navegador.",
+          `${baseMsg}${
+            isPkceHint
+              ? " Si el enlace llevaba ?code= (PKCE), caduca en pocos minutos: pide reenvío y ábrelo enseguida. En Supabase → Authentication → Providers → Email sube «Mailer OTP expiration» (p. ej. 86400 s) y revisa la plantilla «Invite user» ({{ .ConfirmationURL }} = flujo con más margen que un code corto)."
+              : " Pide al administrador que reenvíe la invitación desde Accesos y abre el enlace en este dispositivo."
+          }`,
           "error",
         );
         showFallback();
@@ -188,8 +199,6 @@ async function bootstrap() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    await new Promise((r) => setTimeout(r, 50));
-
     let session = (await supabase.auth.getSession()).data?.session ?? null;
 
     if (!session?.user && snapshotHadAuthTokens()) {
@@ -198,7 +207,7 @@ async function bootstrap() {
     }
 
     if (!session?.user) {
-      session = await waitForSession(8000);
+      session = await waitForSession(12000);
     }
 
     if (!session?.user) {
@@ -221,6 +230,7 @@ async function bootstrap() {
 
     emailEl.value = session.user.email ?? "";
     formEl.hidden = false;
+    document.getElementById("activateExpiryHint")?.setAttribute("hidden", "true");
     hideLoadingOverlay();
 
     const label = parsed.type === "recovery" ? "Restablece tu contraseña" : "Activa tu cuenta";

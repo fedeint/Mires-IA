@@ -1,8 +1,7 @@
-// Public Edge Function: genera enlace recovery en Supabase Auth y envía correo con plantilla MiRest (Resend).
-// Configura verify_jwt = false si llamas desde login / recuperar-contrasena con anon key.
+// Público: dispara el correo de recuperación usando solo Supabase Auth (sin Resend).
+// Requiere SUPABASE_ANON_KEY + SUPABASE_URL. verify_jwt = false si llamas desde el navegador con anon.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { deliverPasswordRecoveryBrandedEmail } from "../_shared/recovery-delivery.js";
+import { deliverPasswordRecoveryViaSupabaseAuth } from "../_shared/recovery-delivery.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,9 +26,9 @@ Deno.serve(async (request) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     return jsonResponse({ message: "Configuración incompleta de Supabase" }, 500);
   }
 
@@ -45,30 +44,25 @@ Deno.serve(async (request) => {
     return jsonResponse({ message: "Correo inválido" }, 400);
   }
 
-  const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  const { sent, reason, detail } = await deliverPasswordRecoveryViaSupabaseAuth(
+    supabaseUrl,
+    supabaseAnonKey,
+    rawEmail,
+  );
 
-  const genericOk = jsonResponse({
-    message:
-      "Si el correo está registrado en MiRest, enviamos un enlace para definir una nueva contraseña. Revisa también spam.",
-  });
-
-  try {
-    const { sent, reason } = await deliverPasswordRecoveryBrandedEmail(adminClient, rawEmail);
-    if (!sent && reason === "no_link") {
-      return genericOk;
-    }
-  } catch (err) {
-    console.error("[send-recovery-email]", err?.message, err?.mailError);
+  if (!sent && reason === "recover_failed") {
+    console.error("[send-recovery-email]", detail);
     return jsonResponse(
       {
         message:
-          "No pudimos enviar el correo ahora. Revisa que Resend esté configurado (RESEND_API_KEY) o inténtalo en unos minutos.",
+          "No se pudo solicitar el correo de recuperación. Revisa SMTP y plantillas en Supabase (Authentication → Emails).",
       },
       502,
     );
   }
 
-  return genericOk;
+  return jsonResponse({
+    message:
+      "Si el correo está registrado, Supabase enviará el enlace de recuperación. Revisa spam, Promociones (Gmail) y que el SMTP del proyecto esté activo.",
+  });
 });

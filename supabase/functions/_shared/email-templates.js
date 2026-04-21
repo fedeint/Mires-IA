@@ -126,39 +126,3 @@ export function buildInvitationEmail({ fullName, restaurantName, activationUrl, 
     ].join("\n\n"),
   };
 }
-
-export function buildRecoveryEmail({ fullName, recoveryUrl, helpPageUrl }) {
-  const first = fullName ? escapeHtml(String(fullName).trim().split(/\s+/)[0]) : "";
-  const greet = fullName ? `Hola ${first},` : "Hola,";
-  const helpBlock = helpPageUrl
-    ? `<p style="margin:0 0 14px;">Si no ves el correo en la bandeja principal, revisa <strong>spam o promociones</strong>. En la web tienes una <a href="${escapeHtml(helpPageUrl)}" style="color:#f07c2a;font-weight:600;">guía para recuperar tu contraseña</a> con los mismos pasos que te ayudará el equipo si lo necesitas.</p>`
-    : `<p style="margin:0 0 14px;">Si no ves el correo en la bandeja principal, revisa <strong>spam o promociones</strong>.</p>`;
-
-  const body = `
-    <p style="margin:0 0 14px;">${greet}</p>
-    <p style="margin:0 0 14px;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>MiRest con IA</strong>.</p>
-    <p style="margin:0 0 14px;">Usa el botón de abajo para abrir la página segura y <strong>elegir una contraseña nueva</strong>. El enlace es personal, de un solo uso y caduca al cabo de un tiempo por seguridad.</p>
-    ${helpBlock}
-  `;
-
-  const textLines = [
-    greet.replace(/<[^>]+>/g, ""),
-    "Recibimos una solicitud para restablecer tu contraseña en MiRest con IA.",
-    `Abre este enlace para definir una contraseña nueva: ${recoveryUrl}`,
-    helpPageUrl ? `Guía en la web: ${helpPageUrl}` : null,
-    "Si no solicitaste este cambio, ignora este correo; tu contraseña actual seguirá vigente.",
-  ].filter(Boolean);
-
-  return {
-    subject: "Recuperación de contraseña · MiRest con IA",
-    html: baseLayout({
-      title: "Recupera el acceso a tu cuenta",
-      preheader: "Enlace seguro para definir una nueva contraseña en MiRest con IA.",
-      body,
-      ctaLabel: "Definir nueva contraseña",
-      ctaUrl: recoveryUrl,
-      footnote: "Por seguridad, nadie (ni el administrador) puede ver tu contraseña: solo tú puedes restablecerla con este enlace.",
-    }),
-    text: textLines.join("\n\n"),
-  };
-}

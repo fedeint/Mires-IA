@@ -4,7 +4,7 @@ import {
   sendAccessRestoredToUser,
   sendPermissionsUpdatedToUser,
 } from "../_shared/mailer.js";
-import { deliverPasswordRecoveryBrandedEmail } from "../_shared/recovery-delivery.js";
+import { deliverPasswordRecoveryViaSupabaseAuth } from "../_shared/recovery-delivery.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -149,18 +149,15 @@ Deno.serve(async (request) => {
     if (!targetEmail) {
       return jsonResponse({ message: "Usuario sin correo" }, 400);
     }
-    try {
-      const { sent, reason } = await deliverPasswordRecoveryBrandedEmail(adminClient, targetEmail);
-      if (!sent && reason === "no_link") {
-        return jsonResponse(
-          { message: "No se pudo generar el enlace de recuperación para este usuario." },
-          400,
-        );
-      }
-    } catch (err) {
-      console.error("[manage-user-access] send_recovery_email", err?.message);
+    const { sent, reason, detail } = await deliverPasswordRecoveryViaSupabaseAuth(
+      supabaseUrl,
+      supabaseAnonKey,
+      targetEmail,
+    );
+    if (!sent && reason === "recover_failed") {
+      console.error("[manage-user-access] send_recovery_email", detail);
       return jsonResponse(
-        { message: err?.message || "No se pudo enviar el correo de recuperación." },
+        { message: "No se pudo enviar el correo de recuperación. Revisa SMTP en Supabase (Authentication → Emails)." },
         502,
       );
     }
