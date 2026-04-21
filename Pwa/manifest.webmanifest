@@ -19,22 +19,26 @@
     {
       "name": "Pedidos",
       "short_name": "Pedidos",
-      "url": "/Pedidos/implementacion/pedidos.html"
+      "url": "/Pedidos/implementacion/pedidos.html",
+      "icons": [{ "src": "/Pedidos/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     },
     {
       "name": "Almacén",
       "short_name": "Almacén",
-      "url": "/Almacen/almacen.html"
+      "url": "/Almacen/almacen.html",
+      "icons": [{ "src": "/Pedidos/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     },
     {
       "name": "Clientes",
       "short_name": "Clientes",
-      "url": "/Clientes/clientes.html"
+      "url": "/Clientes/clientes.html",
+      "icons": [{ "src": "/Pedidos/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     },
     {
       "name": "Recetas",
       "short_name": "Recetas",
-      "url": "/Recetas/recetas.html"
+      "url": "/Recetas/recetas.html",
+      "icons": [{ "src": "/Pedidos/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     }
   ]
 }

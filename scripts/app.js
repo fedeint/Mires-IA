@@ -14,6 +14,7 @@ import {
 } from "./navigation.js";
 import { initializeDashboard } from "./dashboard.js";
 import { registerServiceWorker, requestWakeLock, enableWakeLockAutoReacquire, vibrate } from "../Pwa/pwa.js";
+import { initPwaInstallWidget } from "./pwa-install-widget.js";
 
 import { supabase, getCurrentUser } from "./supabase.js";
 import { startSessionIdleTimeout } from "./session-idle-timeout.js";
@@ -63,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.body.dataset.userRole = userRole;
 
   registerServiceWorker(rootPath).catch(() => null);
+  initPwaInstallWidget({ rootPath });
   requestWakeLock();
   enableWakeLockAutoReacquire();
   initializeHapticFeedback();

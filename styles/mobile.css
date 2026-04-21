@@ -602,6 +602,131 @@ body {
   }
 }
 
+/* ---------- PWA: widget instalar app (móvil, beforeinstallprompt / iOS Safari) ---------- */
+.pwa-install-widget {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .pwa-install-widget:not([hidden]) {
+    display: block;
+    position: fixed;
+    z-index: 8500;
+    left: max(12px, env(safe-area-inset-left));
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    max-width: min(calc(100vw - 24px), 300px);
+    animation: pwa-install-widget-in 0.32s ease-out;
+  }
+}
+
+@keyframes pwa-install-widget-in {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-install-widget:not([hidden]) {
+    animation: none;
+  }
+}
+
+.pwa-install-widget__card {
+  position: relative;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-radius: 18px;
+  box-shadow: 0 14px 44px rgba(15, 23, 42, 0.16);
+  border: 1px solid var(--color-border);
+}
+
+.pwa-install-widget__x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+}
+
+.pwa-install-widget__head {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding-right: 40px;
+  margin-bottom: var(--space-2);
+}
+
+.pwa-install-widget__mascot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(240, 124, 42, 0.35);
+  flex-shrink: 0;
+}
+
+.pwa-install-widget__eyebrow {
+  margin: 0 0 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary-500);
+}
+
+.pwa-install-widget__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.pwa-install-widget__copy {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.pwa-install-widget__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.pwa-install-widget__install.btn {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pwa-install-widget__later.btn {
+  flex: 0 0 auto;
+}
+
+.pwa-install-widget__never {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-2);
+  padding: var(--space-1) 0 0;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
+}
+
+body[data-theme="dark"] .pwa-install-widget__card {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
 /* ---------- Better touch targets ---------- */
 @media (hover: none) and (pointer: coarse) {
   .btn,
