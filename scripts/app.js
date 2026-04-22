@@ -25,6 +25,13 @@ function resolveLoginHref(rootPath) {
   return `${p.replace(/\/+$/, "")}/login.html`;
 }
 
+function dismissBootLoader() {
+  const el = document.getElementById("appBootLoader");
+  if (!el) return;
+  el.setAttribute("aria-hidden", "true");
+  el.setAttribute("aria-busy", "false");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const pageType = document.body.dataset.pageType || "dashboard";
   const activeKey = document.body.dataset.moduleKey || "dashboard";
@@ -61,6 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.currentUserProfile = profile;
 
   document.body.classList.add("page-ready");
+  dismissBootLoader();
   document.body.dataset.userRole = userRole;
 
   registerServiceWorker(rootPath).catch(() => null);
@@ -312,6 +320,7 @@ function initializePageTransitions() {
   window.addEventListener("pageshow", () => {
     document.body.classList.remove("page-leaving");
     document.body.classList.add("page-ready");
+    dismissBootLoader();
   });
 }
 

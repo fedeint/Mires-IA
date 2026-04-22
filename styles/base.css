@@ -8,18 +8,22 @@ html {
   scroll-behavior: smooth;
 }
 
-html.js body {
+/* El contenido espera a `page-ready`; el loader #appBootLoader (si existe) queda visible. */
+html.js body:not(.page-ready) > *:not(#appBootLoader) {
   opacity: 0;
+  pointer-events: none;
 }
 
-html.js body.page-ready {
+html.js body.page-ready:not(.page-leaving) > *:not(#appBootLoader) {
   opacity: 1;
+  pointer-events: auto;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-html.js body.page-leaving {
+html.js body.page-leaving > *:not(#appBootLoader) {
   opacity: 0;
   transform: translateY(8px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 body {
@@ -34,9 +38,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js body,
-  html.js body.page-ready,
-  html.js body.page-leaving {
+  html.js body.page-ready:not(.page-leaving) > *:not(#appBootLoader),
+  html.js body.page-leaving > *:not(#appBootLoader) {
     transition: none;
     transform: none;
   }

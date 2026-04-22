@@ -20,15 +20,86 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
     <link rel="manifest" href="./Pwa/manifest.webmanifest" />
     <link rel="stylesheet" href="./styles/tokens.css?v=20260420-dashv2" />
-    <link rel="stylesheet" href="./styles/base.css?v=20260420-dashv2" />
+    <link rel="stylesheet" href="./styles/base.css?v=20260422-boot-loader" />
     <link rel="stylesheet" href="./styles/layout.css?v=20260423-mobile-scroll" />
-    <link rel="stylesheet" href="./styles/components.css?v=20260421-skeleton" />
+    <link rel="stylesheet" href="./styles/components.css?v=20260422-boot-loader" />
     <link rel="stylesheet" href="./styles/dashboard.css?v=20260421-skeleton" />
     <link rel="stylesheet" href="./styles/premium-modules.css?v=20260420-dashv2" />
     <link rel="stylesheet" href="./styles/mobile.css?v=20260426-pwa-widget" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body data-root-path="./" data-page-type="dashboard" data-module-key="dashboard" data-theme="light">
+    <div
+      id="appBootLoader"
+      class="app-boot-loader"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Cargando MiRest con IA"
+    >
+      <div class="app-boot-loader__inner">
+        <div class="app-boot-loader__cloche" aria-hidden="true">
+          <span class="app-boot-loader__ring"></span>
+          <div class="app-boot-loader__steam">
+            <span></span><span></span><span></span>
+          </div>
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+            <path
+              d="M32 6v5"
+              stroke="currentColor"
+              stroke-width="2.8"
+              stroke-linecap="round"
+            />
+            <path
+              d="M12 36c0-11 9-20 20-20s20 9 20 20"
+              stroke="currentColor"
+              stroke-width="2.6"
+              stroke-linecap="round"
+            />
+            <ellipse
+              cx="32"
+              cy="38"
+              rx="24"
+              ry="10.5"
+              stroke="currentColor"
+              stroke-width="2.6"
+              fill="currentColor"
+              fill-opacity="0.14"
+            />
+            <path
+              d="M18 38v6c0 3.5 5.5 7 14 7s14-3.5 14-7v-6"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              opacity="0.45"
+            />
+          </svg>
+        </div>
+        <div>
+          <p class="app-boot-loader__title">Preparando tu restaurante…</p>
+          <p class="app-boot-loader__tagline">MiRest con IA · Servicio en marcha</p>
+        </div>
+        <div class="app-boot-loader__spices" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+            <path d="M7 2v20" />
+            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h0v0a5 5 0 0 0 5 5v0v-7" />
+          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 11h.01" />
+            <path d="M11 15h.01" />
+            <path d="M16 16h.01" />
+            <path d="m2 16 20 5-5-20a7.9 7.9 0 0 0-4.1-4.1 7.9 7.9 0 0 0-8.2 2.2l-2.8 3.5a2 2 0 0 0 .6 2.8l.2.2" />
+            <path d="m5.4 20.7.7-.7a2 2 0 0 1 1.7-.5h2.2a2 2 0 0 0 1.8-1.1l1.4-2.7a2 2 0 0 1 1.7-.9h2.2a2 2 0 0 0 1.8-1.1" />
+          </svg>
+        </div>
+        <div class="app-boot-loader__bar" aria-hidden="true"></div>
+      </div>
+    </div>
+
     <div class="app-shell">
       <aside id="appSidebar" class="sidebar" aria-label="Panel lateral">
         <div class="sidebar__brand">
@@ -40,52 +111,7 @@
           </div>
         </div>
 
-        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal">
-          <div class="sidebar-nav-skeleton" aria-hidden="true">
-            <div class="sidebar-nav-skeleton__row">
-              <div class="skeleton sidebar-nav-skeleton__icon"></div>
-              <div class="sidebar-nav-skeleton__text">
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </div>
-            </div>
-            <div class="sidebar-nav-skeleton__row">
-              <div class="skeleton sidebar-nav-skeleton__icon"></div>
-              <div class="sidebar-nav-skeleton__text">
-                <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </div>
-            </div>
-            <div class="sidebar-nav-skeleton__row">
-              <div class="skeleton sidebar-nav-skeleton__icon"></div>
-              <div class="sidebar-nav-skeleton__text">
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </div>
-            </div>
-            <div class="sidebar-nav-skeleton__row">
-              <div class="skeleton sidebar-nav-skeleton__icon"></div>
-              <div class="sidebar-nav-skeleton__text">
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </div>
-            </div>
-            <div class="sidebar-nav-skeleton__row">
-              <div class="skeleton sidebar-nav-skeleton__icon"></div>
-              <div class="sidebar-nav-skeleton__text">
-                <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </div>
-            </div>
-            <div class="sidebar-nav-skeleton__row">
-              <div class="skeleton sidebar-nav-skeleton__icon"></div>
-              <div class="sidebar-nav-skeleton__text">
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
       </aside>
 
       <button
@@ -137,30 +163,12 @@
             </div>
 
             <div class="hero-panel__metrics" id="dashboardMetrics" aria-label="Métricas del día">
-              <article class="stat-card-skeleton" aria-hidden="true">
-                <div class="skeleton stat-card-skeleton__icon"></div>
-                <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </article>
-              <article class="stat-card-skeleton" aria-hidden="true">
-                <div class="skeleton stat-card-skeleton__icon"></div>
-                <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </article>
-              <article class="stat-card-skeleton" aria-hidden="true">
-                <div class="skeleton stat-card-skeleton__icon"></div>
-                <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </article>
-              <article class="stat-card-skeleton" aria-hidden="true">
-                <div class="skeleton stat-card-skeleton__icon"></div>
-                <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                <div class="skeleton skeleton-line skeleton-line--md"></div>
-                <div class="skeleton skeleton-line skeleton-line--sm"></div>
-              </article>
+              <p
+                class="hero-panel__metrics-pending"
+                style="grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--color-text-muted)"
+              >
+                Cargando métricas…
+              </p>
             </div>
           </section>
 
@@ -174,60 +182,12 @@
               </div>
 
               <div id="moduleGrid" class="module-grid" aria-live="polite">
-                <div class="module-card-skeleton" aria-hidden="true">
-                  <div class="module-card-skeleton__head">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div class="skeleton skeleton-pill skeleton-pill--small"></div>
-                  </div>
-                  <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                </div>
-                <div class="module-card-skeleton" aria-hidden="true">
-                  <div class="module-card-skeleton__head">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div class="skeleton skeleton-pill skeleton-pill--small"></div>
-                  </div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                </div>
-                <div class="module-card-skeleton" aria-hidden="true">
-                  <div class="module-card-skeleton__head">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div class="skeleton skeleton-pill skeleton-pill--small"></div>
-                  </div>
-                  <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                </div>
-                <div class="module-card-skeleton" aria-hidden="true">
-                  <div class="module-card-skeleton__head">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div class="skeleton skeleton-pill skeleton-pill--small"></div>
-                  </div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                </div>
-                <div class="module-card-skeleton" aria-hidden="true">
-                  <div class="module-card-skeleton__head">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div class="skeleton skeleton-pill skeleton-pill--small"></div>
-                  </div>
-                  <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                </div>
-                <div class="module-card-skeleton" aria-hidden="true">
-                  <div class="module-card-skeleton__head">
-                    <div class="skeleton skeleton-circle"></div>
-                    <div class="skeleton skeleton-pill skeleton-pill--small"></div>
-                  </div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                  <div class="skeleton skeleton-line skeleton-line--md"></div>
-                </div>
+                <p
+                  class="module-grid__pending"
+                  style="grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--color-text-muted)"
+                >
+                  Cargando módulos…
+                </p>
               </div>
             </section>
 
@@ -244,36 +204,9 @@
                   </span>
                 </div>
                 <div id="systemHighlights" class="ops-grid">
-                  <div class="ops-card-skeleton" aria-hidden="true">
-                    <div class="ops-card-skeleton__head">
-                      <div class="skeleton skeleton-circle"></div>
-                      <div class="skeleton skeleton-badge"></div>
-                    </div>
-                    <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                    <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                    <div class="skeleton skeleton-block"></div>
-                    <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  </div>
-                  <div class="ops-card-skeleton" aria-hidden="true">
-                    <div class="ops-card-skeleton__head">
-                      <div class="skeleton skeleton-circle"></div>
-                      <div class="skeleton skeleton-badge"></div>
-                    </div>
-                    <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                    <div class="skeleton skeleton-line skeleton-line--md"></div>
-                    <div class="skeleton skeleton-block"></div>
-                    <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                  </div>
-                  <div class="ops-card-skeleton" aria-hidden="true">
-                    <div class="ops-card-skeleton__head">
-                      <div class="skeleton skeleton-circle"></div>
-                      <div class="skeleton skeleton-badge"></div>
-                    </div>
-                    <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                    <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                    <div class="skeleton skeleton-block"></div>
-                    <div class="skeleton skeleton-line skeleton-line--md"></div>
-                  </div>
+                  <p style="grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--color-text-muted)">
+                    Cargando resumen operativo…
+                  </p>
                 </div>
               </section>
 
@@ -291,28 +224,9 @@
                   <span class="chip chip--soft">Resumen</span>
                 </div>
                 <ul id="insightsList" class="insight-list">
-                  <li class="insight-skeleton" aria-hidden="true">
-                    <div class="skeleton skeleton-circle" style="width: 36px; height: 36px"></div>
-                    <div style="flex: 1; display: grid; gap: 8px; min-width: 0">
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                      <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                      <div class="skeleton skeleton-line skeleton-line--md"></div>
-                    </div>
-                  </li>
-                  <li class="insight-skeleton" aria-hidden="true">
-                    <div class="skeleton skeleton-circle" style="width: 36px; height: 36px"></div>
-                    <div style="flex: 1; display: grid; gap: 8px; min-width: 0">
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                      <div class="skeleton skeleton-line skeleton-line--md"></div>
-                      <div class="skeleton skeleton-line skeleton-line--md"></div>
-                    </div>
-                  </li>
-                  <li class="insight-skeleton" aria-hidden="true">
-                    <div class="skeleton skeleton-circle" style="width: 36px; height: 36px"></div>
-                    <div style="flex: 1; display: grid; gap: 8px; min-width: 0">
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                      <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                  <li class="insight-chip insight-chip--pending">
+                    <div class="insight-chip__body" style="flex: 1; min-width: 0">
+                      <p style="margin: 0; font-size: 14px; color: var(--color-text-muted)">Cargando ideas de DalIA…</p>
                     </div>
                   </li>
                 </ul>
@@ -329,32 +243,11 @@
                     <h3>Próximas acciones</h3>
                   </div>
                 </div>
-                <div id="checklistProgress" class="checklist-progress">
-                  <div class="skeleton checklist-skeleton__bar" aria-hidden="true"></div>
-                </div>
+                <div id="checklistProgress" class="checklist-progress"></div>
                 <ul id="operationalChecklist" class="action-list">
-                  <li class="action-row-skeleton" aria-hidden="true">
-                    <div class="skeleton skeleton-circle" style="width: 32px; height: 32px"></div>
-                    <div class="skeleton skeleton-circle" style="width: 32px; height: 32px"></div>
-                    <div style="flex: 1; display: grid; gap: 8px">
-                      <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                    </div>
-                  </li>
-                  <li class="action-row-skeleton" aria-hidden="true">
-                    <div class="skeleton skeleton-circle" style="width: 32px; height: 32px"></div>
-                    <div class="skeleton skeleton-circle" style="width: 32px; height: 32px"></div>
-                    <div style="flex: 1; display: grid; gap: 8px">
-                      <div class="skeleton skeleton-line skeleton-line--md"></div>
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
-                    </div>
-                  </li>
-                  <li class="action-row-skeleton" aria-hidden="true">
-                    <div class="skeleton skeleton-circle" style="width: 32px; height: 32px"></div>
-                    <div class="skeleton skeleton-circle" style="width: 32px; height: 32px"></div>
-                    <div style="flex: 1; display: grid; gap: 8px">
-                      <div class="skeleton skeleton-line skeleton-line--lg"></div>
-                      <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                  <li class="action-row action-row--informational">
+                    <div class="action-row__body">
+                      <p style="margin: 0; font-size: 14px; color: var(--color-text-muted)">Cargando checklist…</p>
                     </div>
                   </li>
                 </ul>
@@ -373,7 +266,7 @@
       <i data-lucide="moon"></i>
     </button>
 
-    <script type="module" src="./scripts/app.js?v=20260421-dashboard-real"></script>
+    <script type="module" src="./scripts/app.js?v=20260422-boot-loader"></script>
     <script src="./scripts/dalia-widget.js?v=20260422-dalia-dock"></script>
   </body>
 </html>
