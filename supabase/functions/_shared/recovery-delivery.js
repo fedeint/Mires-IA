@@ -1,6 +1,6 @@
 /**
  * Recuperación de contraseña solo vía Supabase Auth (SMTP / plantillas del panel).
- * No usa Resend: el enlace lo envía GoTrue con la configuración de Authentication → Emails.
+ * El enlace lo envía GoTrue con la configuración de Authentication → Emails.
  */
 
 const DEFAULT_ORIGIN = "https://mires-ia.vercel.app";

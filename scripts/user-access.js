@@ -63,7 +63,7 @@ export function updateUserPermissions(userId, permissions, role) {
   return callManageUser(payload);
 }
 
-/** Solo superadmin. Envía correo con enlace seguro (Resend) para nueva contraseña. */
+/** Solo superadmin. Dispara el correo de recuperación vía Supabase Auth (SMTP del proyecto). */
 export function sendPasswordRecoveryToUser(userId) {
   return callManageUser({ action: "send_recovery_email", userId });
 }

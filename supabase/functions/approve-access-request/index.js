@@ -1,5 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { isSuperadmin } from "../_shared/auth-roles.js";
+import {
+  isAlreadyRegisteredError,
+  isSupabaseMailerFailure,
+  isUserConfirmed,
+} from "../_shared/invite-errors.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,22 +40,6 @@ async function findAuthUserByEmail(adminClient, email) {
     page += 1;
   }
   return null;
-}
-
-function isAlreadyRegisteredError(error) {
-  if (!error) return false;
-  const message = String(error.message || error.msg || "").toLowerCase();
-  return (
-    message.includes("already been registered") ||
-    message.includes("already registered") ||
-    message.includes("user already exists") ||
-    message.includes("email address has already")
-  );
-}
-
-function isUserConfirmed(user) {
-  if (!user) return false;
-  return Boolean(user.email_confirmed_at || user.confirmed_at || user.last_sign_in_at);
 }
 
 Deno.serve(async (request) => {
@@ -219,6 +208,10 @@ Deno.serve(async (request) => {
     },
   );
 
+  let invitedUser = inviteData?.user ?? null;
+  /** Solo si MIREST_DEV_INVITE_LINK_IN_RESPONSE=1: enlace en JSON para pruebas locales sin SMTP. */
+  let devActivationUrl = null;
+
   if (inviteError) {
     console.error(
       "[approve-access-request] invite FAILED",
@@ -236,16 +229,49 @@ Deno.serve(async (request) => {
         409,
       );
     }
-    return jsonResponse(
-      {
-        message: "No pudimos enviar la invitación. Revisa los ajustes de SMTP en Supabase Auth.",
-        detail: inviteError.message ?? null,
-      },
-      502,
-    );
+
+    const devReturnLink = Deno.env.get("MIREST_DEV_INVITE_LINK_IN_RESPONSE") === "1";
+    if (devReturnLink && isSupabaseMailerFailure(inviteError)) {
+      const { data: gen, error: genErr } = await adminClient.auth.admin.generateLink({
+        type: "invite",
+        email: accessRequest.email,
+        options: {
+          data: inviteMetadata,
+          redirectTo,
+        },
+      });
+      const actionLink = gen?.properties?.action_link;
+      if (genErr || !actionLink || typeof actionLink !== "string") {
+        return jsonResponse(
+          {
+            message: "SMTP de Auth falló; en modo dev, generateLink tampoco devolvió un enlace.",
+            detail: [inviteError.message, genErr?.message].filter(Boolean).join(" | "),
+          },
+          502,
+        );
+      }
+      devActivationUrl = actionLink;
+      invitedUser = gen?.user ?? await findAuthUserByEmail(adminClient, accessRequest.email);
+      console.warn(
+        "[approve-access-request] MIREST_DEV_INVITE_LINK_IN_RESPONSE: entrega manual del enlace (no usar en producción)",
+      );
+    } else {
+      return jsonResponse(
+        {
+          message:
+            "No pudimos enviar la invitación: el SMTP de Supabase Auth rechazó el envío. En Auth logs suele aparecer «535 BadCredentials» con Gmail: usa una contraseña de aplicación o corrige usuario/contraseña en Authentication → Emails → SMTP Settings. " +
+            "Para pruebas locales sin arreglar SMTP, ejecuta la función con MIREST_DEV_INVITE_LINK_IN_RESPONSE=1 y revisa el campo devActivationUrl en la respuesta JSON.",
+          detail: inviteError.message ?? null,
+        },
+        502,
+      );
+    }
   }
 
-  const invitedUser = inviteData?.user;
+  if (!invitedUser?.id && devActivationUrl) {
+    invitedUser = await findAuthUserByEmail(adminClient, accessRequest.email);
+  }
+
   if (invitedUser?.id) {
     const nextApp = { ...(invitedUser.app_metadata ?? {}), role };
     const { error: appMetaError } = await adminClient.auth.admin.updateUserById(invitedUser.id, {
@@ -263,7 +289,7 @@ Deno.serve(async (request) => {
     }
   }
 
-  console.log("[approve-access-request] invite OK", JSON.stringify({ email: accessRequest.email }));
+  console.log("[approve-access-request] invite OK", JSON.stringify({ email: accessRequest.email, dev: Boolean(devActivationUrl) }));
 
   const now = new Date().toISOString();
   const updates = {
@@ -299,10 +325,21 @@ Deno.serve(async (request) => {
     console.warn("No se pudieron limpiar solicitudes rechazadas previas:", cleanupError);
   }
 
+  const baseMsg =
+    action === "resend"
+      ? `Activación registrada para ${accessRequest.email}.`
+      : `Solicitud aprobada e invitación registrada para ${accessRequest.email}.`;
+  const devNote = devActivationUrl
+    ? " El correo no salió por SMTP; usa devActivationUrl solo en desarrollo."
+    : "";
+
   return jsonResponse({
-    message:
-      action === "resend"
-        ? `Activación reenviada a ${accessRequest.email}.`
-        : `Solicitud aprobada e invitación enviada a ${accessRequest.email}.`,
+    message: `${baseMsg}${devNote}`,
+    ...(devActivationUrl
+      ? {
+          devActivationUrl,
+          devWarning: "No habilitar MIREST_DEV_INVITE_LINK_IN_RESPONSE en producción: expone el enlace de invitación en la API.",
+        }
+      : {}),
   });
 });

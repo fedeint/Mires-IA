@@ -1,4 +1,4 @@
-// Público: dispara el correo de recuperación usando solo Supabase Auth (sin Resend).
+// Público: dispara el correo de recuperación usando solo Supabase Auth (SMTP del proyecto).
 // Requiere SUPABASE_ANON_KEY + SUPABASE_URL. verify_jwt = false si llamas desde el navegador con anon.
 
 import { deliverPasswordRecoveryViaSupabaseAuth } from "../_shared/recovery-delivery.js";

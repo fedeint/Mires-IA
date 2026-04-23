@@ -2,7 +2,7 @@ import { supabase } from "./supabase.js";
 
 /**
  * Recuperación solo por Supabase Auth (correo SMTP configurado en el panel del proyecto).
- * No usa Resend ni Edge Functions: mismo flujo que el SDK en resetPasswordForEmail.
+ * Mismo flujo que el SDK en resetPasswordForEmail (correo lo envía Auth con tu SMTP).
  */
 export async function requestPasswordRecoveryEmail(rawEmail) {
   const email = String(rawEmail || "")
@@ -24,6 +24,6 @@ export async function requestPasswordRecoveryEmail(rawEmail) {
   return {
     channel: "auth",
     message:
-      "Si el correo está registrado, Supabase enviará el enlace al buzón (revisa spam y Promociones en Gmail). El remitente y el texto los defines en el panel de Supabase, no en Resend.",
+      "Si el correo está registrado, Supabase enviará el enlace al buzón (revisa spam y Promociones en Gmail). El remitente y el texto los defines en Authentication → Emails del panel de Supabase.",
   };
 }
