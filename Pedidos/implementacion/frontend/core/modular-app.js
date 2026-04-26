@@ -99,6 +99,9 @@ const MODULE_META = {
 let refs;
 let initialized = false;
 
+const DESKTOP_SIDEBAR_MQ = window.matchMedia('(min-width: 960px)');
+let _viewportSidebarMqlBound = false;
+
 function cacheRefs() {
   refs = {
     body: document.body,
@@ -155,6 +158,18 @@ function openSidebar() {
 function toggleSidebar() {
   if (refs.body.classList.contains('sidebar-open')) closeSidebar();
   else openSidebar();
+}
+
+/**
+ * Alinea `sidebar-open` con el ancho y con el shell PWA.
+ * Llamar tras `initModularApp` (y PWA) para que en escritorio el dashboard lateral
+ * muestre lista + contenido, no cajón cerrado o rail sin etiquetas.
+ */
+export function applyViewportSidebarState() {
+  if (!refs || !refs.body) cacheRefs();
+  if (refs.body.classList.contains('pwa-shell')) return;
+  if (DESKTOP_SIDEBAR_MQ.matches) openSidebar();
+  else closeSidebar();
 }
 
 function openPrinterCenter() {
@@ -1080,6 +1095,12 @@ export function initModularApp() {
   console.debug('[modular-app] Render inicial completado');
   initOnboarding();
   console.debug('[modular-app] Onboarding inicializado');
+  if (!_viewportSidebarMqlBound) {
+    DESKTOP_SIDEBAR_MQ.addEventListener('change', () => {
+      applyViewportSidebarState();
+    });
+    _viewportSidebarMqlBound = true;
+  }
   initialized = true;
   console.info('[modular-app] Runtime modular activo ✓');
 }

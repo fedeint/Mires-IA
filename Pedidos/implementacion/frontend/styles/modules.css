@@ -2019,9 +2019,6 @@ body.has-scrolled .topbar {
     flex: 1;
     min-width: 0;
   }
-  .topbar-dashboard-btn {
-    display: none !important;
-  }
 
   /* Topbar ocupa solo el ancho del main */
   .topbar__right {
