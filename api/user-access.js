@@ -54,12 +54,16 @@ async function readJsonBody(req) {
 
 module.exports = async (req, res) => {
   withCors(res, req.headers.origin);
-  const method = (req.method || "GET").toUpperCase();
-
-  if (method === "OPTIONS") {
+  const mDirect = String(req.method || req.httpMethod || "").toUpperCase();
+  if (mDirect === "OPTIONS") {
     res.statusCode = 204;
     return res.end();
   }
+  // Nunca (req.method || "GET"): en algunas invocaciones, `req.method` llega vacío y
+  // el cliente hizo POST de verdad → asumir POST, no GET (405 METHOD falso).
+  const ovrH = req.headers["x-http-method-override"];
+  const ovr = ovrH != null && String(ovrH) !== "" ? String(ovrH).toUpperCase() : "";
+  const method = ovr || mDirect || "POST";
 
   if (method !== "POST") {
     res.setHeader("Allow", "POST, OPTIONS");
