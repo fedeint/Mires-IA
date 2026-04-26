@@ -33,7 +33,7 @@
   <!-- Design System — orden obligatorio:
        tokens → base → components → modules → [legacy styles.css] → patch -->
   <script>
-    window.__MIREST_ASSET_VERSION__ = 'smart-waiter-v2-20260424-1802';
+    window.__MIREST_ASSET_VERSION__ = 'smart-waiter-v2-20260427-global-bridge';
     window.__MIREST_DEV_BUST__ = ['localhost', '127.0.0.1'].includes(window.location.hostname)
       ? `?v=${window.__MIREST_ASSET_VERSION__}`
       : '';
@@ -45,6 +45,8 @@
   </script>
   <!-- Patch: corrige issues críticos del legacy styles.css (cargado al final) -->
   <script>document.write(`<link rel="stylesheet" href="./frontend/styles/patch.css${window.__MIREST_DEV_BUST__}" />`);</script>
+  <!-- Vuelta al dashboard global (index.html) — visible en toda resolución -->
+  <script>document.write(`<link rel="stylesheet" href="./frontend/styles/mirest-global-bridge.css${window.__MIREST_DEV_BUST__}" />`);</script>
 
   <script>
     if (['localhost', '127.0.0.1'].includes(window.location.hostname) && 'serviceWorker' in navigator) {
@@ -115,6 +117,15 @@
 
     <!-- ── MAIN ────────────────────────────────────────────────── -->
     <div class="app-main">
+      <nav class="mirest-global-bridge" aria-label="Aplicación principal — volver al panel">
+        <a
+          class="mirest-global-bridge__home"
+          id="mirestGlobalHomeLink"
+          href="../../index.html"
+        >← Panel principal (Dashboard global)</a>
+        <span class="mirest-global-bridge__crumb" aria-hidden="true">·</span>
+        <span class="mirest-global-bridge__where">Módulo Pedidos</span>
+      </nav>
 
       <!-- TOPBAR -->
       <header class="topbar" id="topbar">

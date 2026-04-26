@@ -1,0 +1,63 @@
+/**
+ * Puente hacia el dashboard global de MiRest (index.html en la raíz del sitio).
+ * Carga al final; no sustituye el "Dashboard" operativo del sidebar de Pedidos.
+ */
+.mirest-global-bridge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  min-height: 2.5rem;
+  padding: 0.45rem 1rem;
+  padding-top: max(0.45rem, env(safe-area-inset-top, 0px));
+  background: var(--app-color-surface, #fff);
+  border-bottom: 1px solid var(--app-color-border, #e5e7eb);
+  font-family: var(--app-font-family, Inter, system-ui, sans-serif);
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 0 rgba(15, 25, 44, 0.04);
+}
+
+.mirest-global-bridge__home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--app-color-primary, #de5a25);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 0.2rem 0.4rem;
+  margin: 0 -0.4rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mirest-global-bridge__home:hover {
+  background: color-mix(in srgb, var(--app-color-primary) 10%, transparent);
+  color: var(--app-color-control, #15192c);
+  text-decoration: none;
+}
+
+.mirest-global-bridge__home:focus-visible {
+  outline: 2px solid var(--app-color-primary, #de5a25);
+  outline-offset: 2px;
+}
+
+.mirest-global-bridge__crumb {
+  color: var(--app-color-text-subtle, #6b7280);
+  user-select: none;
+}
+
+.mirest-global-bridge__where {
+  color: var(--app-color-text, #15192c);
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .mirest-global-bridge {
+    font-size: 12px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
