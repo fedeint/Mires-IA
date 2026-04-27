@@ -1,3 +1,5 @@
+import { APP_ROLE_TO_SHELL } from "./mirest-role-maps.js";
+
 /** Solo luna/sol para el FAB de tema: evita cargar auth-inline-icons.js en todos los módulos. */
 function iconThemeFab(isDark) {
   const moon =
@@ -225,6 +227,8 @@ export const NAV_ITEMS = [
   ...MODULES,
 ];
 
+const NAV_MODULE_KEYS = new Set(["dashboard", "accesos", ...MODULES.map((m) => m.key)]);
+
 const ADMIN_MODULE_KEYS = MODULES
   .filter((item) => item.key !== "accesos")
   .map((item) => item.key);
@@ -325,12 +329,14 @@ export const ROLE_PERMISSIONS = {
 
 export function resolveUserRole(user) {
   if (!user) return "demo";
-  const metaRole =
+  const raw =
     (typeof user.app_metadata?.role === "string" && user.app_metadata.role.trim()) ||
     (typeof user.user_metadata?.role === "string" && user.user_metadata.role.trim()) ||
     "";
-  if (metaRole && ROLE_PERMISSIONS[metaRole]) return metaRole;
-
+  if (!raw) return "demo";
+  const shell = APP_ROLE_TO_SHELL[raw] || raw;
+  if (shell && ROLE_PERMISSIONS[shell]) return shell;
+  if (ROLE_PERMISSIONS[raw]) return raw;
   return "demo";
 }
 
@@ -361,11 +367,18 @@ export function canAccessConfiguracion(role) {
 }
 
 export function getModulesByRole(role, permissions) {
-  const perms = Array.isArray(permissions) && permissions.length > 0
+  let perms = Array.isArray(permissions) && permissions.length > 0
     ? permissions
     : ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.demo;
   if (perms.includes("*")) {
     return NAV_ITEMS;
+  }
+  const fromExplicitList = Array.isArray(permissions) && permissions.length > 0;
+  if (fromExplicitList) {
+    const hasMenuEntry = perms.some((p) => NAV_MODULE_KEYS.has(p) || p === "dashboard");
+    if (!hasMenuEntry) {
+      perms = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.demo;
+    }
   }
   return NAV_ITEMS.filter((item) => item.key === "dashboard" || perms.includes(item.key));
 }

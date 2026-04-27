@@ -593,6 +593,129 @@
       .crono-cell--def { background: rgba(100, 116, 139, 0.15); color: #334155; }
       .crono-cell--empty { color: #94a3b8; font-weight: 500; }
       .crono-cell--warn { background: rgba(245, 158, 11, 0.12); cursor: pointer; }
+      .accesos-subnav-wrap {
+        margin-bottom: var(--space-6);
+        padding: 5px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(248, 250, 252, 0.95));
+        border: 1px solid color-mix(in srgb, var(--color-border) 90%, var(--color-accent) 5%);
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.05);
+      }
+      body[data-theme="dark"] .accesos-subnav-wrap {
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.75));
+        border-color: rgba(148, 163, 184, 0.2);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+      }
+      .accesos-subnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        width: 100%;
+      }
+      @media (max-width: 700px) {
+        .accesos-subnav {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+        }
+        .accesos-subnav__tab {
+          flex: 0 0 auto;
+        }
+      }
+      .accesos-subnav__tab {
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 8px 16px 8px 12px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--color-text-muted);
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          color 0.2s ease,
+          box-shadow 0.2s ease;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      @media (min-width: 960px) {
+        .accesos-subnav__tab {
+          flex: 1 1 0;
+        }
+      }
+      .accesos-subnav__ico {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        color: var(--color-text-muted);
+        opacity: 0.9;
+        transition: color 0.2s ease, opacity 0.2s ease;
+      }
+      .accesos-subnav__txt {
+        line-height: 1.2;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      @media (max-width: 520px) {
+        .accesos-subnav__tab {
+          flex-direction: column;
+          gap: 4px;
+          min-height: 64px;
+          padding: 10px 8px 8px;
+        }
+        .accesos-subnav__txt {
+          font-size: 11px;
+          white-space: normal;
+          text-align: center;
+          line-height: 1.2;
+        }
+        .accesos-subnav__ico {
+          width: 20px;
+          height: 20px;
+        }
+      }
+      .accesos-subnav__tab:hover {
+        color: var(--color-text);
+        background: color-mix(in srgb, var(--color-surface) 70%, rgba(240, 124, 42, 0.06));
+        border-color: color-mix(in srgb, var(--color-border) 70%, var(--color-accent) 20%);
+      }
+      .accesos-subnav__tab:hover .accesos-subnav__ico {
+        color: var(--color-accent);
+        opacity: 1;
+      }
+      .accesos-subnav__tab.is-active {
+        color: #fff;
+        background: linear-gradient(135deg, #f08a3e 0%, #e45d1a 55%, #c2410c 100%);
+        border-color: color-mix(in srgb, var(--color-accent) 70%, #c2410c);
+        box-shadow: 0 2px 12px rgba(240, 100, 40, 0.32);
+      }
+      .accesos-subnav__tab.is-active .accesos-subnav__ico {
+        color: #fff;
+        opacity: 1;
+      }
+      body[data-theme="dark"] .accesos-subnav__tab.is-active {
+        background: linear-gradient(135deg, #ea580c, #9a3412 90%);
+        box-shadow: 0 2px 16px rgba(234, 88, 12, 0.4);
+        border-color: rgba(254, 215, 170, 0.35);
+      }
+      .accesos-subnav__tab:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+      .accesos-panel[hidden] {
+        display: none !important;
+      }
     </style>
   </head>
   <body data-root-path="../" data-page-type="module" data-module-key="accesos" data-theme="light">
@@ -647,6 +770,29 @@
               <button type="button" class="btn btn--primary" id="btnAccesosModuleOnb">Iniciar tour</button>
             </div>
           </div>
+
+          <div class="accesos-subnav-wrap">
+            <nav class="accesos-subnav" id="accesosSubnav" role="tablist" aria-label="Submódulos de Accesos">
+              <button type="button" class="accesos-subnav__tab is-active" id="tabAccSolic" role="tab" aria-selected="true" data-accesos-panel="solicitudes">
+                <i data-lucide="inbox" class="accesos-subnav__ico" aria-hidden="true"></i>
+                <span class="accesos-subnav__txt">Solicitudes</span>
+              </button>
+              <button type="button" class="accesos-subnav__tab" id="tabAccUsers" role="tab" aria-selected="false" data-accesos-panel="usuarios">
+                <i data-lucide="users" class="accesos-subnav__ico" aria-hidden="true"></i>
+                <span class="accesos-subnav__txt">Usuarios</span>
+              </button>
+              <button type="button" class="accesos-subnav__tab" id="tabAccCrono" role="tab" aria-selected="false" data-accesos-panel="turnos">
+                <i data-lucide="calendar-range" class="accesos-subnav__ico" aria-hidden="true"></i>
+                <span class="accesos-subnav__txt">Turnos y cronograma</span>
+              </button>
+              <button type="button" class="accesos-subnav__tab" id="tabAccInvitar" role="tab" aria-selected="false" data-accesos-panel="invitar">
+                <i data-lucide="user-plus" class="accesos-subnav__ico" aria-hidden="true"></i>
+                <span class="accesos-subnav__txt">Invitar usuario</span>
+              </button>
+            </nav>
+          </div>
+
+          <div id="accesosPanelSolicitudes" class="accesos-panel" role="tabpanel" aria-labelledby="tabAccSolic">
           <div class="accesos-header">
             <div>
               <h2>Solicitudes de acceso</h2>
@@ -704,8 +850,10 @@
               </tbody>
             </table>
           </div>
+          </div><!-- /accesosPanelSolicitudes -->
 
-          <div class="accesos-header" style="margin-top: 32px;">
+          <div id="accesosPanelUsuarios" class="accesos-panel" role="tabpanel" aria-labelledby="tabAccUsers" hidden>
+          <div class="accesos-header" style="margin-top: 0;">
             <div>
               <h2>Usuarios con acceso</h2>
               <p style="color:var(--color-text-muted); font-size: 14px;">Revoca, restaura o elimina accesos. Las contraseñas no son visibles para nadie; usa <strong>Enviar recuperación</strong> para que el usuario reciba un enlace seguro y elija una nueva.</p>
@@ -742,8 +890,10 @@
               </tbody>
             </table>
           </div>
+          </div><!-- /accesosPanelUsuarios -->
 
-          <section class="crono-section" style="margin-top: 40px;">
+          <div id="accesosPanelTurnos" class="accesos-panel" role="tabpanel" aria-labelledby="tabAccCrono" hidden>
+          <section class="crono-section" style="margin-top: 0;">
             <div class="accesos-header">
               <div>
                 <h2>Turnos y cronograma</h2>
@@ -772,9 +922,24 @@
             <div id="panelCronoSemana" class="crono-panel" style="display: none; overflow-x: auto">
               <div id="cronoWeekGrid" style="min-width: 720px; font-size: 12px">Cargando…</div>
             </div>
+            <p id="cronoTurnoHint" style="font-size: 12px; color: var(--color-text-muted); margin-top: 20px; display: none">
+              Sin turno en hoja: aún se puede
+              <strong>Asignar turno</strong> con el botón en un usuario.
+            </p>
+          </section>
+          </div><!-- /accesosPanelTurnos -->
 
-            <div class="crono-invite" style="margin-top: 28px; padding: 20px; border: 1px solid var(--color-border); border-radius: 16px">
-              <h3 style="margin: 0 0 4px; font-size: 18px">Añadir usuario (invitación)</h3>
+          <div id="accesosPanelInvitar" class="accesos-panel" role="tabpanel" aria-labelledby="tabAccInvitar" hidden>
+            <div class="accesos-header" style="margin-top: 0;">
+              <div>
+                <h2>Invitar usuario</h2>
+                <p style="color: var(--color-text-muted); font-size: 14px; max-width: 720px">
+                  Añade una cuenta por correo; el usuario confirma y queda vinculado a tu local. Puedes definir turno ahora o después.
+                </p>
+              </div>
+            </div>
+            <div class="crono-invite" style="padding: 20px; border: 1px solid var(--color-border); border-radius: 16px">
+              <h3 style="margin: 0 0 8px; font-size: 17px; font-weight: 700">Datos de la invitación y turno</h3>
               <p style="color: var(--color-text-muted); font-size: 14px; margin: 0 0 16px">Se envía un correo de activación. El turno queda asociado al aceptar.</p>
               <form id="formInviteUser" class="crono-form">
                 <div style="display: grid; gap: 10px; max-width: 420px; margin-bottom: 16px">
@@ -818,11 +983,7 @@
                 </div>
               </form>
             </div>
-            <p id="cronoTurnoHint" style="font-size: 12px; color: var(--color-text-muted); margin-top: 20px; display: none">
-              Sin turno en hoja: aún se puede
-              <strong>Asignar turno</strong> con el botón en un usuario.
-            </p>
-          </section>
+          </div><!-- /accesosPanelInvitar -->
         </main>
       </div>
     </div>
@@ -832,7 +993,7 @@
     </button>
 
     <script type="module" src="../scripts/app.js?v=20260421-idle-scroll"></script>
-    <script type="module" src="./accesos.js?v=20260430-rls-refresh"></script>
+    <script type="module" src="./accesos.js?v=20260526-subnav-ux-salir"></script>
     <script src="../scripts/dalia-widget.js"></script>
   </body>
 </html>

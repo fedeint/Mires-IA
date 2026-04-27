@@ -211,19 +211,6 @@ function setupLogoutBtn(rootPath) {
     window.location.href = loginHref;
   };
 
-  const actions = document.querySelector(".topbar__actions");
-  if (actions && !document.getElementById("topbarLogoutBtn")) {
-    const btn = document.createElement("button");
-    btn.id = "topbarLogoutBtn";
-    btn.type = "button";
-    btn.className = "btn btn--ghost btn--sm topbar-logout-btn";
-    btn.setAttribute("aria-label", "Cerrar sesión");
-    btn.innerHTML = '<i data-lucide="log-out"></i><span class="topbar-logout-btn__label">Salir</span>';
-    btn.addEventListener("click", signOutAndGoLogin);
-    actions.insertBefore(btn, actions.firstChild);
-    window.lucide?.createIcons?.();
-  }
-
   document.getElementById("sidebarLogoutBtn")?.addEventListener("click", signOutAndGoLogin);
 
   const avatar = document.querySelector(".avatar");

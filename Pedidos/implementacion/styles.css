@@ -381,6 +381,43 @@ body.sidebar-open .sidebar-backdrop {
   min-width: 0;
 }
 
+/* Cinta de submódulos PWA (Caja, Menú, Pedidos…) — index.html#pwaModuleStrip */
+.pwa-module-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 12px;
+  max-width: 100%;
+}
+.pwa-module-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #0f172a);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.pwa-module-pill:hover {
+  border-color: var(--color-accent, #f07c2a);
+  color: var(--color-accent, #c2410c);
+}
+.pwa-module-pill.is-active {
+  background: color-mix(in srgb, var(--color-accent, #f07c2a) 16%, transparent);
+  border-color: var(--color-accent, #f07c2a);
+  color: var(--color-text, #0f172a);
+}
+.pwa-module-pill__t {
+  white-space: nowrap;
+}
+
 body.has-scrolled .topbar {
   background: color-mix(in srgb, var(--color-surface) 78%, transparent);
   border-color: color-mix(in srgb, var(--color-border) 84%, transparent);

@@ -331,6 +331,23 @@ function openLogoutSessionGuide() {
   syncConfirmState();
 }
 
+function renderPwaModuleStrip(activeModule) {
+  const ids = getModulesByCurrentRole();
+  if (ids.length < 2) {
+    return { html: '', show: false };
+  }
+  const html = ids
+    .map((id) => {
+      const meta = MODULE_META[id] || { title: id };
+      const active = id === activeModule;
+      return `<button type="button" class="pwa-module-pill${active ? " is-active" : ""}" data-open-module="${id}" data-nav-module="${id}"><span class="pwa-module-pill__t">${escapeHtml(
+        meta.title,
+      )}</span></button>`;
+    })
+    .join("");
+  return { html, show: true };
+}
+
 function renderModeSwitcher(activeMode) {
   return `
     <div class="mode-switcher" role="tablist" aria-label="Selector de área operativa">
@@ -603,6 +620,12 @@ function renderApp() {
   refs.topbarEyebrow.textContent = meta.eyebrow;
   refs.topbarTitle.textContent = meta.title;
   if (refs.modeSwitcher) refs.modeSwitcher.innerHTML = state.activeModule === 'pedidos' ? renderModeSwitcher(state.mode) : '';
+  const pwaStrip = document.getElementById("pwaModuleStrip");
+  if (pwaStrip) {
+    const { html, show } = renderPwaModuleStrip(state.activeModule);
+    pwaStrip.innerHTML = html;
+    pwaStrip.toggleAttribute("hidden", !show);
+  }
   refs.modeHero.style.display = shouldHideModeHero ? 'none' : '';
   refs.summaryStats.style.display = currentView.hideSummary ? 'none' : '';
   refs.modeHero.innerHTML = shouldHideModeHero ? '' : renderHero(state.mode, stats);

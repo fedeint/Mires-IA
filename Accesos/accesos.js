@@ -1444,8 +1444,68 @@ function openEditTurnoModal(userId) {
   });
 }
 
+const ACCESOS_PANEL_IDS = /** @type {const} */ (["solicitudes", "usuarios", "turnos", "invitar"]);
+
+/**
+ * Submódulos en pestañas: Solicitudes | Usuarios | Turnos | Invitar (#solicitudes, #usuarios, …)
+ */
+function showAccesosPanel(panelId, { updateHash = true } = {}) {
+  const id = ACCESOS_PANEL_IDS.includes(/** @type {any} */ (panelId)) ? panelId : "solicitudes";
+  /** @type {Record<string, HTMLElement | null>} */
+  const panels = {
+    solicitudes: document.getElementById("accesosPanelSolicitudes"),
+    usuarios: document.getElementById("accesosPanelUsuarios"),
+    turnos: document.getElementById("accesosPanelTurnos"),
+    invitar: document.getElementById("accesosPanelInvitar"),
+  };
+  const subnav = document.getElementById("accesosSubnav");
+  for (const k of ACCESOS_PANEL_IDS) {
+    const el = panels[k];
+    if (el) el.hidden = k !== id;
+  }
+  if (subnav) {
+    subnav.querySelectorAll("[data-accesos-panel]").forEach((btn) => {
+      const is = btn.getAttribute("data-accesos-panel") === id;
+      btn.classList.toggle("is-active", is);
+      btn.setAttribute("aria-selected", is ? "true" : "false");
+    });
+  }
+  if (updateHash && typeof location !== "undefined") {
+    const next = `#${id}`;
+    if (location.hash !== next) {
+      history.replaceState(null, "", next);
+    }
+  }
+  if (id === "turnos") {
+    void loadCrono();
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function initAccesosSubnav() {
+  const subnav = document.getElementById("accesosSubnav");
+  if (!subnav) return;
+  subnav.addEventListener("click", (e) => {
+    const b = e.target && /** @type {HTMLElement} */ (e.target).closest("[data-accesos-panel]");
+    if (!b) return;
+    const id = b.getAttribute("data-accesos-panel");
+    if (id) showAccesosPanel(id, { updateHash: true });
+  });
+  window.addEventListener("hashchange", () => {
+    const raw = (location.hash || "#solicitudes").replace(/^#/, "") || "solicitudes";
+    if (ACCESOS_PANEL_IDS.includes(/** @type {any} */ (raw))) {
+      showAccesosPanel(raw, { updateHash: false });
+    }
+  });
+  const initial = (location.hash || "#solicitudes").replace(/^#/, "") || "solicitudes";
+  showAccesosPanel(ACCESOS_PANEL_IDS.includes(/** @type {any} */ (initial)) ? initial : "solicitudes", {
+    updateHash: !ACCESOS_PANEL_IDS.includes(/** @type {any} */ (initial)),
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   void loadRolesConfigMap().catch((e) => console.warn("[accesos] roles_modulos", e));
+  initAccesosSubnav();
   refreshBtn.addEventListener("click", loadRequests);
   if (refreshUsersBtn) refreshUsersBtn.addEventListener("click", loadUsers);
 
