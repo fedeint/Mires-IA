@@ -96,3 +96,10 @@ export function updateUserPermissions(userId, permissions, role) {
 export function sendPasswordRecoveryToUser(userId) {
   return callManageUser({ action: "send_recovery_email", userId });
 }
+
+/**
+ * @param {{ email: string, role: string, fullName?: string, permissions?: string[], shift?: { days: string[], horaEntrada: string, horaSalida: string, categoria?: string } }} body
+ */
+export function inviteUser(body) {
+  return callManageUser({ action: "invite_user", ...body });
+}

@@ -12,12 +12,21 @@ import {
 import { supabase } from "../scripts/supabase.js";
 import {
   deleteUser,
+  inviteUser,
   listUsers,
   restoreUser,
   revokeUser,
   sendPasswordRecoveryToUser,
   updateUserPermissions,
 } from "../scripts/user-access.js?v=20260426-access-proxy-5";
+import {
+  DIA_CORTO,
+  DIAS_ORDEN,
+  fetchTurnosForContext,
+  groupByUserId,
+  replaceUserTurnos,
+  resumirTurnosParaArbol,
+} from "../scripts/usuario-turnos.js?v=20260503-v1";
 import {
   getAssignableModules,
   getRoleLabel,
@@ -43,6 +52,10 @@ const refreshUsersBtn = document.getElementById("refreshUsersBtn");
 
 let accessRequests = [];
 let usersList = [];
+/** @type {string | null} */
+let accesosCallerTenant = null;
+/** @type {Array<Record<string, unknown>>} */
+let turnosRows = [];
 let isRendering = false;
 let isLoadingUsers = false;
 let showRejected = false;
@@ -915,7 +928,9 @@ async function loadUsers() {
   try {
     const data = await listUsers();
     usersList = data?.users ?? [];
+    accesosCallerTenant = data?.callerTenant ?? accesosCallerTenant;
     renderUsersTable(usersList);
+    await loadCrono();
   } catch (error) {
     usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No pudimos cargar los usuarios.</td></tr>`;
     setUsersFeedback(error.message || "Error cargando usuarios.", "error");
@@ -1124,6 +1139,311 @@ function openConfigModal({ title, subject, initialRole, initialPerms, confirmLab
   });
 }
 
+// ── Turnos / cronograma (usuario_turnos) ───────────────────────────────────
+
+function getRoleCronoClass(role) {
+  const r = (role || "").toLowerCase();
+  if (r === "caja") return "crono-cell--caja";
+  if (r === "chef" || r === "cocinero" || r === "pedidos" || r === "mesero") return "crono-cell--ops";
+  if (r === "almacen" || r === "almacenero") return "crono-cell--alm";
+  if (r === "admin" || r === "superadmin" || r === "administrador") return "crono-cell--admin";
+  return "crono-cell--def";
+}
+
+function buildWeekCell(user, dia, byUser) {
+  const list = (byUser.get(user.id) || []).filter((t) => t.activo !== false);
+  const t = list.find((r) => r.dia === dia);
+  if (t) {
+    const a = (t.hora_entrada || "").toString().slice(0, 5);
+    const b = (t.hora_salida || "").toString().slice(0, 5);
+    return `<div class="crono-cell ${getRoleCronoClass(user.role)}" data-dia="${dia}">${a}–${b}</div>`;
+  }
+  if (isPendingActivation(user) || user.banned_until) {
+    return `<div class="crono-cell crono-cell--empty">—</div>`;
+  }
+  if (!list.length) {
+    return `<div class="crono-cell crono-cell--warn" title="Turno pendiente: sin franja activa este día" data-dia="${dia}">⚠</div>`;
+  }
+  return `<div class="crono-cell crono-cell--empty">—</div>`;
+}
+
+async function loadCrono() {
+  const treeEl = document.getElementById("cronoArbolTree");
+  const weekEl = document.getElementById("cronoWeekGrid");
+  if (!treeEl) return;
+  const ids = usersList.map((u) => u.id);
+  try {
+    turnosRows = await fetchTurnosForContext(ids);
+  } catch (e) {
+    console.warn(e);
+    turnosRows = [];
+  }
+  const byUser = groupByUserId(turnosRows);
+  const tid =
+    accesosCallerTenant ||
+    usersList.find((u) => u.tenant_id)?.tenant_id ||
+    null;
+  let tenantName = "Restaurante";
+  if (tid) {
+    const { data: tn } = await supabase.from("tenants").select("name").eq("id", tid).maybeSingle();
+    if (tn?.name) tenantName = tn.name;
+  }
+  const admin = usersList.find(
+    (u) => (u.role === "admin" || u.role === "superadmin") && !u.protected,
+  ) || usersList[0];
+  const adminName =
+    (window.currentUserProfile && window.currentUserProfile.firstName) ||
+    admin?.full_name ||
+    admin?.email ||
+    "Admin";
+
+  const lines = [];
+  lines.push(`<div class="crono-tree-root"><span class="crono-tree-ico" aria-hidden="true">🏠</span> <strong>${escapeHtml(
+    tenantName,
+  )}</strong> <span class="crono-tree-sub">(Admin: ${escapeHtml(adminName)})</span></div>`);
+  for (const u of usersList) {
+    if (u.protected) continue;
+    const tlist = byUser.get(u.id) || [];
+    const hasActivo = tlist.some((r) => r.activo !== false);
+    const res = resumirTurnosParaArbol(tlist);
+    const isInactive = !!u.banned_until;
+    const isGrey = isInactive;
+    const turnoPendiente = !isInactive && !isPendingActivation(u) && !hasActivo;
+    const badge = isGrey
+      ? "⚫ <span class=\"crono-tree-badge crono-tree-badge--grey\">Inactivo</span>"
+      : isPendingActivation(u)
+        ? ""
+        : turnoPendiente
+          ? "<span class=\"crono-tree-badge crono-tree-badge--warn\" title=\"Sin turno asignado: ninguna fila activa en usuario_turnos\">Turno pendiente</span>"
+          : "✅";
+    const roleL = getRoleLabel(u.role) || u.role || "—";
+    const head = `${isGrey ? "⚫" : "👤"} <strong>${escapeHtml(u.full_name || u.email || u.id)}</strong> — ${escapeHtml(
+      roleL,
+    )} ${badge ? ` ${badge}` : ""}
+      <button type="button" class="btn btn--secondary" style="font-size: 11px; margin-left: 6px" data-edit-turno="${u.id}">${hasActivo ? "Editar turno" : "Asignar turno"}</button>
+    `;
+    let sub = "";
+    if (hasActivo) {
+      sub = `<ul class="crono-tree-feat">${res.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+    } else if (turnoPendiente) {
+      const hint =
+        tlist.length > 0
+          ? "Tienes días guardados, pero el turno está desactivado o incompleto. Pulsa <strong>Asignar turno</strong>."
+          : "Sin días u horas activas. Pulsa <strong>Asignar turno</strong>.";
+      sub = `<p class="crono-tree-feat" style="color: #c2410c; margin: 4px 0 0 18px">${hint}</p>`;
+    }
+    lines.push(`<div class="crono-tree-user ${isGrey ? "crono-tree-user--grey" : ""}">${head}${sub ? `<div style="padding-left: 18px">${sub}</div>` : ""}</div>`);
+  }
+  treeEl.innerHTML = lines.join("");
+
+  treeEl.querySelectorAll("[data-edit-turno]").forEach((btn) => {
+    btn.addEventListener("click", () => openEditTurnoModal(/** @type {string} */ (btn.getAttribute("data-edit-turno"))));
+  });
+
+  if (weekEl) {
+    let header = '<table class="crono-week-t"><thead><tr><th class="crono-w-name"></th>';
+    for (const d of DIAS_ORDEN) {
+      header += `<th>${DIA_CORTO[d]}</th>`;
+    }
+    header += "</tr></thead><tbody>";
+    for (const u of usersList) {
+      if (u.protected) continue;
+      header += `<tr data-crono-user-id="${escapeHtml(u.id)}"><th class="crono-w-who"><span class="crono-w-namein">${escapeHtml(
+        u.full_name || u.email || u.id,
+      )}</span></th>`;
+      for (const d of DIAS_ORDEN) {
+        header += `<td>${buildWeekCell(u, d, byUser)}</td>`;
+      }
+      header += "</tr>";
+    }
+    header += "</tbody></table>";
+    weekEl.innerHTML = header;
+    weekEl.querySelectorAll(".crono-cell--warn").forEach((el) => {
+      const tr = el.closest("tr");
+      const uid = tr && tr.getAttribute("data-crono-user-id");
+      if (uid) {
+        el.addEventListener("click", () => openEditTurnoModal(uid));
+        el.setAttribute("role", "button");
+        el.setAttribute("tabindex", "0");
+      }
+    });
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+let invitePermContextId = "invite-perm-ctx";
+
+function setupInviteDias() {
+  const host = document.getElementById("inviteDiasRow");
+  if (!host) return;
+  host.innerHTML = DIAS_ORDEN.map((d) => {
+    return `<label style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px;">
+      <input type="checkbox" class="crono-dia-cb" value="${d}" ${["lunes", "martes", "miercoles", "jueves", "viernes"].includes(d) ? "checked" : ""} />
+      ${DIA_CORTO[d]}</label>`;
+  }).join("");
+}
+
+function setupInviteForm() {
+  const form = document.getElementById("formInviteUser");
+  const roleSel = document.getElementById("inviteRole");
+  const perms = document.getElementById("invitePermContainer");
+  if (!form || !roleSel || !perms) return;
+  roleSel.innerHTML = getRoleOptions()
+    .map((o) => `<option value="${o.value}">${o.label}</option>`)
+    .join("");
+  invitePermContextId = "invite-" + Date.now();
+  perms.innerHTML = `<label class="modal-label">Módulos habilitados</label>` + renderPermGrid({ contextId: invitePermContextId, selected: permissionsForRole("admin") });
+  roleSel.addEventListener("change", () => {
+    perms.innerHTML = `<label class="modal-label">Módulos habilitados</label>` + renderPermGrid({ contextId: invitePermContextId, selected: permissionsForRole(roleSel.value) });
+    if (window.lucide) window.lucide.createIcons();
+  });
+  setupInviteDias();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fb = document.getElementById("inviteFormFeedback");
+    if (fb) {
+      fb.textContent = "Enviando invitación…";
+      fb.style.color = "var(--color-text-muted)";
+    }
+    const email = document.getElementById("inviteEmail")?.value?.trim() || "";
+    const fullName = document.getElementById("inviteNombre")?.value?.trim() || "";
+    const role = roleSel.value;
+    const permissions = readPermissions(invitePermContextId);
+    if (permissions.length === 0 && role !== "admin" && role !== "superadmin") {
+      if (fb) {
+        fb.textContent = "Selecciona al menos un módulo o rol administrador.";
+        fb.style.color = "var(--color-destructive, #dc2626)";
+      }
+      return;
+    }
+    const dias = [...document.querySelectorAll(".crono-dia-cb:checked")].map((c) => c.value);
+    const hIn = document.getElementById("inviteHoraIn")?.value || "08:00";
+    const hOut = document.getElementById("inviteHoraOut")?.value || "16:00";
+    const cat = document.getElementById("inviteCategoria")?.value || "fijo";
+    try {
+      const payload = { email, fullName, role, permissions, shift: { days: dias, horaEntrada: hIn, horaSalida: hOut, categoria: cat } };
+      if (window.currentUserRole === "superadmin") {
+        const tid = accesosCallerTenant || usersList.find((u) => u.tenant_id)?.tenant_id;
+        if (tid) payload.tenantId = tid;
+      }
+      const r = await inviteUser(payload);
+      if (fb) {
+        fb.textContent = r?.message || "Invitación creada.";
+        fb.style.color = "#047857";
+      }
+      form.reset();
+      setupInviteDias();
+      await loadUsers();
+    } catch (err) {
+      if (fb) {
+        fb.textContent = err?.message || "No se pudo invitar";
+        fb.style.color = "var(--color-destructive, #dc2626)";
+      }
+    }
+  });
+}
+
+function openEditTurnoModal(userId) {
+  const u = usersList.find((x) => x.id === userId);
+  if (!u) return;
+  const byUser = groupByUserId(turnosRows);
+  const current = (byUser.get(userId) || []).filter((t) => t.activo !== false);
+  const ctx = `ed-turno-${userId}`;
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  const diasChk = DIAS_ORDEN.map((d) => {
+    const on = current.find((c) => c.dia === d) ? "checked" : "";
+    return `<label style="display: inline-flex; align-items: center; gap: 4px; margin: 3px; font-size: 13px;"><input type="checkbox" class="crono-ed-m-dia" value="${d}" ${on}/>${DIA_CORTO[d]}</label>`;
+  }).join(" ");
+  const t0 = current[0];
+  const hIn = (t0 && (t0.hora_entrada || "").toString().slice(0, 5)) || "08:00";
+  const hOut = (t0 && (t0.hora_salida || "").toString().slice(0, 5)) || "16:00";
+  backdrop.innerHTML = `<div class="modal-card" role="dialog" aria-label="Editar turno" style="max-width: 520px; max-height: 90vh; overflow-y: auto">
+    <h3 style="margin-top:0">Turno: ${escapeHtml(u.full_name || u.email || "")}</h3>
+    <p style="color: var(--color-text-muted); font-size: 14px; margin-top:0">Días, hora entrada/salida (mismo horario en todos los días seleccionados).</p>
+    <div style="margin: 8px 0; display: flex; flex-wrap: wrap">${diasChk}</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0; align-items: end">
+      <div><label class="modal-label">Entrada</label><input type="time" class="request-role-select" id="${ctx}-ent" value="${hIn}"/></div>
+      <div><label class="modal-label">Salida</label><input type="time" class="request-role-select" id="${ctx}-sal" value="${hOut}"/></div>
+    </div>
+    <div id="${ctx}-copyrow" class="crono-modal-copy" style="font-size: 12px; color: var(--color-text-muted); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px">
+        <span>Copiar de</span>
+        <span id="${ctx}-msg" style="min-height:1.2em"></span>
+    </div>
+    <div class="modal-actions" style="margin-top: 16px; justify-content: space-between; flex-wrap: wrap">
+      <div style="font-size: 12px; color: var(--color-text-muted)"></div>
+      <div>
+        <button class="btn btn--secondary" type="button" data-crono-close>Cancelar</button>
+        <button class="btn btn--primary" type="button" data-crono-save>Guardar</button>
+        <button class="btn request-actions__danger" type="button" data-crono-off style="font-size: 12px" title="Activar/Desactivar — conserva días; aquí: quitar días o guarda vacío para dejar en pendiente">Vaciar turno</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(backdrop);
+  if (window.lucide) window.lucide.createIcons();
+  const close = () => backdrop.remove();
+  backdrop.querySelector("[data-crono-close]")?.addEventListener("click", close);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) close();
+  });
+  const copySel = document.createElement("select");
+  copySel.id = `${ctx}-copy-sel`;
+  copySel.className = "request-role-select";
+  copySel.style.maxWidth = "200px";
+  const peers = usersList.filter((o) => o.id !== userId && o.role === u.role);
+  copySel.innerHTML = `<option value="">Copiar de… (mismo rol: ${(u.role || "—")})</option>` + peers.map((p) => `<option value="${p.id}">${(p.full_name || p.email || p.id).slice(0, 32)}</option>`).join("");
+  const msgTarget = backdrop.querySelector(`#${ctx}-msg`);
+  if (msgTarget) msgTarget.insertAdjacentElement("beforebegin", copySel);
+  copySel.addEventListener("change", () => {
+    const fromId = copySel.value;
+    const msg = document.getElementById(`${ctx}-msg`);
+    if (msg) msg.textContent = "";
+    if (!fromId) return;
+    const srcU = usersList.find((q) => q.id === fromId);
+    if (!srcU) return;
+    const src = (groupByUserId(turnosRows).get(srcU.id) || []).filter((t) => t.activo !== false);
+    for (const d of DIAS_ORDEN) {
+      const cb = backdrop.querySelector(`.crono-ed-m-dia[value="${d}"]`);
+      if (cb) cb.checked = src.some((s) => s.dia === d);
+    }
+    const s0 = src[0];
+    if (s0) {
+      const ent = document.getElementById(`${ctx}-ent`);
+      const sal = document.getElementById(`${ctx}-sal`);
+      if (ent) ent.value = (s0.hora_entrada || "").toString().slice(0, 5) || "08:00";
+      if (sal) sal.value = (s0.hora_salida || "").toString().slice(0, 5) || "16:00";
+    }
+    if (msg) msg.textContent = "Horas y días copiados. Pulsa Guardar para aplicar.";
+  });
+  if (peers.length === 0) {
+    const m = document.getElementById(`${ctx}-msg`);
+    if (m) m.textContent = "— No hay otro usuario con el mismo rol para copiar.";
+  }
+  backdrop.querySelector("[data-crono-off]")?.addEventListener("click", () => {
+    for (const cb of backdrop.querySelectorAll(".crono-ed-m-dia")) {
+      cb.checked = false;
+    }
+  });
+  backdrop.querySelector("[data-crono-save]")?.addEventListener("click", async () => {
+    const hIn2 = document.getElementById(`${ctx}-ent`)?.value;
+    const hOut2 = document.getElementById(`${ctx}-sal`)?.value;
+    const días = [...backdrop.querySelectorAll(".crono-ed-m-dia:checked")].map((c) => c.value);
+    const rows = días
+      .filter((d) => d && hIn2 && hOut2)
+      .map((d) => ({ dia: d, hora_entrada: hIn2, hora_salida: hOut2, activo: true, categoria: "fijo" }));
+    try {
+      await replaceUserTurnos(userId, rows);
+      setUsersFeedback("Turno actualizado.", "success");
+      close();
+      const ids = usersList.map((o) => o.id);
+      turnosRows = await fetchTurnosForContext(ids);
+      await loadCrono();
+    } catch (err) {
+      setUsersFeedback(err?.message || "No se pudo guardar el turno", "error");
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   void loadRolesConfigMap().catch((e) => console.warn("[accesos] roles_modulos", e));
   refreshBtn.addEventListener("click", loadRequests);
@@ -1160,4 +1480,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   loadRequests();
   loadUsers();
+
+  const tabArbol = document.getElementById("tabCronoArbol");
+  const tabSem = document.getElementById("tabCronoSemana");
+  const panA = document.getElementById("panelCronoArbol");
+  const panS = document.getElementById("panelCronoSemana");
+  if (tabArbol && tabSem && panA && panS) {
+    tabArbol.addEventListener("click", () => {
+      panA.style.display = "";
+      panS.style.display = "none";
+      tabArbol.classList.add("crono-tab--active");
+      tabSem.classList.remove("crono-tab--active");
+    });
+    tabSem.addEventListener("click", () => {
+      panA.style.display = "none";
+      panS.style.display = "";
+      tabSem.classList.add("crono-tab--active");
+      tabArbol.classList.remove("crono-tab--active");
+    });
+  }
+  setupInviteForm();
 });

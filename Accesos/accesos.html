@@ -508,6 +508,91 @@
           grid-template-columns: 1fr;
         }
       }
+
+      .crono-tab {
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 10px 4px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        cursor: pointer;
+      }
+      .crono-tab--active {
+        color: var(--color-accent, #f07c2a);
+        border-bottom-color: var(--color-accent, #f07c2a);
+      }
+      .crono-tree-user {
+        margin: 6px 0 10px 8px;
+        padding: 4px 0 8px 8px;
+        border-left: 2px solid var(--color-border, #e5e7eb);
+      }
+      .crono-tree-user--grey {
+        opacity: 0.6;
+        border-left-color: #6b7280;
+      }
+      .crono-tree-feat {
+        list-style: disc;
+        margin: 4px 0 0 0;
+        padding-left: 18px;
+        color: var(--color-text-muted, #6b7280);
+        font-size: 13px;
+      }
+      .crono-tree-badge {
+        display: inline-block;
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 9999px;
+      }
+      .crono-tree-badge--warn {
+        background: rgba(245, 158, 11, 0.2);
+        color: #9a3412;
+      }
+      .crono-tree-badge--grey {
+        background: rgba(107, 114, 128, 0.2);
+        color: #4b5563;
+      }
+      .crono-week-t {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+        font-size: 11px;
+      }
+      .crono-week-t th,
+      .crono-week-t td {
+        padding: 6px 4px;
+        text-align: center;
+        min-width: 64px;
+      }
+      .crono-w-who {
+        text-align: left;
+        min-width: 120px;
+      }
+      .crono-w-namein {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .crono-cell {
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 4px 2px;
+        font-size: 11px;
+      }
+      .crono-cell--caja { background: rgba(245, 158, 11, 0.2); color: #92400e; }
+      .crono-cell--ops { background: rgba(20, 184, 166, 0.2); color: #0f766e; }
+      .crono-cell--alm { background: rgba(16, 185, 129, 0.18); color: #166534; }
+      .crono-cell--admin { background: rgba(14, 165, 233, 0.18); color: #0c4a6e; }
+      .crono-cell--def { background: rgba(100, 116, 139, 0.15); color: #334155; }
+      .crono-cell--empty { color: #94a3b8; font-weight: 500; }
+      .crono-cell--warn { background: rgba(245, 158, 11, 0.12); cursor: pointer; }
     </style>
   </head>
   <body data-root-path="../" data-page-type="module" data-module-key="accesos" data-theme="light">
@@ -657,6 +742,87 @@
               </tbody>
             </table>
           </div>
+
+          <section class="crono-section" style="margin-top: 40px;">
+            <div class="accesos-header">
+              <div>
+                <h2>Turnos y cronograma</h2>
+                <p style="color: var(--color-text-muted); font-size: 14px; max-width: 720px;">
+                  Aquí ves quién entra a qué hora y en qué días. Si falta el turno, verás
+                  <strong>Turno pendiente</strong> o el aviso en la vista semana.
+                </p>
+              </div>
+            </div>
+
+            <div class="crono-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border);">
+              <button type="button" class="crono-tab crono-tab--active" id="tabCronoArbol" data-crono-tab="arbol">Vista árbol</button>
+              <button type="button" class="crono-tab" id="tabCronoSemana" data-crono-tab="semana">Vista semana</button>
+            </div>
+
+            <div id="panelCronoArbol" class="crono-panel" style="min-height: 80px">
+              <div
+                id="cronoArbolTree"
+                style="font-size: 14px; line-height: 1.5; color: var(--color-text); padding: 16px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(0,0,0,0.02)"
+                aria-live="polite"
+              >
+                Cargando…
+              </div>
+            </div>
+
+            <div id="panelCronoSemana" class="crono-panel" style="display: none; overflow-x: auto">
+              <div id="cronoWeekGrid" style="min-width: 720px; font-size: 12px">Cargando…</div>
+            </div>
+
+            <div class="crono-invite" style="margin-top: 28px; padding: 20px; border: 1px solid var(--color-border); border-radius: 16px">
+              <h3 style="margin: 0 0 4px; font-size: 18px">Añadir usuario (invitación)</h3>
+              <p style="color: var(--color-text-muted); font-size: 14px; margin: 0 0 16px">Se envía un correo de activación. El turno queda asociado al aceptar.</p>
+              <form id="formInviteUser" class="crono-form">
+                <div style="display: grid; gap: 10px; max-width: 420px; margin-bottom: 16px">
+                  <label class="modal-label">Correo</label>
+                  <input class="request-role-select" type="email" id="inviteEmail" required autocomplete="email" placeholder="nombre@empresa.com" style="max-width: 100%" />
+                  <label class="modal-label">Nombre a mostrar</label>
+                  <input class="request-role-select" type="text" id="inviteNombre" placeholder="Nombre y apellido" style="max-width: 100%" />
+                  <label class="modal-label">Rol en el sistema</label>
+                  <select class="request-role-select" id="inviteRole" style="max-width: 320px"></select>
+                </div>
+                <div id="invitePermContainer" class="crono-perm" style="margin-bottom: 16px"></div>
+                <h4 class="modal-label" style="margin: 0 0 8px; font-size: 12px; text-transform: uppercase; color: var(--color-text-muted)">Turno de trabajo (opcional)</h4>
+                <p style="font-size: 12px; color: var(--color-text-muted); margin: 0 0 10px">
+                  Puedes rellenarlo luego; quedará marcado como pendiente hasta entonces.
+                </p>
+                <div
+                  class="crono-dias"
+                  id="inviteDiasRow"
+                  style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px"
+                ></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 8px; align-items: end">
+                  <div>
+                    <label class="modal-label">Hora entrada</label>
+                    <input type="time" class="request-role-select" id="inviteHoraIn" value="08:00" style="min-width: 100px" />
+                  </div>
+                  <div>
+                    <label class="modal-label">Hora salida</label>
+                    <input type="time" class="request-role-select" id="inviteHoraOut" value="16:00" style="min-width: 100px" />
+                  </div>
+                  <div>
+                    <label class="modal-label">Tipo de turno</label>
+                    <select class="request-role-select" id="inviteCategoria" style="min-width: 120px">
+                      <option value="fijo" selected>Fijo</option>
+                      <option value="rotativo" disabled>Rotativo (próximamente)</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <button type="submit" class="btn btn--primary" id="btnInviteUser">Crear e invitar</button>
+                  <span id="inviteFormFeedback" style="font-size: 13px; color: var(--color-text-muted); padding-top: 8px"></span>
+                </div>
+              </form>
+            </div>
+            <p id="cronoTurnoHint" style="font-size: 12px; color: var(--color-text-muted); margin-top: 20px; display: none">
+              Sin turno en hoja: aún se puede
+              <strong>Asignar turno</strong> con el botón en un usuario.
+            </p>
+          </section>
         </main>
       </div>
     </div>

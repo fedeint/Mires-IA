@@ -7,6 +7,36 @@ import {
 import { deliverPasswordRecoveryViaSupabaseAuth } from "../_shared/recovery-delivery.js";
 import { canManageUserAccess, getAuthRole, isSuperadmin } from "../_shared/auth-roles.js";
 
+const SHELL_TO_APP_ROLE = {
+  superadmin: "superadmin",
+  admin: "administrador",
+  caja: "cajero",
+  pedidos: "mesero",
+  chef: "cocinero",
+  almacen: "almacenero",
+  marketing: "marketing",
+};
+
+const APP_TO_SHELL_ROLE = {
+  superadmin: "superadmin",
+  administrador: "admin",
+  cajero: "caja",
+  mesero: "pedidos",
+  cocinero: "chef",
+  almacenero: "almacen",
+  marketing: "marketing",
+};
+
+const VALID_DIAS = new Set([
+  "lunes",
+  "martes",
+  "miercoles",
+  "jueves",
+  "viernes",
+  "sabado",
+  "domingo",
+]);
+
 const BAN_DURATION_REVOKE = "876000h";
 const PROTECTED_EMAILS = new Set(["a@a.com"]);
 
@@ -184,27 +214,173 @@ Deno.serve(async (request) => {
       });
       if (error) return jsonResponse({ message: error.message }, 500, request);
 
-      const mapped = data.users
-        .map((u) => ({
-          id: u.id,
-          email: u.email,
-          created_at: u.created_at,
-          last_sign_in_at: u.last_sign_in_at ?? null,
-          email_confirmed_at: u.email_confirmed_at ?? u.confirmed_at ?? null,
-          invited_at: u.invited_at ?? null,
-          banned_until: u.banned_until ?? null,
-          role:
-            (typeof u.app_metadata?.role === "string" ? u.app_metadata.role : null) ||
-            (typeof u.user_metadata?.role === "string" ? u.user_metadata.role : null),
-          permissions: Array.isArray(u.user_metadata?.permissions)
-            ? u.user_metadata.permissions
-            : [],
-          full_name: typeof u.user_metadata?.full_name === "string" ? u.user_metadata.full_name : null,
-          protected: PROTECTED_EMAILS.has((u.email || "").toLowerCase()),
-        }))
+      const { data: profiles } = await adminClient
+        .from("user_profiles")
+        .select("id, tenant_id, full_name, role, modulos_acceso, usa_pwa");
+      const byId = new Map((profiles || []).map((p) => [p.id, p]));
+
+      const { data: profMe } = await adminClient
+        .from("user_profiles")
+        .select("tenant_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      const callerTenant = profMe?.tenant_id ?? null;
+
+      let mapped = data.users
+        .map((u) => {
+          const p = byId.get(u.id);
+          const metaRole =
+            (typeof u.app_metadata?.role === "string" && u.app_metadata.role.trim() ? u.app_metadata.role : null) ||
+            (typeof u.user_metadata?.role === "string" && u.user_metadata.role.trim() ? u.user_metadata.role : null) ||
+            (p?.role && APP_TO_SHELL_ROLE[p.role] ? APP_TO_SHELL_ROLE[p.role] : p?.role ? p.role : null);
+          return {
+            id: u.id,
+            email: u.email,
+            created_at: u.created_at,
+            last_sign_in_at: u.last_sign_in_at ?? null,
+            email_confirmed_at: u.email_confirmed_at ?? u.confirmed_at ?? null,
+            invited_at: u.invited_at ?? null,
+            banned_until: u.banned_until ?? null,
+            role: metaRole,
+            permissions: Array.isArray(u.user_metadata?.permissions) ? u.user_metadata.permissions
+              : Array.isArray(p?.modulos_acceso) ? p.modulos_acceso
+              : [],
+            full_name: (p?.full_name && String(p.full_name)) ||
+              (typeof u.user_metadata?.full_name === "string" ? u.user_metadata.full_name : null),
+            protected: PROTECTED_EMAILS.has((u.email || "").toLowerCase()),
+            tenant_id: p?.tenant_id ?? (typeof u.app_metadata?.tenant_id === "string" ? u.app_metadata.tenant_id : null),
+            app_role: p?.role ?? null,
+            usa_pwa: p?.usa_pwa ?? null,
+          };
+        })
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-      return jsonResponse({ users: mapped }, 200, request);
+      if (!isSuperadmin(user) && callerTenant) {
+        const tid = String(callerTenant);
+        mapped = mapped.filter((m) => (m.tenant_id ? String(m.tenant_id) === tid : false));
+      }
+
+      return jsonResponse({ users: mapped, callerTenant: callerTenant ?? null }, 200, request);
+    }
+
+    if (action === "invite_user") {
+      const email = (body?.email || "").trim().toLowerCase();
+      const fullName = (body?.fullName || body?.full_name || "").trim();
+      const role = (body?.role || "").trim();
+      const rawPerms = Array.isArray(body?.permissions) ? body.permissions : [];
+      const permissions = rawPerms.map((v) => (typeof v === "string" ? v.trim() : "")).filter((v) => v.length);
+      const shift = body?.shift && typeof body.shift === "object" ? body.shift : {};
+      const days = Array.isArray(shift?.days) ? shift.days : [];
+      const horaEntrada = String(shift.horaEntrada || shift.hora_entrada || "").trim();
+      const horaSalida = String(shift.horaSalida || shift.hora_salida || "").trim();
+      const categoria = (shift.categoria || "fijo") === "rotativo" ? "rotativo" : "fijo";
+      if (!email || !role) {
+        return jsonResponse({ message: "Faltan email o rol" }, 400, request);
+      }
+      if (role === "superadmin" && !isSuperadmin(user)) {
+        return jsonResponse(
+          { message: "Solo un superadmin puede asignar el rol superadmin." },
+          403,
+          request,
+        );
+      }
+      const { data: prof, error: pe } = await adminClient
+        .from("user_profiles")
+        .select("tenant_id, role")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (pe) {
+        return jsonResponse({ message: "No se pudo leer tu perfil" }, 500, request);
+      }
+      const callerTenant = prof?.tenant_id;
+      if (!isSuperadmin(user) && !callerTenant) {
+        return jsonResponse(
+          { message: "Tu usuario no está vinculado a un restaurante (falta tenant en perfil)." },
+          400,
+          request,
+        );
+      }
+      const bodyTenant = (body?.tenantId || body?.tenant_id || "").toString().trim() || null;
+      const targetTenant = isSuperadmin(user) && bodyTenant ? bodyTenant : callerTenant;
+      if (!targetTenant) {
+        return jsonResponse({ message: "Falta el restaurante (tenant) de destino." }, 400, request);
+      }
+      const appRole = SHELL_TO_APP_ROLE[role] || "mesero";
+
+      const DEFAULT_REDIRECT_ORIGIN = "https://mires-ia.vercel.app";
+      const configuredOrigin = Deno.env.get("ACTIVATION_REDIRECT_ORIGIN")?.trim();
+      const safeOrigin = configuredOrigin || DEFAULT_REDIRECT_ORIGIN;
+      const redirectTo = `${String(safeOrigin).replace(/\/$/, "")}/activate.html`;
+      const inviteMetadata = { full_name: fullName || null, role, permissions };
+      const { data: invData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+        data: inviteMetadata,
+        redirectTo,
+      });
+      if (inviteError) {
+        return jsonResponse({ message: inviteError.message || "No se pudo enviar la invitación" }, 400, request);
+      }
+      const invited = invData?.user;
+      if (!invited?.id) {
+        return jsonResponse({ message: "No se pudo completar la invitación" }, 500, request);
+      }
+      const { error: updErr } = await adminClient.auth.admin.updateUserById(invited.id, {
+        app_metadata: {
+          ...(invited.app_metadata || {}),
+          role,
+          tenant_id: String(targetTenant),
+        },
+        user_metadata: { ...inviteMetadata, role, permissions },
+      });
+      if (updErr) {
+        return jsonResponse({ message: `Usuario creado pero al actualizar metadatos: ${updErr.message}` }, 500, request);
+      }
+      const { error: profErr } = await adminClient
+        .from("user_profiles")
+        .upsert(
+          {
+            id: invited.id,
+            tenant_id: targetTenant,
+            full_name: fullName || null,
+            role: appRole,
+            modulos_acceso: permissions,
+            usa_pwa: true,
+          },
+          { onConflict: "id" },
+        );
+      if (profErr) {
+        return jsonResponse({ message: `Invitación enviada, pero al guardar perfil: ${profErr.message}` }, 500, request);
+      }
+      if (days.length > 0 && horaEntrada && horaSalida) {
+        const rows = [];
+        for (const d of days) {
+          if (!VALID_DIAS.has(String(d))) continue;
+          rows.push({
+            tenant_id: targetTenant,
+            user_id: invited.id,
+            dia: String(d),
+            hora_entrada: horaEntrada.length === 5 ? `${horaEntrada}:00` : horaEntrada,
+            hora_salida: horaSalida.length === 5 ? `${horaSalida}:00` : horaSalida,
+            activo: true,
+            categoria,
+            updated_at: new Date().toISOString(),
+          });
+        }
+        if (rows.length) {
+          const { error: tErr } = await adminClient.from("usuario_turnos").insert(rows);
+          if (tErr) {
+            return jsonResponse(
+              { message: `Usuario creado; error al guardar turnos: ${tErr.message}` },
+              500,
+              request,
+            );
+          }
+        }
+      }
+      return jsonResponse(
+        { message: `Invitación enviada a ${email}. Revisa el correo de activación.`, userId: invited.id },
+        200,
+        request,
+      );
     }
 
     if (!targetId) {
