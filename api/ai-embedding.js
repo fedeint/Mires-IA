@@ -25,12 +25,14 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: e.message || 'JSON inválido' });
     }
     const { text } = parsed || {};
+    console.log('[ai-embedding] parsed body keys:', Object.keys(parsed || {}), '| text length:', text ? text.length : 'undefined');
     if (!text || text.trim().length === 0) {
         return res.status(400).json({ error: 'Missing or empty text field' });
     }
 
     // Se requiere obligatoriamente la clave del usuario
     const GEMINI_API_KEY = req.headers['x-gemini-key'];
+    console.log('[ai-embedding] has gemini key:', !!GEMINI_API_KEY);
 
     if (!GEMINI_API_KEY) {
         return res.status(401).json({ error: 'API Key de usuario requerida.' });
@@ -52,6 +54,7 @@ module.exports = async function handler(req, res) {
         const data = await response.json();
 
         if (!response.ok) {
+            console.error('[ai-embedding] Gemini error:', response.status, JSON.stringify(data));
             return res.status(response.status).json({ error: 'Gemini API error', data });
         }
 
