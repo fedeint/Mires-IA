@@ -24,7 +24,9 @@ import {
   ROLE_PERMISSIONS,
   FEATURE_ACCESS_ITEMS,
   getAssignablePermissionKeys,
-} from "../scripts/navigation.js?v=20260429-perms-features";
+} from "../scripts/navigation.js?v=20260426-roles-onboarding";
+import { loadRolesConfigMap, getModulesForRoleFromDb } from "../scripts/roles-config.js";
+import { shellRoleToAppRole } from "../scripts/mirest-role-maps.js";
 
 const tableBody = document.getElementById("requestsTableBody");
 const feedback = document.getElementById("requestFeedback");
@@ -55,14 +57,24 @@ function permLabel(key) {
     key
   );
 }
-const ROLE_OPTIONS = [
+const BASE_ROLE_OPTIONS = [
   { value: "admin", label: "Administrador" },
   { value: "caja", label: "Caja" },
   { value: "chef", label: "Chef / Cocina" },
-  { value: "pedidos", label: "Pedidos / Delivery" },
+  { value: "pedidos", label: "Pedidos / Salón y delivery" },
   { value: "almacen", label: "Almacén" },
   { value: "marketing", label: "Marketing" },
 ];
+
+function getRoleOptions() {
+  if (typeof window !== "undefined" && window.currentUserRole === "superadmin") {
+    return [
+      { value: "superadmin", label: "Super Admin" },
+      ...BASE_ROLE_OPTIONS,
+    ];
+  }
+  return BASE_ROLE_OPTIONS.slice();
+}
 
 function setFeedback(message, variant) {
   feedback.textContent = message;
@@ -147,11 +159,32 @@ function updateApprovedToggleLabel() {
   toggle.style.display = approvedCount > 0 ? "" : "none";
 }
 
+function applyChefMarketingFeatures(role, base) {
+  if (role === "chef" && !base.includes("almacen_lectura")) {
+    base.push("almacen_lectura");
+  }
+  if (role === "marketing" && !base.includes("productos_lectura")) {
+    base.push("productos_lectura");
+  }
+  return base;
+}
+
 function permissionsForRole(role) {
+  const fromDb = getModulesForRoleFromDb(role);
+  if (Array.isArray(fromDb) && fromDb.length) {
+    if (fromDb.includes("*")) {
+      return ASSIGNABLE_KEYS.slice();
+    }
+    const base = fromDb.filter((key) => ASSIGNABLE_KEYS.includes(key));
+    return applyChefMarketingFeatures(role, base);
+  }
   const perms = ROLE_PERMISSIONS[role];
   if (!perms) return [];
-  if (perms.includes("*")) return ASSIGNABLE_KEYS.slice();
-  return perms.filter((key) => ASSIGNABLE_KEYS.includes(key));
+  if (perms.includes("*")) {
+    return ASSIGNABLE_KEYS.slice();
+  }
+  const base = perms.filter((key) => ASSIGNABLE_KEYS.includes(key));
+  return applyChefMarketingFeatures(role, base);
 }
 
 function resolveInitialPermissions(request) {
@@ -1000,6 +1033,14 @@ window.editUserPermissions = (userId) => {
     onConfirm: async (role, permissions) => {
       try {
         const data = await updateUserPermissions(user.id, permissions, role);
+        const appR = shellRoleToAppRole(role);
+        const { error: perr } = await supabase
+          .from("usuarios")
+          .update({ modulos_acceso: permissions, role: appR })
+          .eq("id", user.id);
+        if (perr) {
+          console.warn("[accesos] user_profiles (sync tras guardar en Auth):", perr);
+        }
         setUsersFeedback(data?.message || "Módulos actualizados.", "success");
         await loadUsers();
         return true;
@@ -1022,7 +1063,9 @@ function openConfigModal({ title, subject, initialRole, initialPerms, confirmLab
 
       <label class="modal-label">Rol principal</label>
       <select class="request-role-select" data-role-select="${contextId}" style="width:100%; max-width: 320px; margin-bottom: var(--space-4);">
-        ${ROLE_OPTIONS.map((opt) => `<option value="${opt.value}" ${opt.value === initialRole ? "selected" : ""}>${opt.label}</option>`).join("")}
+        ${getRoleOptions()
+          .map((opt) => `<option value="${opt.value}" ${opt.value === initialRole ? "selected" : ""}>${opt.label}</option>`)
+          .join("")}
       </select>
 
       <label class="modal-label">Módulos habilitados</label>
@@ -1036,6 +1079,13 @@ function openConfigModal({ title, subject, initialRole, initialPerms, confirmLab
   `;
 
   document.body.appendChild(backdrop);
+
+  const roleSel = backdrop.querySelector(`[data-role-select="${contextId}"]`);
+  if (roleSel) {
+    roleSel.addEventListener("change", () => {
+      window.permApplyRole(contextId);
+    });
+  }
 
   const close = () => backdrop.remove();
   const saveBtn = backdrop.querySelector("[data-modal-save]");
@@ -1074,6 +1124,7 @@ function openConfigModal({ title, subject, initialRole, initialPerms, confirmLab
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  void loadRolesConfigMap().catch((e) => console.warn("[accesos] roles_modulos", e));
   refreshBtn.addEventListener("click", loadRequests);
   if (refreshUsersBtn) refreshUsersBtn.addEventListener("click", loadUsers);
 

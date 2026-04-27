@@ -19,7 +19,8 @@ const CACHE_DATA      = `mirest-data-${CACHE_VERSION}`;
 const SHELL_ASSETS = [
   './index.html',
   './styles.css',
-  './data.js',
+  './frontend/core/operational-ui-config.js',
+  './frontend/core/order-entity-factories.js',
   './manifest.json',
   './frontend/styles/tokens.css',
   './frontend/styles/base.css',

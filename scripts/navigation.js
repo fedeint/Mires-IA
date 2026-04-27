@@ -14,6 +14,19 @@ export const APP_META = {
 
 export const MODULES = [
   {
+    key: "proveedores",
+    label: "Proveedores",
+    short: "PV",
+    icon: "truck",
+    path: "Clientes/proveedores.html",
+    description: "Listado y gestión de proveedores vinculada a compras e inventario.",
+    owner: "Gestionado con el CRM / Clientes.",
+    handoff: [
+      "Mantener ruta bajo Clientes/ coherente con almacén y recetas.",
+      "Sincronizar con datos reales al integrar Supabase.",
+    ],
+  },
+  {
     key: "almacen",
     label: "Almacen",
     short: "AL",
@@ -251,12 +264,26 @@ export function getGreeting() {
 
 /** Permisos de función (no son entradas de menú); se marcan en Accesos junto a los módulos. */
 export const FEATURE_CAJA_MESEROS = "caja_meseros";
+/** Almacén en solo consulta (perfil Chef). */
+export const FEATURE_ALMACEN_LECTURA = "almacen_lectura";
+/** Productos en solo consulta (perfil Marketing). */
+export const FEATURE_PRODUCTOS_LECTURA = "productos_lectura";
 
 export const FEATURE_ACCESS_ITEMS = [
   {
     key: FEATURE_CAJA_MESEROS,
     label: "Caja: meseros y ranking",
     description: "Muestra el panel de meseros y el ranking del día dentro de Caja.",
+  },
+  {
+    key: FEATURE_ALMACEN_LECTURA,
+    label: "Almacén: solo lectura",
+    description: "Consulta stock e insumos sin movimientos de ajuste (pensado para cocina).",
+  },
+  {
+    key: FEATURE_PRODUCTOS_LECTURA,
+    label: "Productos: solo lectura",
+    description: "Consulta carta y precios sin editar (pensado para marketing).",
   },
 ];
 
@@ -274,17 +301,21 @@ export function hasFeaturePermission(permissions, featureKey) {
 export const ROLE_PERMISSIONS = {
   superadmin: ["*"],
   admin: ADMIN_MODULE_KEYS_WITH_ACCESOS,
-  caja: ["caja", "pedidos", "soporte"],
-  chef: ["cocina", "recetas", "soporte"],
+  /** Caja, Pedidos, Clientes (+ soporte). */
+  caja: ["caja", "pedidos", "clientes", "soporte"],
+  /** Cocina, Almacén, Recetas; almacén con lectura reforzada vía almacen_lectura. */
+  chef: ["cocina", "almacen", "recetas", "soporte", "almacen_lectura"],
+  /** PWA Pedidos: salón + delivery; mesas y canales van dentro de Pedidos. */
   pedidos: ["pedidos", "soporte"],
-  almacen: ["almacen", "soporte"],
-  marketing: ["clientes", "reportes", "ia", "soporte"],
+  almacen: ["almacen", "proveedores", "recetas", "soporte"],
+  marketing: ["reportes", "clientes", "productos", "soporte", "productos_lectura"],
   demo: [
     "pedidos",
     "caja",
     "cocina",
     "productos",
     "recetas",
+    "proveedores",
     "clientes",
     "almacen",
     "ia",

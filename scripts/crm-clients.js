@@ -1,10 +1,9 @@
 /**
- * Clientes/CRM: lectura de Supabase (RLS + tenant en JWT). Sin filas de muestra.
- * LTV = suma de line_total de pedidos en estado "closed" o "served" con customer_id.
+ * Clientes/CRM (vista public.clientes). LTV = suma de total de pedidos completados (public.pedidos = orders).
  */
 import { supabase } from "./supabase.js";
 
-const LTV_STATUS = new Set(["closed", "served"]);
+const LTV_STATUS = new Set(["completed", "delivered"]);
 
 function initials(name) {
   if (!name || typeof name !== "string") return "—";
@@ -32,8 +31,8 @@ export async function fetchCrmClientRows() {
   }
 
   const { data: cust, error: e0 } = await supabase
-    .from("customers")
-    .select("id, full_name, email, phone, document_number, tags, metadata, created_at, updated_at")
+    .from("clientes")
+    .select("id, full_name, email, phone, address, created_at")
     .order("full_name", { ascending: true });
 
   if (e0) {
@@ -52,8 +51,8 @@ export async function fetchCrmClientRows() {
 
   const ids = cust.map((c) => c.id);
   const { data: orders, error: e1 } = await supabase
-    .from("orders")
-    .select("id, customer_id, status, opened_at, order_items(line_total)")
+    .from("pedidos")
+    .select("id, customer_id, status, opened_at, total")
     .in("customer_id", ids);
 
   if (e1) {
@@ -69,8 +68,7 @@ export async function fetchCrmClientRows() {
     if (!cid) continue;
     const st = o.status;
     if (!LTV_STATUS.has(String(st || ""))) continue;
-    const lines = o.order_items || [];
-    const sum = Array.isArray(lines) ? lines.reduce((s, li) => s + (Number(li?.line_total) || 0), 0) : 0;
+    const sum = Number(o.total) || 0;
     ltvByCustomer.set(cid, (ltvByCustomer.get(cid) || 0) + sum);
     countByCustomer.set(cid, (countByCustomer.get(cid) || 0) + 1);
     const t = o.opened_at ? new Date(o.opened_at).getTime() : 0;
@@ -86,8 +84,8 @@ export async function fetchCrmClientRows() {
     const ltv = Math.round((ltvByCustomer.get(id) || 0) * 100) / 100;
     const pedidos = countByCustomer.get(id) || 0;
     const ticketPromedio = pedidos > 0 ? ltv / pedidos : 0;
-    const tag0 = Array.isArray(c.tags) && c.tags.length ? c.tags[0] : null;
-    const metadata = c.metadata && typeof c.metadata === "object" ? c.metadata : {};
+    const tag0 = null;
+    const metadata = {};
     const ultT = lastByCustomer.get(id);
     let ultimaVisita = "—";
     if (ultT) {
@@ -99,7 +97,7 @@ export async function fetchCrmClientRows() {
     return {
       id,
       nombre,
-      documento: c.document_number || "",
+      documento: "",
       email: c.email || "",
       telefono: c.phone || "",
       avatar: initials(nombre),

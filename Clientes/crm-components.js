@@ -63,7 +63,7 @@
           <aside class="saas-profile-sidebar">
             <div class="saas-avatar-section">
               <div class="saas-avatar" id="profileAvatar">MG</div>
-              <h3 id="profileName">María García</h3>
+              <h3 id="profileName">—</h3>
               <span class="saas-badge" id="profileStatusBadge">Activo - Cliente desde Ene 2024</span>
             </div>
             <div class="saas-kpi-orange">

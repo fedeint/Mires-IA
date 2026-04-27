@@ -5,7 +5,7 @@ import { supabase } from '../../../../scripts/supabase.js';
 import { listOperationalStaffForCaja } from '../../../../scripts/operational-staff.js';
 
 const PALETTES = ['sunset', 'amber', 'mint', 'ocean', 'sand', 'berry', 'rose', 'gold', 'lime'];
-const CAT_FALLBACK = [{ id: 'all', name: 'Todos' }];
+const CAT_TODOS = [{ id: 'all', name: 'Todos' }];
 
 function pickPalette(i) {
   return PALETTES[i % PALETTES.length];
@@ -17,28 +17,28 @@ function pickPalette(i) {
 export async function fetchMenuCatalog() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    return { ok: true, notAuthenticated: true, products: [], categories: structuredClone(CAT_FALLBACK), recipeAvailability: {} };
+    return { ok: true, notAuthenticated: true, products: [], categories: structuredClone(CAT_TODOS), recipeAvailability: {} };
   }
 
   const { data: catRows, error: catErr } = await supabase
-    .from('product_categories')
+    .from('categorias_producto')
     .select('id, slug, name, sort_order')
     .order('sort_order', { ascending: true });
 
   const { data: prodRows, error: prodErr } = await supabase
-    .from('products')
+    .from('productos')
     .select('id, name, price, category_id, sku, metadata, is_active')
     .eq('is_active', true)
     .order('name', { ascending: true });
 
   if (catErr || prodErr) {
     const err = (catErr || prodErr || {}).message || 'Error al leer el catálogo';
-    return { ok: false, error: err, products: [], categories: structuredClone(CAT_FALLBACK), recipeAvailability: {} };
+    return { ok: false, error: err, products: [], categories: structuredClone(CAT_TODOS), recipeAvailability: {} };
   }
 
   const byCatId = new Map((catRows || []).map((c) => [c.id, c]));
   const categories = [
-    ...CAT_FALLBACK,
+    ...CAT_TODOS,
     ...(catRows || []).map((c) => ({ id: c.slug, name: c.name })),
   ];
   const products = (prodRows || []).map((p, i) => {
@@ -60,17 +60,16 @@ export async function fetchMenuCatalog() {
   });
 
   const recipeAvailability = {};
-  const { data: rws, error: rErr } = await supabase
-    .from('recipes')
-    .select('id, sale_product_id, is_active, metadata');
-  if (!rErr && rws) {
-    for (const r of rws) {
-      if (r.sale_product_id) {
-        const m = r.metadata && typeof r.metadata === 'object' ? r.metadata : {};
-        recipeAvailability[r.sale_product_id] = {
-          recipeId: r.id,
-          inStock: r.is_active !== false,
-          kitchenStation: String(m.station != null ? m.station : 'general'),
+  const { data: mpr, error: mprErr } = await supabase
+    .from('menu_product_recipes')
+    .select('menu_product_id, recipe_id');
+  if (!mprErr && mpr) {
+    for (const row of mpr) {
+      if (row.menu_product_id && row.recipe_id) {
+        recipeAvailability[row.menu_product_id] = {
+          recipeId: row.recipe_id,
+          inStock: true,
+          kitchenStation: 'general',
         };
       }
     }

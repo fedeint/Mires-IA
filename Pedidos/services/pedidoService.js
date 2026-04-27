@@ -1,13 +1,12 @@
-const {
-  initialTables,
-  initialDeliveryOrders,
-  initialTakeawayOrders,
-  products,
-  waiters,
-} = require('../implementacion/data.cjs');
+/* Datos reales: Supabase. Este servicio de vista previa solo usa estructuras vacías. */
+const initialTables = [];
+const initialDeliveryOrders = [];
+const initialTakeawayOrders = [];
+const products = [];
+const waiters = [];
 
-const productsMap = new Map(products.map((product) => [product.id, product]));
-const waitersMap = new Map(waiters.map((waiter) => [waiter.id, waiter]));
+const productsMap = new Map();
+const waitersMap = new Map();
 
 function formatCurrency(value = 0) {
   return new Intl.NumberFormat('es-PE', {

@@ -68,36 +68,39 @@ export async function fetchDashboardSnapshot(client) {
       cashOpen,
       kitchenRes,
     ] = await Promise.all([
-      client.from("payments").select("amount").gte("received_at", dayStart).lt("received_at", dayEnd),
-      client.from("payments").select("amount").gte("received_at", prevStart).lt("received_at", prevEnd),
+      client.from("caja_movimientos").select("amount").gte("received_at", dayStart).lt("received_at", dayEnd),
+      client.from("caja_movimientos").select("amount").gte("received_at", prevStart).lt("received_at", prevEnd),
       client
-        .from("orders")
+        .from("pedidos")
         .select("id, channel, status")
-        .in("status", ["open", "in_kitchen", "ready", "served"]),
+        .in("status", ["draft", "sent_to_kitchen", "preparing", "ready", "delivered"]),
       client
-        .from("orders")
+        .from("pedidos")
         .select("id", { count: "exact", head: true })
-        .eq("status", "closed")
+        .eq("status", "completed")
         .not("closed_at", "is", null)
         .gte("closed_at", dayStart)
         .lt("closed_at", dayEnd),
       client
-        .from("payments")
+        .from("caja_movimientos")
         .select("order_id, amount")
         .gte("received_at", dayStart)
         .lt("received_at", dayEnd),
       client
-        .from("payments")
+        .from("caja_movimientos")
         .select("order_id, amount")
         .gte("received_at", prevStart)
         .lt("received_at", prevEnd),
-      client.from("dining_tables").select("status"),
+      client.from("mesas").select("status"),
       client
         .from("inventory_current_stock")
         .select("inventory_item_id", { count: "exact", head: true })
         .in("status", ["critical", "low"]),
-      client.from("cash_sessions").select("id", { count: "exact", head: true }).is("closed_at", null),
-      client.from("orders").select("id", { count: "exact", head: true }).eq("status", "in_kitchen"),
+      client.from("sesiones_caja").select("id", { count: "exact", head: true }).is("closed_at", null),
+      client
+        .from("pedidos")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["sent_to_kitchen", "preparing"]),
     ]);
 
     if (payToday.error) note("Pagos hoy", payToday.error);

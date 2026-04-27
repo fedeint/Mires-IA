@@ -15,6 +15,7 @@ import {
   isLongAbsence,
   updateLastSeen,
 } from '../../core/storage.js';
+import { setMirestPwaOnboardingCompletado } from '../../core/pwa-user-metadata.js';
 
 import { getTurnStats } from '../../core/app-state.js';
 import { escapeHtml, formatCurrency } from '../../core/ui-helpers.js';
@@ -278,9 +279,13 @@ function _areAllPreTasksDone() {
 }
 
 function _finishOnboardingPRE(shell) {
+  const resolvedRole =
+    (typeof globalThis !== 'undefined' && globalThis.__MIREST_PWA_RESOLVED_PWA_ROLE__) ||
+    _preDraft.role ||
+    'mesero';
   const payload = {
     name: _preDraft.name.trim(),
-    role: 'mesero',
+    role: typeof resolvedRole === 'string' ? resolvedRole : 'mesero',
     dailySalary: _preDraft.dailySalary,
     payFrequency: normalizePayFrequency(_preDraft.payFrequency),
   };
@@ -709,6 +714,7 @@ function _finishOnboardingPRO() {
   document.body.classList.remove('onboarding-open');
   markOnboardingProSeen();
   updateLastSeen();
+  void setMirestPwaOnboardingCompletado(true);
   _showToast('Tour completado. Ya conoces tu flujo principal de pedidos.', 'success');
 }
 

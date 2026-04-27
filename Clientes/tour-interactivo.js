@@ -3,12 +3,47 @@
  * Componente <TourInteractivo /> adaptado a Vanilla JS.
  * Gestiona la captura de identidad y el enrutamiento del Onboarding.
  */
+
+const TOUR_LS_NAMES = ['isFirstLogin', 'nombreUsuario', 'userRole', 'tourStepIndex', 'tourCompletado'];
+
+function getTourUserScope() {
+  try {
+    return localStorage.getItem('mirest_user_id') || sessionStorage.getItem('mirest_user_id') || 'anon';
+  } catch {
+    return 'anon';
+  }
+}
+
+function tourKey(name) {
+  return `mirest_tu_${getTourUserScope()}_${name}`;
+}
+
+let tourLegacyMigrated = false;
+function migrateLegacyTourKeys() {
+  if (tourLegacyMigrated) return;
+  tourLegacyMigrated = true;
+  if (localStorage.getItem('mirest_tu_tour_unscoped_migrated') === '1') return;
+  for (const n of TOUR_LS_NAMES) {
+    const legacy = localStorage.getItem(n);
+    if (legacy == null) continue;
+    const k = tourKey(n);
+    if (localStorage.getItem(k) == null) {
+      localStorage.setItem(k, legacy);
+    }
+  }
+  for (const n of TOUR_LS_NAMES) {
+    localStorage.removeItem(n);
+  }
+  localStorage.setItem('mirest_tu_tour_unscoped_migrated', '1');
+}
+
 export class TourInteractivo {
   constructor() {
-    this.isFirstLogin = localStorage.getItem('isFirstLogin') !== 'false';
-    this.nombreUsuario = localStorage.getItem('nombreUsuario') || '';
-    this.userRole = localStorage.getItem('userRole') || '';
-    this.currentTourStepIndex = parseInt(localStorage.getItem('tourStepIndex')) || 0;
+    migrateLegacyTourKeys();
+    this.isFirstLogin = localStorage.getItem(tourKey('isFirstLogin')) !== 'false';
+    this.nombreUsuario = localStorage.getItem(tourKey('nombreUsuario')) || '';
+    this.userRole = localStorage.getItem(tourKey('userRole')) || '';
+    this.currentTourStepIndex = parseInt(localStorage.getItem(tourKey('tourStepIndex')), 10) || 0;
     this.tourSteps = [];
   }
 
@@ -67,10 +102,10 @@ export class TourInteractivo {
       const rol = document.getElementById('select-rol').value;
 
       // Guardar identidad y cambiar flag
-      localStorage.setItem('nombreUsuario', nombre);
-      localStorage.setItem('userRole', rol);
-      localStorage.setItem('isFirstLogin', 'false');
-      localStorage.setItem('tourStepIndex', '0');
+      localStorage.setItem(tourKey('nombreUsuario'), nombre);
+      localStorage.setItem(tourKey('userRole'), rol);
+      localStorage.setItem(tourKey('isFirstLogin'), 'false');
+      localStorage.setItem(tourKey('tourStepIndex'), '0');
       
       this.nombreUsuario = nombre;
       this.userRole = rol;
@@ -423,7 +458,7 @@ export class TourInteractivo {
 
   nextStep() {
     this.currentTourStepIndex++;
-    localStorage.setItem('tourStepIndex', this.currentTourStepIndex);
+    localStorage.setItem(tourKey('tourStepIndex'), String(this.currentTourStepIndex));
     this.procesarPasoActual();
   }
 
@@ -437,8 +472,8 @@ export class TourInteractivo {
         if(tooltip) tooltip.classList.remove('show');
         setTimeout(() => container.remove(), 400);
     }
-    localStorage.setItem('tourCompletado', 'true');
-    localStorage.removeItem('tourStepIndex');
+    localStorage.setItem(tourKey('tourCompletado'), 'true');
+    localStorage.removeItem(tourKey('tourStepIndex'));
   }
 
   positionTooltipCenter(tooltip) {
@@ -485,18 +520,17 @@ const initTour = () => {
         btn.onmouseover = () => btn.style.transform = 'scale(1.05)';
         btn.onmouseout = () => btn.style.transform = 'scale(1)';
         btn.onclick = () => {
-            localStorage.removeItem('isFirstLogin');
-            localStorage.removeItem('tourCompletado');
-            localStorage.removeItem('tourStepIndex');
-            localStorage.removeItem('userRole');
-            localStorage.removeItem('nombreUsuario');
+            migrateLegacyTourKeys();
+            TOUR_LS_NAMES.forEach((n) => localStorage.removeItem(tourKey(n)));
+            localStorage.removeItem('mirest_tu_tour_unscoped_migrated');
             window.location.reload();
         };
         document.body.appendChild(btn);
     }
 
     // Solo dispara si el usuario no ha terminado ni saltado el tour antes
-    if (localStorage.getItem('tourCompletado') !== 'true') {
+    migrateLegacyTourKeys();
+    if (localStorage.getItem(tourKey('tourCompletado')) !== 'true') {
       window.tourInstance.iniciar();
     }
   }

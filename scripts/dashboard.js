@@ -1,6 +1,7 @@
 import { getModulesByRole, toHref } from "./navigation.js";
 import { fetchDashboardSnapshot } from "./dashboard-metrics.js";
 import { supabase } from "./supabase.js";
+import { renderAdminOnboardingPanel } from "./mirest-onboarding.js";
 
 function escapeHtml(s) {
   return String(s)
@@ -151,7 +152,7 @@ function buildChecklistItems(snapshot) {
   return items;
 }
 
-export async function initializeDashboard(profile) {
+export async function initializeDashboard(profile, authUser) {
   const activeProfile = profile || window.currentUserProfile || {
     role: window.currentUserRole || "demo",
     isDemo: true,
@@ -161,6 +162,8 @@ export async function initializeDashboard(profile) {
   const snapshot = await fetchDashboardSnapshot(supabase);
 
   renderDemoBanner(activeProfile);
+  const onboardingHost = document.getElementById("adminOnboardingHost");
+  renderAdminOnboardingPanel(onboardingHost, authUser || null, activeProfile);
   renderHeroMetrics(snapshot);
   renderOperationsSummary(snapshot);
   renderModuleGrid(activeProfile);

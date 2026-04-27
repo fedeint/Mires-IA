@@ -18,6 +18,8 @@ import { initPwaInstallWidget } from "./pwa-install-widget.js";
 
 import { supabase, getCurrentUser } from "./supabase.js";
 import { startSessionIdleTimeout } from "./session-idle-timeout.js";
+import { loadMirestUserContext } from "./mirest-user-context.js";
+import { clearTenantIdCache } from "./tenant-session.js";
 
 function resolveLoginHref(rootPath) {
   const p = (rootPath || "").trim();
@@ -54,8 +56,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const userRole = resolveUserRole(user);
-  const userPermissions = resolveUserPermissions(user, userRole);
+  let userRole = user ? resolveUserRole(user) : "demo";
+  let userPermissions = user ? resolveUserPermissions(user, userRole) : [];
+  if (user) {
+    try {
+      const mirest = await loadMirestUserContext(user);
+      if (mirest?.shellRole) {
+        userRole = mirest.shellRole;
+      }
+      if (mirest?.permissions && mirest.permissions.length > 0) {
+        userPermissions = mirest.permissions;
+      } else {
+        userPermissions = resolveUserPermissions(user, userRole);
+      }
+    } catch (e) {
+      console.warn("[App] Contexto usuarios (Supabase); se usan metadatos Auth", e);
+    }
+  }
   const profile = buildUserProfile(user, userRole, userPermissions);
 
   if (activeKey === "accesos" && !isAccesosManagerRole(userRole)) {
@@ -93,7 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (pageType === "dashboard") {
     initializeDashboardPage(profile);
-    await initializeDashboard(profile);
+    await initializeDashboard(profile, user);
     return;
   }
 
@@ -164,6 +181,7 @@ function setupLogoutBtn(rootPath) {
   const loginHref = resolveLoginHref(rootPath);
 
   const signOutAndGoLogin = async () => {
+    clearTenantIdCache();
     await supabase.auth.signOut();
     window.location.href = loginHref;
   };

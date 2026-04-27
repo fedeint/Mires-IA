@@ -1,4 +1,4 @@
-// --- Estado: recetas = filas reales (public.recipes, recipe_ingredients, insumos, products) ---
+// --- Estado: recetas desde public.recetas, receta_insumos, insumos, productos (vistas) ---
 let recetas = [];
 
 async function loadRecetasFromSupabase() {
@@ -7,16 +7,27 @@ async function loadRecetasFromSupabase() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
         const { data: rws, error: e0 } = await supabase
-            .from('recipes')
-            .select('id, name, portions, is_active, sale_product_id, metadata, updated_at')
+            .from('recetas')
+            .select('id, name, code, instructions, yield_quantity, yield_unit, created_at, updated_at')
             .order('name');
         if (e0 || !rws?.length) return;
         const rids = rws.map((r) => r.id);
         const { data: ings, error: e1 } = await supabase
-            .from('recipe_ingredients')
+            .from('receta_insumos')
             .select('id, recipe_id, quantity, unit, insumo_id')
             .in('recipe_id', rids);
         if (e1) return;
+        const { data: mprList } = await supabase
+            .from('menu_product_recipes')
+            .select('recipe_id, menu_product_id, menu_products(sale_price, name, metadata)')
+            .in('recipe_id', rids);
+        const priceByRecipe = new Map();
+        (mprList || []).forEach((row) => {
+            if (row?.recipe_id && !priceByRecipe.has(row.recipe_id) && row.menu_products) {
+                const mp = row.menu_products;
+                priceByRecipe.set(row.recipe_id, { price: Number(mp.sale_price) || 0, name: mp.name, metadata: mp.metadata });
+            }
+        });
         const insIds = [...new Set((ings || []).map((x) => x.insumo_id).filter(Boolean))];
         let insMap = new Map();
         if (insIds.length) {
@@ -26,15 +37,6 @@ async function loadRecetasFromSupabase() {
                 .in('id', insIds);
             if (e2) return;
             insMap = new Map((insu || []).map((i) => [i.id, i]));
-        }
-        const pids = [...new Set((rws.map((r) => r.sale_product_id).filter(Boolean)))];
-        let priceMap = new Map();
-        if (pids.length) {
-            const { data: pds } = await supabase
-                .from('products')
-                .select('id, name, price, metadata')
-                .in('id', pids);
-            priceMap = new Map((pds || []).map((p) => [p.id, p]));
         }
         const ingByR = new Map();
         for (const row of ings || []) {
@@ -53,26 +55,24 @@ async function loadRecetasFromSupabase() {
         recetas = rws.map((r) => {
             const det = ingByR.get(r.id) || [];
             const subtotal = det.reduce((s, x) => s + (Number(x.costo) || 0), 0);
-            const prod = r.sale_product_id ? priceMap.get(r.sale_product_id) : null;
-            const precioVenta = prod ? Number(prod.price) || 0 : 0;
-            const m = r.metadata && typeof r.metadata === 'object' ? r.metadata : {};
-            const categoria = m.categoria
-                || (prod?.metadata && typeof prod.metadata === 'object' && prod.metadata.categoria)
-                || '—';
+            const mpr = priceByRecipe.get(r.id);
+            const precioVenta = mpr ? mpr.price : 0;
+            const prodMeta = mpr?.metadata && typeof mpr.metadata === 'object' ? mpr.metadata : {};
+            const categoria = prodMeta.categoria != null ? String(prodMeta.categoria) : '—';
             return {
                 id: r.id,
                 nombre: r.name,
                 categoria,
-                estado: r.is_active ? 'Activa' : 'Inactiva',
+                estado: 'Activa',
                 costo: Math.round(subtotal * 1000) / 1000,
                 precioVenta,
                 foodCost: precioVenta > 0
                     ? Math.round((subtotal / precioVenta) * 100 * 100) / 100
                     : 0,
-                tiempo: m.tiempo != null ? String(m.tiempo) : '—',
-                porciones: r.portions != null ? String(r.portions) : '1',
+                tiempo: '—',
+                porciones: r.yield_quantity != null ? String(r.yield_quantity) : '1',
                 ingredientes: String(det.length),
-                version: m.version != null ? String(m.version) : 'v1',
+                version: r.code != null ? String(r.code) : 'v1',
                 foto: null,
                 detalleIngredientes: det
             };

@@ -10,34 +10,44 @@
 
 try {
   console.info('[boot] Iniciando bootstrap modular...');
-  // ── 1. Arrancar runtime modular ──────────────────────────────────
-  console.debug('[boot] Importando runtime modular: ./modular-app.js');
-  const { initModularApp } = await import('./modular-app.js');
-  const { initGlobalAppShell } = await import('./global-app-shell.js');
-  console.debug('[boot] Runtime modular importado. Ejecutando initModularApp()');
+  const v = typeof window !== "undefined" && window.__MIREST_DEV_BUST__ ? String(window.__MIREST_DEV_BUST__) : "";
+  const { hydratePwaFromAuth, showPwaAccessGateIfNeeded } = await import(
+    /* webpackIgnore: true */ "./pwa-auth-bootstrap.js" + v
+  );
+  await hydratePwaFromAuth();
+  if (showPwaAccessGateIfNeeded()) {
+    document.body.classList.add("page-ready");
+    return;
+  }
+
+  // ── 1. Arrancar runtime modular (tras hidratar sesión + roles_config) ─
+  console.debug("[boot] Importando runtime modular: ./modular-app.js");
+  const { initModularApp } = await import("./modular-app.js" + v);
+  const { initGlobalAppShell } = await import("./global-app-shell.js" + v);
+  console.debug("[boot] Runtime modular importado. Ejecutando initModularApp()");
   initModularApp();
-  console.debug('[boot] initModularApp() completado');
+  console.debug("[boot] initModularApp() completado");
 
   // ── 2. Inicializar storage (IDB en background, no bloquea) ──────
   console.debug('[boot] Inicializando storage en segundo plano');
-  import('./storage.js')
+  import("./storage.js" + v)
     .then(({ initStorage }) => initStorage())
-    .then(() => console.debug('[boot] Storage inicializado'))
+    .then(() => console.debug("[boot] Storage inicializado"))
     .catch((error) => {
-      console.warn('[boot] Storage no disponible en este entorno:', error);
+      console.warn("[boot] Storage no disponible en este entorno:", error);
     });
 
   // ── 3. PWA Shell + Wake Lock + Install Banner ───────────────────
   //   pwa.js se auto-inicia al importarse (llama initPWA() al final)
-  console.debug('[boot] Importando PWA shell: ./pwa.js');
-  await import('./pwa.js');
-  console.debug('[boot] PWA shell importado');
+  console.debug("[boot] Importando PWA shell: ./pwa.js");
+  await import("./pwa.js" + v);
+  console.debug("[boot] PWA shell importado");
   await initGlobalAppShell();
-  console.debug('[boot] Navegación del dashboard global (shell) en Pedidos');
+  console.debug("[boot] Navegación del dashboard global (shell) en Pedidos");
 
   // ── 4. Bridge mobile: FAB ↔ runtime modular ─────────────────────
-  console.debug('[boot] Importando bridge mobile: ./mesero-bridge.js');
-  import('./mesero-bridge.js');
+  console.debug("[boot] Importando bridge mobile: ./mesero-bridge.js");
+  import("./mesero-bridge.js" + v);
 
   // base.css (módulo) exige `body.page-ready` para mostrar el shell; app.js del root la añade, aquí no.
   document.body.classList.add('page-ready');

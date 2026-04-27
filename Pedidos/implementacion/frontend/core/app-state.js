@@ -2,7 +2,7 @@
  * app-state.js — MiRest con IA
  * Estado global del módulo Pedidos.
  * Centraliza toda la data reactiva y sus mutaciones.
- * Runtime modular: estado en memoria; catálogo vía `loadOperationalCatalog` (Supabase) y `data.js` sin semillas.
+ * Catálogo: solo Supabase (loadOperationalCatalog). Sin data.js.
  */
 
 import {
@@ -13,13 +13,6 @@ import {
   deliveryStatusFlow,
   takeawayStatusFlow,
   categories as defaultCategories,
-  products as defaultProducts,
-  recipeAvailability as defaultRecipeAvailability,
-  waiters as defaultWaiters,
-  couriers as defaultCouriers,
-  deliveryPartners as defaultDeliveryPartners,
-  kitchenBoardSeed,
-  takeawayChatFeed,
   desktopPaymentMethods,
   desktopTipOptions,
   desktopRoundStatusMeta,
@@ -27,7 +20,15 @@ import {
   statusMeta,
   deliveryStatusMeta,
   takeawayStatusMeta,
-} from '../../data.js';
+  kitchenBoardSeed,
+  takeawayChatFeed,
+} from "./operational-ui-config.js";
+
+const defaultProducts = [];
+const defaultRecipeAvailability = {};
+const defaultWaiters = [];
+const defaultCouriers = [];
+const defaultDeliveryPartners = [];
 import {
   getPersistedUserName,
   getPersistedUserRole,
@@ -52,11 +53,14 @@ const SAFE_DASHBOARD_SECTION = 'overview';
 const VALID_DASHBOARD_SECTIONS = ['overview', 'factura', 'configuracion'];
 
 const ROLE_MODULES = {
-  /** Dueno: delivery vive en módulo pedidos (modo delivery), no en una entrada aparte. */
+  /** Alineado con el shell: admin / superadmin → PWA con stack completo. */
   dueno: ['pedidos', 'facturas', 'configuracion', 'caja', 'ventas', 'cocina', 'menu', 'almacen'],
-  cajero: ['caja', 'menu', 'configuracion'],
+  cajero: ['caja', 'pedidos', 'menu', 'configuracion'],
+  /** Pedidos / salón: mesas, delivery y para llevar en el módulo Pedidos. */
   mesero: ['pedidos', 'menu', 'facturas', 'configuracion'],
-  cocina: ['cocina', 'configuracion'],
+  cocina: ['cocina', 'almacen', 'menu', 'configuracion'],
+  almacenero: ['almacen', 'menu', 'ventas', 'configuracion'],
+  marketing: ['ventas', 'menu', 'configuracion'],
 };
 
 const DEFAULT_MODULE_BY_ROLE = {
@@ -64,6 +68,18 @@ const DEFAULT_MODULE_BY_ROLE = {
   cajero: 'caja',
   mesero: 'pedidos',
   cocina: 'cocina',
+  almacenero: 'almacen',
+  marketing: 'ventas',
+};
+
+const SHELL_ROLE_TO_PWA = {
+  superadmin: 'dueno',
+  admin: 'dueno',
+  caja: 'cajero',
+  pedidos: 'mesero',
+  chef: 'cocina',
+  almacen: 'almacenero',
+  marketing: 'marketing',
 };
 
 const restoredAppSession = restoreAppSession();
@@ -74,6 +90,38 @@ function getModulesForRole(role = 'mesero') {
   return ROLE_MODULES[role] || ROLE_MODULES.mesero;
 }
 
+function getPwaAllowlist() {
+  if (typeof globalThis === 'undefined') {
+    return null;
+  }
+  const a = globalThis.__MIREST_PWA_ALLOWLIST__;
+  if (a == null) {
+    return null;
+  }
+  return Array.isArray(a) ? a : null;
+}
+
+/**
+ * Intersección de módulos del rol con la allowlist PWA (sesión Supabase + roles_config).
+ * @param {string} role
+ * @returns {string[]}
+ */
+function getVisibleModuleIdsForRole(role) {
+  const base = getModulesForRole(role);
+  const allow = getPwaAllowlist();
+  if (allow == null) {
+    return base;
+  }
+  const filtered = base.filter((m) => allow.includes(m));
+  if (filtered.length) {
+    return filtered;
+  }
+  if (allow.length === 0) {
+    return [];
+  }
+  return base;
+}
+
 function getDefaultModuleForRole(role = 'mesero') {
   return DEFAULT_MODULE_BY_ROLE[role] || 'pedidos';
 }
@@ -82,14 +130,39 @@ function normalizeMode(mode) {
   return VALID_APP_MODES.includes(mode) ? mode : SAFE_DEFAULT_MODE;
 }
 
+const PWA_INTERNAL_ROLES = new Set(['dueno', 'mesero', 'cocina', 'cajero', 'almacenero', 'marketing']);
+
+function mapShellRoleToPwaRole(role) {
+  if (role == null) return 'mesero';
+  const r = String(role).trim();
+  if (SHELL_ROLE_TO_PWA[r]) {
+    return SHELL_ROLE_TO_PWA[r];
+  }
+  if (PWA_INTERNAL_ROLES.has(r)) {
+    return r;
+  }
+  return 'mesero';
+}
+
 function normalizeRole(role) {
-  return ROLE_MODULES[role] ? role : 'mesero';
+  const mapped = mapShellRoleToPwaRole(role);
+  return ROLE_MODULES[mapped] ? mapped : 'mesero';
 }
 
 function normalizeActiveModule(moduleId, role = 'mesero') {
-  const visibleModules = getModulesForRole(normalizeRole(role));
-  if (visibleModules.includes(moduleId)) return moduleId;
-  return getDefaultModuleForRole(role);
+  const r = normalizeRole(role);
+  const visibleModules = getVisibleModuleIdsForRole(r);
+  if (!visibleModules.length) {
+    return 'pedidos';
+  }
+  if (moduleId && visibleModules.includes(moduleId)) {
+    return moduleId;
+  }
+  const d = getDefaultModuleForRole(r);
+  if (visibleModules.includes(d)) {
+    return d;
+  }
+  return visibleModules[0] || 'pedidos';
 }
 
 function normalizeDashboardSection(section) {
@@ -105,13 +178,27 @@ function normalizeOperationalContext(context, fallbackMode = SAFE_DEFAULT_MODE) 
   };
 }
 
-const initialUserRole = normalizeRole(restoredAppSession?.userRole || persistedUserRole);
+const initialUserRole = normalizeRole(
+  (typeof globalThis !== 'undefined' && globalThis.__MIREST_PWA_RESOLVED_PWA_ROLE__) ||
+  restoredAppSession?.userRole ||
+  persistedUserRole
+);
 const initialMode = normalizeMode(restoredAppSession?.mode || document.body.dataset.mode || SAFE_DEFAULT_MODE);
-const initialActiveModule = normalizeActiveModule(restoredAppSession?.activeModule, initialUserRole);
+const initialVisibleModules = getVisibleModuleIdsForRole(initialUserRole);
+const initialActiveModule = (() => {
+  const m = restoredAppSession?.activeModule;
+  if (m && initialVisibleModules.includes(m)) {
+    return m;
+  }
+  if (initialVisibleModules.length) {
+    return initialVisibleModules[0];
+  }
+  return normalizeActiveModule(restoredAppSession?.activeModule, initialUserRole);
+})();
 const initialDashboardSection = normalizeDashboardSection(restoredAppSession?.dashboardSection || SAFE_DASHBOARD_SECTION);
 
 /**
- * Catálogo y operadores (se hidrata desde Supabase; sin datos de muestra en `data.js`).
+ * Catálogo y operadores (hidrata solo desde Supabase en loadOperationalCatalog).
  * @type {{
  *  products: Array<Record<string, unknown>>,
  *  categories: Array<{ id: string, name: string }>,
@@ -215,8 +302,8 @@ const _state = {
   /** Nombre del usuario */
   userName: restoredAppSession?.userName || persistedUserName,
 
-  /** Módulos visibles según rol */
-  visibleModules: getModulesForRole(initialUserRole),
+  /** Módulos visibles según rol (y recorte PWA) */
+  visibleModules: initialVisibleModules,
 
   /** Último contexto operativo seguro para volver desde facturación/configuración */
   lastOperationalContext: normalizeOperationalContext(restoredAppSession?.lastOperationalContext, initialMode),
@@ -430,7 +517,7 @@ export function ensureSafeNavigationState() {
   }
   const safeMode = normalizeMode(_state.mode);
   const safeRole = normalizeRole(_state.userRole);
-  const safeModules = getModulesForRole(safeRole);
+  const safeModules = getVisibleModuleIdsForRole(safeRole);
   const safeModule = normalizeActiveModule(_state.activeModule, safeRole);
   const safeSection = normalizeDashboardSection(_state.dashboardSection);
 
@@ -661,7 +748,7 @@ export function setMode(mode) {
 
 export function setUserRole(role) {
   _state.userRole = normalizeRole(role || 'mesero');
-  _state.visibleModules = getModulesForRole(_state.userRole);
+  _state.visibleModules = getVisibleModuleIdsForRole(_state.userRole);
   _state.activeModule = normalizeActiveModule(_state.activeModule, _state.userRole);
   _state.session.role = _state.userRole;
   emit('userRole');

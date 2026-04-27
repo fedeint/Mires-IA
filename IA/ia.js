@@ -1,4 +1,5 @@
 // IA/ia.js — Módulo principal DallIA
+import { getModulesByRole } from "../scripts/navigation.js";
 
 // ─── Estado global de la sesión ───────────────────────────────────────────────
 let conversationHistory = []; // Array<{role: string, content: string}>
@@ -76,6 +77,32 @@ function filterAndSortChunks(chunks, threshold = 0.70, topK = 5) {
     .slice(0, topK);
 }
 
+// ─── Módulos visibles por rol (no inventar otras áreas) ─────────────────────
+function buildDallaModuleAccessBlock() {
+  const prof = typeof window !== "undefined" ? window.currentUserProfile : null;
+  if (!prof || !prof.role) {
+    return [
+      "REGLAS DE PERFIL (MI REST):",
+      "- Aún no hay contexto de sesión del usuario. No afirmes datos concretos de módulos internos; orienta a iniciar sesión o hablar con un administrador.",
+    ].join("\n");
+  }
+  const perms = Array.isArray(prof.permissions) && prof.permissions.length > 0
+    ? prof.permissions
+    : null;
+  const items = getModulesByRole(prof.role, perms);
+  const labels = items
+    .filter((m) => m.key !== "dashboard")
+    .map((m) => m.label);
+  return [
+    "REGLAS DE MÓDULO (MI REST):",
+    "- Solo asistes en los módulos asignados a este usuario: " +
+    (labels.length > 0 ? labels.join(", ") : "(aún sin módulos concretos en el perfil; no inventes pantallas).") +
+    ". Nunca muestres ni asumas detalles de otras áreas o roles.",
+    "- Si el usuario pide un módulo, dato o tarea no cubierto por la lista, responde exactamente, sin añadidos:",
+    "«Ese módulo no está habilitado para tu perfil. Consulta con tu administrador.»",
+  ].join("\n");
+}
+
 // ─── 6.7 buildLLMPayload(chunks, userText, history) ──────────────────────────
 // Construye el payload para el proxy LLM (netlify/functions/ai.js).
 // Requirements: 4.1, 4.2, 4.3, 4.5
@@ -102,6 +129,8 @@ function buildLLMPayload(chunks, userText, history) {
     "Usa únicamente el contexto provisto para responder preguntas sobre el negocio " +
     "(recetas, proveedores, productos, operaciones, etc.). " +
     "Si la información no está en el contexto, indícalo con amabilidad.\n\n" +
+    buildDallaModuleAccessBlock() +
+    "\n" +
     contextBlock;
 
   return {
