@@ -38,6 +38,37 @@ import { loadRolesConfigMap, getModulesForRoleFromDb } from "../scripts/roles-co
 import { shellRoleToAppRole } from "../scripts/mirest-role-maps.js";
 import { startMirestModuleOnboarding } from "../scripts/mirest-module-onboarding-runner.js";
 
+/** Organigrama estilizado (1–2–3 niveles), encaja en 32px; el color toma el acento del UI. */
+const CRONO_ORG_HUB_SVG = `<svg class="crono-org-hub" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <circle cx="16" cy="3.5" r="2.4" fill="currentColor" fill-opacity="0.12" />
+  <line x1="16" y1="5.8" x2="16" y2="9.5" />
+  <line x1="3.5" y1="9.5" x2="28.5" y2="9.5" />
+  <line x1="3.5" y1="9.5" x2="3.5" y2="13.2" />
+  <line x1="16" y1="9.5" x2="16" y2="13.2" />
+  <line x1="28.5" y1="9.5" x2="28.5" y2="13.2" />
+  <circle cx="3.5" cy="16.2" r="2.2" fill="currentColor" fill-opacity="0.1" />
+  <line x1="3.5" y1="18.4" x2="3.5" y2="21" />
+  <line x1="0.5" y1="21" x2="6.5" y2="21" />
+  <line x1="0.5" y1="21" x2="0.5" y2="23" />
+  <line x1="3.5" y1="21" x2="3.5" y2="23" />
+  <line x1="6.5" y1="21" x2="6.5" y2="23" />
+  <circle cx="0.5" cy="26" r="1" fill="currentColor" fill-opacity="0.1" />
+  <circle cx="3.5" cy="26" r="1" fill="currentColor" fill-opacity="0.1" />
+  <circle cx="6.5" cy="26" r="1" fill="currentColor" fill-opacity="0.1" />
+  <circle cx="16" cy="16.2" r="2.2" fill="currentColor" fill-opacity="0.1" />
+  <line x1="16" y1="18.4" x2="16" y2="27" />
+  <circle cx="16" cy="29" r="1" fill="currentColor" fill-opacity="0.1" />
+  <circle cx="28.5" cy="16.2" r="2.2" fill="currentColor" fill-opacity="0.1" />
+  <line x1="28.5" y1="18.4" x2="28.5" y2="21" />
+  <line x1="25.2" y1="21" x2="31.2" y2="21" />
+  <line x1="25.2" y1="21" x2="25.2" y2="23" />
+  <line x1="28.5" y1="21" x2="28.5" y2="23" />
+  <line x1="31.2" y1="21" x2="31.2" y2="23" />
+  <circle cx="25.2" cy="26" r="1" fill="currentColor" fill-opacity="0.1" />
+  <circle cx="28.5" cy="26" r="1" fill="currentColor" fill-opacity="0.1" />
+  <circle cx="31.2" cy="26" r="1" fill="currentColor" fill-opacity="0.1" />
+</svg>`;
+
 const tableBody = document.getElementById("requestsTableBody");
 const feedback = document.getElementById("requestFeedback");
 const rlsHint = document.getElementById("accesosRlsHint");
@@ -235,17 +266,18 @@ function renderPermGrid({ contextId, selected, disabled = false }) {
         </label>
       `).join("");
   return `
+    <div class="perm-toolbar" role="group" aria-label="Atajos de módulos">
+      <span class="perm-toolbar__eyebrow">Atajos</span>
+      <button class="perm-toolbar__btn" type="button" onclick="window.permSelectAll('${contextId}')">Marcar todos</button>
+      <button class="perm-toolbar__btn" type="button" onclick="window.permSelectNone('${contextId}')">Quitar todos</button>
+      <button class="perm-toolbar__btn perm-toolbar__btn--accent" type="button" onclick="window.permApplyRole('${contextId}')">Plantilla del rol</button>
+    </div>
     <div class="perm-grid" data-perm-grid="${contextId}">
       ${moduleChips}
     </div>
-    <p class="perm-section-hint" style="margin:0.75rem 0 0.35rem;font-size:0.8rem;color:var(--color-text-muted);font-weight:600;">Opciones por módulo</p>
+    <p class="perm-section-hint">Opciones avanzadas por módulo</p>
     <div class="perm-grid perm-grid--features" data-perm-grid-features="${contextId}">
       ${featureChips}
-    </div>
-    <div class="perm-actions">
-      <button class="perm-link" type="button" onclick="window.permSelectAll('${contextId}')">Todos</button>
-      <button class="perm-link" type="button" onclick="window.permSelectNone('${contextId}')">Ninguno</button>
-      <button class="perm-link" type="button" onclick="window.permApplyRole('${contextId}')">Aplicar rol</button>
     </div>
   `;
 }
@@ -1077,14 +1109,14 @@ function openConfigModal({ title, subject, initialRole, initialPerms, confirmLab
       <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(subject)}</p>
 
-      <label class="modal-label">Rol principal</label>
+      <p class="form-eyebrow">Rol principal</p>
       <select class="request-role-select" data-role-select="${contextId}" style="width:100%; max-width: 320px; margin-bottom: var(--space-4);">
         ${getRoleOptions()
           .map((opt) => `<option value="${opt.value}" ${opt.value === initialRole ? "selected" : ""}>${opt.label}</option>`)
           .join("")}
       </select>
 
-      <label class="modal-label">Módulos habilitados</label>
+      <p class="crono-block-title" style="margin: 0 0 8px">Módulos habilitados</p>
       ${renderPermGrid({ contextId, selected: initialPerms })}
 
       <div class="modal-actions">
@@ -1197,10 +1229,7 @@ async function loadCrono() {
     admin?.email ||
     "Admin";
 
-  const lines = [];
-  lines.push(`<div class="crono-tree-root"><span class="crono-tree-ico" aria-hidden="true">🏠</span> <strong>${escapeHtml(
-    tenantName,
-  )}</strong> <span class="crono-tree-sub">(Admin: ${escapeHtml(adminName)})</span></div>`);
+  const staffItems = [];
   for (const u of usersList) {
     if (u.protected) continue;
     const tlist = byUser.get(u.id) || [];
@@ -1210,31 +1239,65 @@ async function loadCrono() {
     const isGrey = isInactive;
     const turnoPendiente = !isInactive && !isPendingActivation(u) && !hasActivo;
     const badge = isGrey
-      ? "⚫ <span class=\"crono-tree-badge crono-tree-badge--grey\">Inactivo</span>"
+      ? "<span class=\"crono-tree-badge crono-tree-badge--grey\" aria-label=\"Cuenta inactiva\">Inactivo</span>"
       : isPendingActivation(u)
-        ? ""
+        ? '<span class="crono-tree-badge crono-tree-badge--muted">Activando…</span>'
         : turnoPendiente
-          ? "<span class=\"crono-tree-badge crono-tree-badge--warn\" title=\"Sin turno asignado: ninguna fila activa en usuario_turnos\">Turno pendiente</span>"
-          : "✅";
+          ? "<span class=\"crono-tree-badge crono-tree-badge--warn\" title=\"Sin turno asignado\">Turno pendiente</span>"
+          : '<span class="crono-tree-badge crono-tree-badge--ok" title="Con horario asignado">Con turno</span>';
     const roleL = getRoleLabel(u.role) || u.role || "—";
-    const head = `${isGrey ? "⚫" : "👤"} <strong>${escapeHtml(u.full_name || u.email || u.id)}</strong> — ${escapeHtml(
-      roleL,
-    )} ${badge ? ` ${badge}` : ""}
-      <button type="button" class="btn btn--secondary" style="font-size: 11px; margin-left: 6px" data-edit-turno="${u.id}">${hasActivo ? "Editar turno" : "Asignar turno"}</button>
-    `;
+    const head = `<div class="crono-tree-user__row">
+  <div class="crono-tree-user__id">
+    <div class="crono-tree-avatar crono-tree-avatar--round" aria-hidden="true"><span class="crono-tree-avatar__face">${isGrey ? "⏸" : "🧑‍💼"}</span></div>
+    <div class="crono-tree-user__id-text">
+      <span class="crono-tree-user__name">${escapeHtml(u.full_name || u.email || u.id)}</span>
+      <span class="crono-tree-user__role">${escapeHtml(roleL)}</span>
+    </div>
+  </div>
+  <div class="crono-tree-user__badges">${badge}</div>
+  <div class="crono-tree-user__action">
+    <button type="button" class="crono-btn-assign" data-edit-turno="${u.id}">${hasActivo ? "Editar turno" : "Asignar turno"}</button>
+  </div>
+</div>`;
     let sub = "";
     if (hasActivo) {
       sub = `<ul class="crono-tree-feat">${res.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
     } else if (turnoPendiente) {
       const hint =
         tlist.length > 0
-          ? "Tienes días guardados, pero el turno está desactivado o incompleto. Pulsa <strong>Asignar turno</strong>."
-          : "Sin días u horas activas. Pulsa <strong>Asignar turno</strong>.";
-      sub = `<p class="crono-tree-feat" style="color: #c2410c; margin: 4px 0 0 18px">${hint}</p>`;
+          ? "Hay días guardados pero el turno está desactivado. Usa <strong>Asignar turno</strong>."
+          : "Aún no hay días. Pulsa <strong>Asignar turno</strong> para fijar horario.";
+      sub = `<p class="crono-tree-feat crono-tree-feat--warn">${hint}</p>`;
     }
-    lines.push(`<div class="crono-tree-user ${isGrey ? "crono-tree-user--grey" : ""}">${head}${sub ? `<div style="padding-left: 18px">${sub}</div>` : ""}</div>`);
+    staffItems.push(
+      `<li class="crono-org-staff__item">
+        <span class="crono-org-hor" aria-hidden="true"></span>
+        <div class="crono-tree-user ${isGrey ? "crono-tree-user--grey" : ""}"><div class="crono-tree-user__body">${head}${sub ? `<div class="crono-tree-user__sub">${sub}</div>` : ""}</div></div>
+      </li>`,
+    );
   }
-  treeEl.innerHTML = lines.join("");
+
+  const rootBlock = `<div class="crono-org-scaffold" role="tree" aria-label="Contexto de turnos del local">
+  <div class="crono-org-treeRoot" role="presentation">
+    <div class="crono-org-nucleus" title="Sede / local">${CRONO_ORG_HUB_SVG}</div>
+    <div class="crono-org-rootCopy">
+      <strong class="crono-tree-root__name">${escapeHtml(tenantName)}</strong>
+      <span class="crono-tree-sub">Referencia: ${escapeHtml(adminName)}</span>
+    </div>
+  </div>
+  ${
+    staffItems.length
+      ? `<div class="crono-org-below" role="group" aria-label="Equipo y horarios asignables">
+    <div class="crono-org-spineCol" aria-hidden="true">
+      <div class="crono-org-stem"></div>
+      <div class="crono-org-mast"></div>
+    </div>
+    <ol class="crono-org-staff">${staffItems.join("")}</ol>
+  </div>`
+      : `<p class="crono-org-empty" role="status">No hay integrantes del equipo listado para asignar turno (o solo existen cuentas protegidas / sistema).</p>`
+  }
+</div>`;
+  treeEl.innerHTML = rootBlock;
 
   treeEl.querySelectorAll("[data-edit-turno]").forEach((btn) => {
     btn.addEventListener("click", () => openEditTurnoModal(/** @type {string} */ (btn.getAttribute("data-edit-turno"))));
@@ -1277,9 +1340,10 @@ function setupInviteDias() {
   const host = document.getElementById("inviteDiasRow");
   if (!host) return;
   host.innerHTML = DIAS_ORDEN.map((d) => {
-    return `<label style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px;">
+    return `<label class="crono-dia-pill">
       <input type="checkbox" class="crono-dia-cb" value="${d}" ${["lunes", "martes", "miercoles", "jueves", "viernes"].includes(d) ? "checked" : ""} />
-      ${DIA_CORTO[d]}</label>`;
+      <span class="crono-dia-pill__txt">${DIA_CORTO[d]}</span>
+    </label>`;
   }).join("");
 }
 
@@ -1292,9 +1356,9 @@ function setupInviteForm() {
     .map((o) => `<option value="${o.value}">${o.label}</option>`)
     .join("");
   invitePermContextId = "invite-" + Date.now();
-  perms.innerHTML = `<label class="modal-label">Módulos habilitados</label>` + renderPermGrid({ contextId: invitePermContextId, selected: permissionsForRole("admin") });
+  perms.innerHTML = `<p class="crono-block-title">Módulos habilitados</p>` + renderPermGrid({ contextId: invitePermContextId, selected: permissionsForRole("admin") });
   roleSel.addEventListener("change", () => {
-    perms.innerHTML = `<label class="modal-label">Módulos habilitados</label>` + renderPermGrid({ contextId: invitePermContextId, selected: permissionsForRole(roleSel.value) });
+    perms.innerHTML = `<p class="crono-block-title">Módulos habilitados</p>` + renderPermGrid({ contextId: invitePermContextId, selected: permissionsForRole(roleSel.value) });
     if (window.lucide) window.lucide.createIcons();
   });
   setupInviteDias();
@@ -1547,14 +1611,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const panS = document.getElementById("panelCronoSemana");
   if (tabArbol && tabSem && panA && panS) {
     tabArbol.addEventListener("click", () => {
-      panA.style.display = "";
-      panS.style.display = "none";
+      panA.removeAttribute("hidden");
+      panS.setAttribute("hidden", "");
+      tabArbol.setAttribute("aria-selected", "true");
+      tabSem.setAttribute("aria-selected", "false");
       tabArbol.classList.add("crono-tab--active");
       tabSem.classList.remove("crono-tab--active");
     });
     tabSem.addEventListener("click", () => {
-      panA.style.display = "none";
-      panS.style.display = "";
+      panA.setAttribute("hidden", "");
+      panS.removeAttribute("hidden");
+      tabSem.setAttribute("aria-selected", "true");
+      tabArbol.setAttribute("aria-selected", "false");
       tabSem.classList.add("crono-tab--active");
       tabArbol.classList.remove("crono-tab--active");
     });

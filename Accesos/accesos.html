@@ -509,43 +509,436 @@
         }
       }
 
+      .crono-section {
+        margin-top: 0;
+      }
+      .crono-hero-hint {
+        color: var(--color-text-muted);
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+        max-width: 720px;
+      }
+      .crono-hint-below {
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--color-text-muted);
+        margin-top: 20px;
+      }
+      .crono-form-feedback {
+        font-size: 13px;
+        color: var(--color-text-muted);
+        padding-top: 6px;
+        line-height: 1.4;
+        align-self: center;
+        min-height: 1.4em;
+      }
+      .crono-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 16px;
+        padding: 4px;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+        width: fit-content;
+        max-width: 100%;
+      }
+      body[data-theme="dark"] .crono-tabs {
+        background: rgba(0, 0, 0, 0.2);
+      }
       .crono-tab {
-        background: none;
+        display: inline-flex;
+        align-items: center;
+        background: transparent;
         border: none;
-        border-bottom: 2px solid transparent;
-        padding: 10px 4px 12px;
+        border-radius: 10px;
+        padding: 8px 16px;
         font-size: 14px;
         font-weight: 600;
         color: var(--color-text-muted);
         cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .crono-tab:hover {
+        color: var(--color-text);
+        background: rgba(255, 255, 255, 0.45);
+      }
+      body[data-theme="dark"] .crono-tab:hover {
+        background: rgba(255, 255, 255, 0.06);
       }
       .crono-tab--active {
+        color: #fff;
+        background: var(--color-accent, #f07c2a);
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent, #f07c2a) 40%, transparent);
+      }
+      .crono-tree-surface,
+      #cronoArbolTree.crono-tree-surface {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 80px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text);
+        padding: 16px 18px;
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--color-surface) 92%, rgba(240, 124, 42, 0.03));
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+      }
+      .crono-panel--week {
+        min-height: 80px;
+        overflow-x: auto;
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 10px 12px;
+        background: color-mix(in srgb, var(--color-surface) 92%, rgba(240, 124, 42, 0.02));
+      }
+      .crono-week-grid-inner {
+        min-width: 720px;
+        font-size: 12px;
+      }
+      .crono-org-scaffold {
+        --crono-nucleus: 58px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        min-width: 0;
+        gap: 0;
+      }
+      .crono-org-treeRoot {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px 20px;
+        width: 100%;
+      }
+      .crono-org-nucleus {
+        width: var(--crono-nucleus);
+        height: var(--crono-nucleus);
+        min-width: var(--crono-nucleus);
+        min-height: var(--crono-nucleus);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
         color: var(--color-accent, #f07c2a);
-        border-bottom-color: var(--color-accent, #f07c2a);
+        border: 2px solid color-mix(in srgb, var(--color-accent) 50%, var(--color-border) 30%);
+        background: linear-gradient(
+          150deg,
+          var(--color-surface) 0%,
+          color-mix(in srgb, var(--color-info) 6%, var(--color-surface)) 100%
+        );
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-info) 18%, transparent), var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+      }
+      body[data-theme="dark"] .crono-org-nucleus {
+        background: linear-gradient(150deg, var(--color-surface) 0%, var(--color-surface-muted) 100%);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 8px 18px rgba(0, 0, 0, 0.25);
+      }
+      .crono-org-hub {
+        display: block;
+        width: 32px;
+        height: 32px;
+        opacity: 0.95;
+      }
+      .crono-org-rootCopy {
+        flex: 1 1 200px;
+        min-width: 0;
+        padding: 2px 0 0 0;
+      }
+      .crono-org-below {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0;
+        width: 100%;
+        min-width: 0;
+        margin-top: 10px;
+      }
+      .crono-org-spineCol {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 3px;
+        width: 3px;
+        min-width: 3px;
+        align-items: center;
+        margin-left: calc(var(--crono-nucleus) * 0.5 - 1.5px);
+        margin-right: 0;
+        align-self: stretch;
+      }
+      .crono-org-stem {
+        width: 3px;
+        height: 10px;
+        min-height: 10px;
+        border-radius: 2px 2px 0 0;
+        background: linear-gradient(180deg, var(--color-accent, #f07c2a) 0%, var(--color-info, #0ea5e9) 100%);
+        flex: 0 0 auto;
+      }
+      .crono-org-mast {
+        width: 3px;
+        flex: 1 1 auto;
+        min-height: 1rem;
+        border-radius: 0 0 3px 3px;
+        background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-border-strong) 88%, var(--color-border) 100%);
+        opacity: 0.9;
+      }
+      .crono-org-staff {
+        list-style: none;
+        margin: 0 0 0 0;
+        padding: 0 0 0 4px;
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      @media (max-width: 640px) {
+        .crono-org-spineCol {
+          margin-left: calc(var(--crono-nucleus) * 0.5 - 1.5px);
+        }
+        .crono-org-staff {
+          padding-left: 2px;
+        }
+        .crono-org-hor {
+          width: 8px;
+          min-width: 8px;
+        }
+      }
+      .crono-org-staff__item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0;
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .crono-org-hor {
+        display: block;
+        width: 14px;
+        min-width: 14px;
+        height: 3px;
+        border-radius: 1px 2px 2px 1px;
+        background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-border-strong) 70%);
+        flex: 0 0 auto;
+        box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--color-border-strong) 80%, transparent);
+      }
+      .crono-org-staff__item .crono-tree-user {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .crono-org-staff__item .crono-tree-user__body::before {
+        display: none;
+      }
+      .crono-org-staff__item .crono-tree-user__body {
+        border-left: 0;
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--color-text) 6%, transparent);
+      }
+      .crono-org-empty {
+        margin: 10px 0 0 0;
+        max-width: 40rem;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--color-text-muted);
+      }
+      .crono-tree-root {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 2px;
+      }
+      .crono-tree-root__row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--color-accent, #f07c2a) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-accent, #f07c2a) 18%, var(--color-border));
+      }
+      .crono-tree-ico {
+        font-size: 1.1rem;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+      .crono-tree-root__name {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+      .crono-tree-sub {
+        display: block;
+        font-size: 12px;
+        color: var(--color-text-muted);
+        font-weight: 500;
+        margin-top: 2px;
       }
       .crono-tree-user {
-        margin: 6px 0 10px 8px;
-        padding: 4px 0 8px 8px;
-        border-left: 2px solid var(--color-border, #e5e7eb);
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-left: none;
       }
-      .crono-tree-user--grey {
-        opacity: 0.6;
-        border-left-color: #6b7280;
+      .crono-tree-user__body {
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        padding: 0;
+        background: var(--color-surface);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        position: relative;
+        overflow: hidden;
+      }
+      .crono-tree-user__body::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, var(--color-accent, #f07c2a), color-mix(in srgb, var(--color-accent) 40%, #7c3aed 60%));
+        opacity: 0.7;
+        border-radius: 14px 0 0 14px;
+      }
+      .crono-tree-user--grey .crono-tree-user__body {
+        opacity: 0.62;
+        filter: grayscale(0.15);
+      }
+      .crono-tree-user--grey .crono-tree-user__body::before {
+        background: #94a3b8;
+      }
+      .crono-tree-user__row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 12px;
+        padding: 12px 14px 10px 16px;
+        justify-content: space-between;
+      }
+      @media (max-width: 640px) {
+        .crono-tree-user__row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .crono-tree-user__action {
+          width: 100%;
+        }
+        .crono-btn-assign {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+      .crono-tree-user__id {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        min-width: 0;
+        flex: 1 1 200px;
+      }
+      .crono-tree-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.15rem;
+        line-height: 1;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(14, 165, 233, 0.15));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+      .crono-tree-user--grey .crono-tree-avatar {
+        background: rgba(100, 116, 139, 0.2);
+      }
+      .crono-tree-avatar.crono-tree-avatar--round {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 50%;
+        border: 2px solid color-mix(in srgb, var(--color-accent) 32%, var(--color-border) 20%);
+        background: linear-gradient(150deg, color-mix(in srgb, var(--color-info) 14%, #fff) 0%, var(--color-surface-muted) 100%);
+      }
+      body[data-theme="dark"] .crono-tree-avatar.crono-tree-avatar--round {
+        background: linear-gradient(150deg, rgba(14, 165, 233, 0.22) 0%, rgba(124, 58, 237, 0.1) 100%);
+      }
+      .crono-tree-avatar--round .crono-tree-avatar__face {
+        display: block;
+        line-height: 1.15;
+        font-size: 1.1rem;
+      }
+      .crono-tree-user--grey .crono-tree-avatar.crono-tree-avatar--round {
+        background: rgba(100, 116, 139, 0.22);
+        border-color: #94a3b8;
+      }
+      .crono-tree-user__id-text {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .crono-tree-user__name {
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--color-text);
+        word-break: break-word;
+      }
+      .crono-tree-user__role {
+        font-size: 12px;
+        color: var(--color-text-muted);
+        font-weight: 500;
+      }
+      .crono-tree-user__badges {
+        flex: 0 0 auto;
+      }
+      .crono-tree-user__action {
+        flex: 0 0 auto;
+        margin-left: auto;
+      }
+      .crono-tree-user__sub {
+        margin: 0;
+        border-top: 1px solid var(--color-border);
+        background: color-mix(in srgb, var(--color-surface) 90%, rgba(0, 0, 0, 0.02));
       }
       .crono-tree-feat {
         list-style: disc;
-        margin: 4px 0 0 0;
-        padding-left: 18px;
+        margin: 0;
+        padding: 10px 12px 12px 28px;
         color: var(--color-text-muted, #6b7280);
         font-size: 13px;
+      }
+      .crono-tree-feat--warn {
+        list-style: none;
+        margin: 0;
+        padding: 10px 12px 12px 16px;
+        line-height: 1.5;
+        color: var(--color-text);
+      }
+      .crono-tree-feat--warn strong {
+        color: var(--color-accent);
+      }
+      .crono-tree-feat a {
+        color: var(--color-accent);
+        font-weight: 600;
       }
       .crono-tree-badge {
         display: inline-block;
         font-size: 10px;
         text-transform: uppercase;
         font-weight: 800;
-        padding: 2px 8px;
+        letter-spacing: 0.04em;
+        padding: 4px 10px;
         border-radius: 9999px;
+        line-height: 1.2;
+        white-space: nowrap;
       }
       .crono-tree-badge--warn {
         background: rgba(245, 158, 11, 0.2);
@@ -554,6 +947,258 @@
       .crono-tree-badge--grey {
         background: rgba(107, 114, 128, 0.2);
         color: #4b5563;
+      }
+      .crono-tree-badge--ok {
+        background: rgba(16, 185, 129, 0.2);
+        color: #0f5132;
+      }
+      .crono-tree-badge--muted {
+        background: rgba(100, 116, 139, 0.2);
+        color: #334155;
+      }
+      .crono-btn-assign {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        border: 1px solid color-mix(in srgb, var(--color-accent) 50%, var(--color-border));
+        color: var(--color-accent);
+        background: color-mix(in srgb, var(--color-surface) 60%, color-mix(in srgb, var(--color-accent) 12%, transparent));
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        font-family: inherit;
+      }
+      .crono-btn-assign:hover {
+        background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+        border-color: var(--color-accent);
+      }
+      .crono-btn-assign:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+      .perm-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        margin-top: 0;
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid var(--color-border);
+      }
+      body[data-theme="dark"] .perm-toolbar {
+        background: rgba(0, 0, 0, 0.18);
+      }
+      .perm-toolbar__eyebrow {
+        display: block;
+        width: 100%;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-text-muted);
+        margin: 0 0 2px 0;
+      }
+      @media (min-width: 640px) {
+        .perm-toolbar {
+          flex-wrap: nowrap;
+        }
+        .perm-toolbar__eyebrow {
+          width: auto;
+          margin: 0 8px 0 0;
+        }
+      }
+      .perm-toolbar__btn {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+      }
+      .perm-toolbar__btn:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+      .perm-toolbar__btn--accent {
+        color: #fff;
+        background: var(--color-accent, #f07c2a);
+        border-color: color-mix(in srgb, var(--color-accent) 70%, #000);
+      }
+      .perm-toolbar__btn--accent:hover {
+        filter: brightness(1.05);
+        color: #fff;
+      }
+      .perm-section-hint {
+        font-size: 12px;
+        color: var(--color-text-muted);
+        margin: 8px 0 6px;
+        font-weight: 600;
+      }
+      .perm-grid--features {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+        margin-top: 0;
+      }
+      @media (min-width: 560px) {
+        .perm-grid--features {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .crono-perm .perm-grid {
+        max-width: none;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      @media (min-width: 720px) {
+        .crono-perm .perm-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 520px) {
+        .crono-perm .perm-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .form-eyebrow {
+        margin: 0 0 6px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--color-text);
+        text-transform: none;
+      }
+      .crono-block-title {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--color-text);
+        text-transform: none;
+        letter-spacing: 0.01em;
+      }
+      .crono-block-title--muted {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        margin: 0 0 4px;
+      }
+      .crono-invite-card {
+        padding: 22px 20px 24px;
+        border: 1px solid var(--color-border);
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--color-surface) 96%, rgba(240, 124, 42, 0.04));
+        box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+      }
+      .crono-invite-card h3 {
+        margin: 0 0 8px;
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        text-transform: none;
+      }
+      .crono-invite-card__lead {
+        color: var(--color-text-muted);
+        font-size: 14px;
+        margin: 0 0 20px;
+        line-height: 1.5;
+        max-width: 640px;
+      }
+      .crono-form-grid-1 {
+        display: grid;
+        gap: 12px;
+        max-width: 440px;
+        margin-bottom: 18px;
+      }
+      .crono-dias {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .crono-dia-pill {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        margin: 0;
+        padding: 0 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 9999px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+      }
+      .crono-dia-pill:has(input:checked) {
+        border-color: var(--color-accent, #f07c2a);
+        background: color-mix(in srgb, var(--color-accent) 10%, #fff 90%);
+        color: var(--color-text);
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+      }
+      body[data-theme="dark"] .crono-dia-pill:has(input:checked) {
+        background: color-mix(in srgb, var(--color-accent) 20%, #0f172a 80%);
+      }
+      .crono-dia-pill .crono-dia-cb {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .crono-dia-pill__txt {
+        pointer-events: none;
+        line-height: 1.2;
+      }
+      .crono-dia-pill:has(.crono-dia-cb:focus-visible) {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+      .crono-dia-pill:has(input:checked) .crono-dia-pill__txt {
+        color: #9a3412;
+      }
+      body[data-theme="dark"] .crono-dia-pill:has(input:checked) .crono-dia-pill__txt {
+        color: #fdba74;
+      }
+      .crono-shift-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 20px;
+        margin-bottom: 4px;
+        align-items: flex-end;
+      }
+      .crono-form-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+        padding-top: 4px;
+      }
+      .crono-invite .crono-block-title--muted { margin-top: 18px; }
+      .crono-form .crono-block-title--muted { margin: 0 0 4px; }
+      .crono-form .crono-block-title--muted + p {
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--color-text-muted);
+        margin: 0 0 8px;
+        max-width: 560px;
       }
       .crono-week-t {
         width: 100%;
@@ -893,36 +1538,38 @@
           </div><!-- /accesosPanelUsuarios -->
 
           <div id="accesosPanelTurnos" class="accesos-panel" role="tabpanel" aria-labelledby="tabAccCrono" hidden>
-          <section class="crono-section" style="margin-top: 0;">
+          <section class="crono-section">
             <div class="accesos-header">
               <div>
                 <h2>Turnos y cronograma</h2>
-                <p style="color: var(--color-text-muted); font-size: 14px; max-width: 720px;">
+                <p class="crono-hero-hint">
                   Aquí ves quién entra a qué hora y en qué días. Si falta el turno, verás
                   <strong>Turno pendiente</strong> o el aviso en la vista semana.
                 </p>
               </div>
             </div>
 
-            <div class="crono-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border);">
-              <button type="button" class="crono-tab crono-tab--active" id="tabCronoArbol" data-crono-tab="arbol">Vista árbol</button>
-              <button type="button" class="crono-tab" id="tabCronoSemana" data-crono-tab="semana">Vista semana</button>
+            <div class="crono-tabs" role="tablist" aria-label="Vista de cronograma">
+              <button type="button" class="crono-tab crono-tab--active" id="tabCronoArbol" role="tab" aria-selected="true" data-crono-tab="arbol">Vista árbol</button>
+              <button type="button" class="crono-tab" id="tabCronoSemana" role="tab" aria-selected="false" data-crono-tab="semana">Vista semana</button>
             </div>
 
-            <div id="panelCronoArbol" class="crono-panel" style="min-height: 80px">
+            <div id="panelCronoArbol" class="crono-panel">
               <div
                 id="cronoArbolTree"
-                style="font-size: 14px; line-height: 1.5; color: var(--color-text); padding: 16px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(0,0,0,0.02)"
+                class="crono-tree-surface"
                 aria-live="polite"
               >
                 Cargando…
               </div>
             </div>
 
-            <div id="panelCronoSemana" class="crono-panel" style="display: none; overflow-x: auto">
-              <div id="cronoWeekGrid" style="min-width: 720px; font-size: 12px">Cargando…</div>
+            <div id="panelCronoSemana" class="crono-panel" hidden>
+              <div class="crono-panel--week">
+                <div id="cronoWeekGrid" class="crono-week-grid-inner" role="group" aria-label="Vista semanal">Cargando…</div>
+              </div>
             </div>
-            <p id="cronoTurnoHint" style="font-size: 12px; color: var(--color-text-muted); margin-top: 20px; display: none">
+            <p id="cronoTurnoHint" class="crono-hint-below" hidden>
               Sin turno en hoja: aún se puede
               <strong>Asignar turno</strong> con el botón en un usuario.
             </p>
@@ -933,53 +1580,88 @@
             <div class="accesos-header" style="margin-top: 0;">
               <div>
                 <h2>Invitar usuario</h2>
-                <p style="color: var(--color-text-muted); font-size: 14px; max-width: 720px">
+                <p class="crono-hero-hint">
                   Añade una cuenta por correo; el usuario confirma y queda vinculado a tu local. Puedes definir turno ahora o después.
                 </p>
               </div>
             </div>
-            <div class="crono-invite" style="padding: 20px; border: 1px solid var(--color-border); border-radius: 16px">
-              <h3 style="margin: 0 0 8px; font-size: 17px; font-weight: 700">Datos de la invitación y turno</h3>
-              <p style="color: var(--color-text-muted); font-size: 14px; margin: 0 0 16px">Se envía un correo de activación. El turno queda asociado al aceptar.</p>
+            <div class="crono-invite-card crono-invite">
+              <h3>Datos de la invitación y turno</h3>
+              <p class="crono-invite-card__lead">Se envía un correo de activación. El turno queda asociado al aceptar la invitación.</p>
               <form id="formInviteUser" class="crono-form">
-                <div style="display: grid; gap: 10px; max-width: 420px; margin-bottom: 16px">
-                  <label class="modal-label">Correo</label>
-                  <input class="request-role-select" type="email" id="inviteEmail" required autocomplete="email" placeholder="nombre@empresa.com" style="max-width: 100%" />
-                  <label class="modal-label">Nombre a mostrar</label>
-                  <input class="request-role-select" type="text" id="inviteNombre" placeholder="Nombre y apellido" style="max-width: 100%" />
-                  <label class="modal-label">Rol en el sistema</label>
-                  <select class="request-role-select" id="inviteRole" style="max-width: 320px"></select>
+                <div class="crono-form-grid-1">
+                  <div>
+                    <p class="form-eyebrow" id="label-invite-email">Correo</p>
+                    <input
+                      class="request-role-select"
+                      type="email"
+                      id="inviteEmail"
+                      required
+                      autocomplete="email"
+                      placeholder="nombre@empresa.com"
+                      aria-labelledby="label-invite-email"
+                      style="max-width: 100%"
+                    />
+                  </div>
+                  <div>
+                    <p class="form-eyebrow" id="label-invite-nombre">Nombre a mostrar</p>
+                    <input
+                      class="request-role-select"
+                      type="text"
+                      id="inviteNombre"
+                      placeholder="Nombre y apellido"
+                      style="max-width: 100%"
+                      aria-labelledby="label-invite-nombre"
+                    />
+                  </div>
+                  <div>
+                    <p class="form-eyebrow" id="label-invite-rol">Rol en el sistema</p>
+                    <select class="request-role-select" id="inviteRole" style="max-width: 320px" aria-labelledby="label-invite-rol"></select>
+                  </div>
                 </div>
                 <div id="invitePermContainer" class="crono-perm" style="margin-bottom: 16px"></div>
-                <h4 class="modal-label" style="margin: 0 0 8px; font-size: 12px; text-transform: uppercase; color: var(--color-text-muted)">Turno de trabajo (opcional)</h4>
-                <p style="font-size: 12px; color: var(--color-text-muted); margin: 0 0 10px">
-                  Puedes rellenarlo luego; quedará marcado como pendiente hasta entonces.
-                </p>
-                <div
-                  class="crono-dias"
-                  id="inviteDiasRow"
-                  style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px"
-                ></div>
-                <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 8px; align-items: end">
+                <h4 class="crono-block-title--muted" id="label-turno-optional">Turno de trabajo (opcional)</h4>
+                <p>Puedes rellenarlo luego; quedará marcado como pendiente hasta entonces.</p>
+                <div class="crono-dias" id="inviteDiasRow" role="group" aria-labelledby="label-turno-optional"></div>
+                <div class="crono-shift-row">
                   <div>
-                    <label class="modal-label">Hora entrada</label>
-                    <input type="time" class="request-role-select" id="inviteHoraIn" value="08:00" style="min-width: 100px" />
+                    <p class="form-eyebrow" id="label-hora-in">Hora de entrada</p>
+                    <input
+                      type="time"
+                      class="request-role-select"
+                      id="inviteHoraIn"
+                      value="08:00"
+                      style="min-width: 120px"
+                      aria-labelledby="label-hora-in"
+                    />
                   </div>
                   <div>
-                    <label class="modal-label">Hora salida</label>
-                    <input type="time" class="request-role-select" id="inviteHoraOut" value="16:00" style="min-width: 100px" />
+                    <p class="form-eyebrow" id="label-hora-out">Hora de salida</p>
+                    <input
+                      type="time"
+                      class="request-role-select"
+                      id="inviteHoraOut"
+                      value="16:00"
+                      style="min-width: 120px"
+                      aria-labelledby="label-hora-out"
+                    />
                   </div>
                   <div>
-                    <label class="modal-label">Tipo de turno</label>
-                    <select class="request-role-select" id="inviteCategoria" style="min-width: 120px">
+                    <p class="form-eyebrow" id="label-tipo-turno">Tipo de turno</p>
+                    <select
+                      class="request-role-select"
+                      id="inviteCategoria"
+                      style="min-width: 120px"
+                      aria-labelledby="label-tipo-turno"
+                    >
                       <option value="fijo" selected>Fijo</option>
                       <option value="rotativo" disabled>Rotativo (próximamente)</option>
                     </select>
                   </div>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                <div class="crono-form-actions">
                   <button type="submit" class="btn btn--primary" id="btnInviteUser">Crear e invitar</button>
-                  <span id="inviteFormFeedback" style="font-size: 13px; color: var(--color-text-muted); padding-top: 8px"></span>
+                  <span id="inviteFormFeedback" class="crono-form-feedback" aria-live="polite"></span>
                 </div>
               </form>
             </div>
@@ -993,7 +1675,7 @@
     </button>
 
     <script type="module" src="../scripts/app.js?v=20260421-idle-scroll"></script>
-    <script type="module" src="./accesos.js?v=20260526-subnav-ux-salir"></script>
+    <script type="module" src="./accesos.js?v=20260526-crono-orgchart"></script>
     <script src="../scripts/dalia-widget.js"></script>
   </body>
 </html>
