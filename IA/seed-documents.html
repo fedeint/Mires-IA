@@ -26,11 +26,14 @@
   <div id="progress"></div>
   <div id="log"></div>
 
-  <!-- Cargar config de Supabase -->
-  <script src="./config.js"></script>
   <script>
     // ── Configuración ──────────────────────────────────────────────────────────
     const EMBEDDING_ENDPOINT = "/api/ai-embedding";
+
+    window.MIREST_CONFIG = window.MIREST_CONFIG || {
+      supabaseUrl: "https://twneirdsvyxsdsneidhi.supabase.co",
+      supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3bmVpcmRzdnl4c2RzbmVpZGhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwMTEsImV4cCI6MjA5MTQyMzAxMX0.SU7DaWn1Q2iFQbHqoJcekzPx1LQIQ-fD2WYYvgruw-0"
+    };
 
     function getSupabaseConfig() {
       const cfg = window.MIREST_CONFIG || {};
