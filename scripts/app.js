@@ -138,11 +138,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       };
       if (pageType === "module" && user) {
         const modKey = (document.body.dataset.moduleKey || activeKey || "").trim();
-        void import("./mirest-tour-policy.js")
-          .then((pol) => {
-            if (!modKey || !pol.isMirestModuleTourEnabled(modKey)) return;
-            if (!m.getModuleOnboardingKeys().includes(modKey)) return;
-            m.startMirestModuleOnboarding(modKey, {});
+        void import("./mirest-crm-tour-guard.js")
+          .then(async (guard) => {
+            if (guard.shouldDeferShellModuleOnboardingForCrmTour(modKey)) return null;
+            const pol = await import("./mirest-tour-policy.js");
+            return { pol, modKey };
+          })
+          .then((ctx) => {
+            if (!ctx) return;
+            const { pol, modKey: k } = ctx;
+            if (!k || !pol.isMirestModuleTourEnabled(k)) return;
+            if (!m.getModuleOnboardingKeys().includes(k)) return;
+            m.startMirestModuleOnboarding(k, {});
           })
           .catch(() => null);
       }
@@ -193,7 +200,7 @@ function getInitials(name) {
 }
 
 function applyUserIdentity(profile) {
-  const avatar = document.querySelector(".avatar");
+  const avatar = document.getElementById("topbarUserAvatar");
   if (avatar) {
     if (profile.avatarUrl) {
       avatar.classList.add("avatar--photo");
@@ -235,12 +242,12 @@ function setupLogoutBtn(rootPath) {
 
   document.getElementById("sidebarLogoutBtn")?.addEventListener("click", signOutAndGoLogin);
 
-  const avatar = document.querySelector(".avatar");
-  if (avatar && !avatar.dataset.logoutBound) {
-    avatar.dataset.logoutBound = "1";
-    avatar.style.cursor = "pointer";
-    avatar.title = "Cerrar sesión";
-    avatar.addEventListener("click", signOutAndGoLogin);
+  const topbarAvatar = document.getElementById("topbarUserAvatar");
+  if (topbarAvatar && !topbarAvatar.dataset.logoutBound) {
+    topbarAvatar.dataset.logoutBound = "1";
+    topbarAvatar.style.cursor = "pointer";
+    topbarAvatar.title = "Cerrar sesión";
+    topbarAvatar.addEventListener("click", signOutAndGoLogin);
   }
 }
 
@@ -277,10 +284,15 @@ function initializeModulePage(module) {
     }
   } else {
     setText("pageTitle", module.label);
-    setText("pageSubtitle", `${module.description} · Punto de entrada colaborativo.`);
+    setText("pageSubtitle", `Operación · ${module.label}`);
   }
   setText("pageContextChip", module.short);
   setText("pageAvatar", module.short);
+  const topbarModAvatar = document.getElementById("pageAvatar");
+  if (topbarModAvatar && document.body.dataset.pageType === "module") {
+    topbarModAvatar.hidden = true;
+    topbarModAvatar.setAttribute("aria-hidden", "true");
+  }
 
   setText("moduleBreadcrumbCurrent", module.label);
   setText("moduleTitle", module.label);
@@ -387,7 +399,7 @@ function initializePageTransitions() {
 
       window.setTimeout(() => {
         window.location.href = destination;
-      }, 120);
+      }, 55);
     });
   });
 
@@ -434,7 +446,7 @@ function initializeIAWidget(rootPath) {
   btn.setAttribute("aria-label", "Abrir asistente IA");
   btn.setAttribute("title", "DallIA · Asistente IA");
   btn.innerHTML = `
-    <img src="${imgSrc}" alt="" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${imgFallback}'" />
+    <img src="${imgSrc}" alt="" width="72" height="72" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${imgFallback}'" />
     <span class="ia-widget-btn__dot"></span>
   `;
   topbarActions.prepend(btn);
@@ -447,7 +459,7 @@ function initializeIAWidget(rootPath) {
   panel.innerHTML = `
     <div class="ia-widget-header">
       <div class="ia-widget-mascot">
-        <img src="${imgSrc}" alt="" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${imgFallback}'" />
+        <img src="${imgSrc}" alt="" width="72" height="72" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${imgFallback}'" />
         <span class="ia-widget-mascot__dot" title="En línea"></span>
       </div>
       <div class="ia-widget-hactions" style="position:absolute;top:10px;right:10px;z-index:20;">
@@ -476,7 +488,7 @@ function initializeIAWidget(rootPath) {
 
     <div class="ia-widget-typing" id="ia-widget-typing" aria-hidden="true">
       <div class="ia-widget-typing__avatar">
-        <img src="${imgSrc}" alt="DallIA" />
+        <img src="${imgSrc}" alt="" width="40" height="40" decoding="async" fetchpriority="low" />
       </div>
       <div class="ia-widget-typing__dots">
         <span class="ia-widget-typing__dot"></span>
@@ -533,7 +545,7 @@ function initializeIAWidget(rootPath) {
     msg.className = `ia-widget-msg ia-widget-msg--${role}`;
 
     const avatarHtml = role === "assistant"
-      ? `<div class="ia-widget-msg__avatar"><img src="${imgSrc}" alt="DallIA" /></div>`
+      ? `<div class="ia-widget-msg__avatar"><img src="${imgSrc}" alt="" width="36" height="36" decoding="async" fetchpriority="low" /></div>`
       : `<div class="ia-widget-msg__avatar">Tú</div>`;
 
     const bubbleContent = role === "assistant"

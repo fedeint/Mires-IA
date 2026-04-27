@@ -169,6 +169,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnViewList?.addEventListener("click", () => switchView("list"));
   btnViewGrid?.addEventListener("click", () => switchView("grid"));
 
+  function syncCrmEmptyLayout() {
+    document
+      .querySelector(".crm-database-container")
+      ?.classList.toggle("crm-database-container--empty", allClients.length === 0);
+  }
+
   function applyFilters() {
     const term = searchTerm.toLowerCase();
     const filtered = allClients.filter((c) => {
@@ -187,6 +193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     renderViews(filtered);
     renderKPIs(filtered);
+    syncCrmEmptyLayout();
   }
 
   searchInput?.addEventListener("input", (e) => {

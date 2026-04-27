@@ -124,7 +124,7 @@ function buildChecklistItems(snapshot) {
 
   if (snapshot.activeOrders > 0) {
     items.push({
-      text: `Hay ${snapshot.activeOrders} pedido(s) activo(s)`,
+      text: `${snapshot.activeOrders} pedido(s) activo(s)`,
       href: toHref("Pedidos/implementacion/Pedidos.html?module=pedidos"),
       icon: "list-checks",
       priority: snapshot.activeOrders >= 8 ? "alta" : "media",
@@ -133,7 +133,7 @@ function buildChecklistItems(snapshot) {
 
   if (snapshot.atRiskStockCount > 0) {
     items.push({
-      text: `${snapshot.atRiskStockCount} insumo(s) bajo mínimo o en estado crítico`,
+      text: `${snapshot.atRiskStockCount} insumo(s) en alerta de stock`,
       href: toHref("Almacen/almacen.html"),
       icon: "package",
       priority: "alta",
@@ -142,7 +142,7 @@ function buildChecklistItems(snapshot) {
 
   if (snapshot.openCashSessions > 0) {
     items.push({
-      text: `Sesión de caja abierta (${snapshot.openCashSessions}) — cerrar al finalizar el turno`,
+      text: `Caja abierta (${snapshot.openCashSessions}) cerrar al fin del turno`,
       href: toHref("Caja/caja.html"),
       icon: "receipt",
       priority: "media",
@@ -341,14 +341,14 @@ function renderInsights(snapshot, profile) {
   lines.push({
     icon: "activity",
     tag: "Resumen",
-    text: `Pedidos activos: ${snapshot.activeOrders}. Cobros del día: ${formatPen(snapshot.salesToday)}.`,
+    text: `Pedidos activos ${snapshot.activeOrders} · Cobros del día ${formatPen(snapshot.salesToday)}`,
   });
 
   if (profile?.isDemo) {
     lines.push({
       icon: "info",
       tag: "Demo",
-      text: "Las cifras se leen de tu base de datos (RLS por tenant), no de valores fijos en el front.",
+      text: "Las cifras salen de tu base con RLS por tenant sin valores fijos en el front",
     });
   }
 
@@ -407,7 +407,7 @@ function renderChecklist(snapshot) {
       <li class="action-row action-row--informational" data-priority="baja">
         <span class="action-row__icon" aria-hidden="true"><i data-lucide="check-circle-2"></i></span>
         <div class="action-row__body">
-          <p>No hay alertas operativas: sin pedidos activos, sin inventario en riesgo ni caja abierta detectada.</p>
+          <p>Sin alertas pedidos inventario y caja en calma</p>
         </div>
       </li>
     `;

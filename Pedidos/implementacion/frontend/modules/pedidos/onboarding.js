@@ -32,23 +32,23 @@ const PRE_PAY_REFERENCE = {
 const PRE_TASKS = [
   {
     id: 'uniforme',
-    title: 'Llegue listo para iniciar turno',
-    helper: 'Estoy uniformado, puntual y ya me ubique en mi area antes de recibir pedidos.',
+    title: 'Listo para iniciar turno',
+    helper: 'Uniforme puntual y en tu área antes de pedidos',
   },
   {
     id: 'mesas',
-    title: 'Revise mis mesas y el salon',
-    helper: 'Confirme limpieza, orden, numeracion y que mis mesas esten listas para atender clientes.',
+    title: 'Mesas y salón',
+    helper: 'Limpieza orden y mesas listas para atender',
   },
   {
     id: 'estacion',
-    title: 'Deje mi estacion abastecida',
-    helper: 'Ya verifique cartas, cubiertos, servilletas y apoyo basico para no frenar el servicio.',
+    title: 'Estación abastecida',
+    helper: 'Cartas cubiertos servilletas y apoyo básico',
   },
   {
     id: 'flujo',
-    title: 'Ya se como tomar pedido y cobrar',
-    helper: 'Tengo claro como registrar pedidos, revisar la cuenta y cerrar el cobro desde el sistema.',
+    title: 'Flujo de cobro claro',
+    helper: 'Saber registrar pedidos cuenta y cobro en el sistema',
   },
 ];
 
@@ -307,9 +307,9 @@ function _finishOnboardingPRE(shell) {
 function renderStepWelcome() {
   return `
     <span class="onboarding-pre__icon">🍽️</span>
-    <h2 class="onboarding-pre__title">Preparamos tu turno de mesero</h2>
+    <h2 class="onboarding-pre__title">Turno de mesero</h2>
     <p class="onboarding-pre__subtitle">
-      Esta cuenta entrara directo al flujo de salon. Primero, dinos como te llamas.
+      Cuenta en flujo de salón indica tu nombre para el turno
     </p>
     <div>
       <label class="field-label" for="preNameInput">Tu nombre</label>

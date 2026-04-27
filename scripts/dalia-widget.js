@@ -409,7 +409,7 @@
     toggleWrap.id = "dalia-toggle-bar";
     toggleWrap.title = "Activar o desactivar DallA";
     toggleWrap.innerHTML = `
-      <img src="${avatarSrc}" alt="DallA" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${avatarFallback}'" />
+      <img src="${avatarSrc}" alt="DallA" width="72" height="72" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${avatarFallback}'" />
       <span class="dalia-toggle-label">DallA</span>
       <div class="dalia-switch" id="dalia-switch-pill"></div>
     `;
@@ -420,7 +420,7 @@
     const fab = document.createElement("button");
     fab.id = "dalia-fab";
     fab.title = "Abrir chat con DallA";
-    fab.innerHTML = `<img src="${avatarSrc}" alt="DallA" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${avatarFallback}'" />`;
+    fab.innerHTML = `<img src="${avatarSrc}" alt="DallA" width="72" height="72" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${avatarFallback}'" />`;
 
     fabWrap.appendChild(fab);
     dock.appendChild(fabWrap);
@@ -461,7 +461,7 @@
       widgetEl.innerHTML = `
         <div class="dalia-w-header">
           <div class="dalia-w-avatar">
-            <img src="${avatarSrc}" alt="" width="270" height="266" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${avatarFallback}'" />
+            <img src="${avatarSrc}" alt="" width="72" height="72" decoding="async" fetchpriority="low" onerror="this.onerror=null;this.src='${avatarFallback}'" />
           </div>
           <div class="dalia-w-info">
             <div class="dalia-w-name"><span class="dalia-w-dot" aria-hidden="true"></span> DallA</div>
@@ -471,7 +471,7 @@
         </div>
         <div class="dalia-w-messages" id="dalia-w-msgs"></div>
         <div class="dalia-w-typing" id="dalia-w-typing">
-          <div class="dalia-w-typing-av"><img src="${avatarSrc}" alt="DallA" width="270" height="266" decoding="async" onerror="this.onerror=null;this.src='${avatarFallback}'" /></div>
+          <div class="dalia-w-typing-av"><img src="${avatarSrc}" alt="DallA" width="72" height="72" decoding="async" onerror="this.onerror=null;this.src='${avatarFallback}'" /></div>
           <div class="dalia-w-typing-dots">
             <span class="dalia-w-dot-anim"></span>
             <span class="dalia-w-dot-anim"></span>
@@ -507,7 +507,7 @@
         const av = document.createElement("div");
         av.className = "dalia-w-msg-av";
         if (role === "bot") {
-          av.innerHTML = `<img src="${avatarSrc}" alt="DallA" width="270" height="266" decoding="async" onerror="this.onerror=null;this.src='${avatarFallback}'" />`;
+          av.innerHTML = `<img src="${avatarSrc}" alt="DallA" width="72" height="72" decoding="async" onerror="this.onerror=null;this.src='${avatarFallback}'" />`;
         } else {
           av.textContent = "Tú";
         }

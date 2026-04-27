@@ -489,15 +489,25 @@ function showApiKeyModal() {
       <!-- Campos dinámicos -->
       <div id="prov-fields" style="margin-bottom:16px;"></div>
 
-      <button id="api-key-save" style="
+      <button type="button" id="api-key-save" style="
         width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;
         background:linear-gradient(135deg,#f07c2a,#d96a1a);color:#fff;
         font-size:15px;font-weight:700;opacity:.5;pointer-events:none;transition:all .15s;
       ">Activar DallA</button>
+      <button type="button" id="api-key-exit" style="
+        width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1px solid var(--color-border,#444);
+        background:transparent;color:var(--color-text-muted,#999);font-size:14px;font-weight:600;cursor:pointer;
+      ">Salir</button>
     </div>
   `;
 
   document.body.appendChild(overlay);
+
+  overlay.querySelector("#api-key-exit")?.addEventListener("click", () => {
+    overlay.remove();
+    const root = document.body.dataset.rootPath || "../";
+    window.location.href = `${root.replace(/\/?$/, "/")}index.html`;
+  });
 
   const saveBtn = overlay.querySelector("#api-key-save");
   const fieldsDiv = overlay.querySelector("#prov-fields");

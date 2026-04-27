@@ -87,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             </tr>
         `).join('');
+        document
+            .querySelector('.crm-database-container')
+            ?.classList.toggle('crm-database-container--empty', data.length === 0);
     }
 
     // Búsqueda simple

@@ -60,6 +60,12 @@ export class TourInteractivo {
   // FASE 0: CAPTURA DE IDENTIDAD
   // ==========================================
   renderizarFaseCero() {
+    const prof = typeof window !== 'undefined' ? window.currentUserProfile : null;
+    if (prof && typeof prof.fullName === 'string' && prof.fullName.trim()) {
+      this._bienvenidaDesdeSesion(prof);
+      return;
+    }
+
     const overlay = document.createElement('div');
     overlay.id = 'onboarding-overlay';
     overlay.style.cssText = `
@@ -71,24 +77,21 @@ export class TourInteractivo {
     overlay.innerHTML = `
       <div style="background: var(--color-surface, #1e293b); padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); max-width: 400px; width: 90%; border: 1px solid rgba(255,255,255,0.1);">
         <div style="font-size: 48px; margin-bottom: 16px;">✨</div>
-        <h2 style="margin: 0 0 12px; font-size: 24px;">¡Te damos la bienvenida a MiRest con IA!</h2>
+        <h2 style="margin: 0 0 12px; font-size: 24px">Bienvenida a MiRest con IA</h2>
         <p style="color: #94a3b8; font-family: 'Inter', sans-serif; font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
-          Estamos preparando tu espacio de trabajo personalizado. Para empezar...
+          Si no tienes sesión activa indica nombre y rol de prueba
         </p>
         <form id="form-identidad" style="display: flex; flex-direction: column; gap: 16px;">
-          <input type="text" id="input-nombre" placeholder="¿Cómo te llamas?" required autocomplete="off"
+          <input type="text" id="input-nombre" placeholder="Tu nombre" required autocomplete="off"
             style="padding: 12px 16px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 16px; outline: none; text-align: center;">
-          
-          <!-- Select simulado para pruebas de Rol -->
           <select id="select-rol" required style="padding: 12px 16px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 14px; outline: none; text-align: center;">
-            <option value="" disabled selected>Selecciona tu rol operativo</option>
-            <option value="General">Tour Módulo de Clientes (CRM)</option>
-            <option value="Marketero">Marketero (Fidelización)</option>
-            <option value="Administrador">Administrador (Global)</option>
+            <option value="" disabled selected>Rol para el recorrido</option>
+            <option value="General">CRM operación</option>
+            <option value="Marketero">Marketing fidelización</option>
+            <option value="Administrador">Administración global</option>
           </select>
-
           <button type="submit" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: transform 0.2s;">
-            Comenzar mi recorrido
+            Empezar recorrido
           </button>
         </form>
       </div>
@@ -100,18 +103,53 @@ export class TourInteractivo {
       e.preventDefault();
       const nombre = document.getElementById('input-nombre').value.trim();
       const rol = document.getElementById('select-rol').value;
-
-      // Guardar identidad y cambiar flag
       localStorage.setItem(tourKey('nombreUsuario'), nombre);
       localStorage.setItem(tourKey('userRole'), rol);
       localStorage.setItem(tourKey('isFirstLogin'), 'false');
       localStorage.setItem(tourKey('tourStepIndex'), '0');
-      
       this.nombreUsuario = nombre;
       this.userRole = rol;
       this.currentTourStepIndex = 0;
+      overlay.remove();
+      this.enrutarTour();
+    });
+  }
 
-      // Remover overlay y arrancar router
+  _bienvenidaDesdeSesion(prof) {
+    const overlay = document.createElement('div');
+    overlay.id = 'onboarding-overlay';
+    overlay.style.cssText = `
+      position: fixed; inset: 0; background: rgba(10, 15, 36, 0.88); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center; z-index: 2147483647;
+      color: white; font-family: 'Space Grotesk', sans-serif; text-align: center; padding: 16px;
+    `;
+    const role = (prof.role || '').toLowerCase();
+    const isAdmin = role === 'admin' || role === 'superadmin';
+    const hint = isAdmin
+      ? 'Guía amplia para supervisar CRM proveedores inbox y campañas'
+      : 'Recorrido corto por las vistas que usa tu rol';
+    overlay.innerHTML = `
+      <div style="background: var(--color-surface, #1e293b); padding: 28px 24px; border-radius: 20px; max-width: 420px; width: 100%; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="font-size: 40px; margin-bottom: 12px">✨</div>
+        <h2 style="margin: 0 0 10px; font-size: 22px">Hola ${String(prof.fullName || '').replace(/</g, '')}</h2>
+        <p style="color: #94a3b8; font-family: Inter, sans-serif; font-size: 14px; margin: 0 0 20px; line-height: 1.45">${hint}</p>
+        <button type="button" id="btn-tour-sesion-start" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 14px 20px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%">
+          Empezar recorrido
+        </button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    const mapped =
+      isAdmin ? 'Administrador' : role === 'marketing' ? 'Marketero' : 'General';
+    document.getElementById('btn-tour-sesion-start')?.addEventListener('click', () => {
+      localStorage.setItem(tourKey('nombreUsuario'), prof.fullName.trim());
+      localStorage.setItem(tourKey('userRole'), mapped);
+      localStorage.setItem(tourKey('isFirstLogin'), 'false');
+      localStorage.setItem(tourKey('tourStepIndex'), '0');
+      this.nombreUsuario = prof.fullName.trim();
+      this.userRole = mapped;
+      this.currentTourStepIndex = 0;
+      this.isFirstLogin = false;
       overlay.remove();
       this.enrutarTour();
     });
@@ -234,13 +272,13 @@ export class TourInteractivo {
         color: #f8fafc;
         border: 1px solid rgba(249, 115, 22, 0.3);
         border-radius: 16px;
-        padding: 24px;
+        padding: 16px 18px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
         z-index: 2147483647;
-        max-width: 340px;
+        max-width: min(300px, 88vw);
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        line-height: 1.6;
+        font-size: 13px;
+        line-height: 1.45;
         text-align: left;
         visibility: hidden;
         opacity: 0;
@@ -430,7 +468,7 @@ export class TourInteractivo {
 
                       this.positionTooltipNearElement(tooltip, elementoDestino);
                       tooltip.classList.add('show');
-                  }, 400); // 400ms da tiempo al scroll suavizado de terminar
+                  }, 220);
               }
           } else {
                   this.mostrarFallbackOculto(content, paso, tooltip, spotlight);
@@ -474,6 +512,9 @@ export class TourInteractivo {
     }
     localStorage.setItem(tourKey('tourCompletado'), 'true');
     localStorage.removeItem(tourKey('tourStepIndex'));
+    try {
+      window.dispatchEvent(new CustomEvent('mirest:crm-tour-ended'));
+    } catch (_) { /* */ }
   }
 
   positionTooltipCenter(tooltip) {
@@ -517,28 +558,33 @@ const initTour = async () => {
   } catch (e) {
     console.warn('[tour-crm] Política de tutoriales no disponible; se aplica el tour por defecto.', e);
   }
-  if (!permitir) return;
-  if (!window.tourInstance) {
-    window.tourInstance = new TourInteractivo();
-    
-    // INYECTAR BOTÓN DE PRUEBA VISIBLE
-    if(!document.getElementById('btn-debug-tour')) {
+    if (!permitir) return;
+    if (!window.tourInstance) {
+      window.tourInstance = new TourInteractivo();
+
+      const showDebugTour =
+        /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '') ||
+        new URLSearchParams(window.location.search || '').get('debugTour') === '1';
+      if (showDebugTour && !document.getElementById('btn-debug-tour')) {
         const btn = document.createElement('button');
         btn.id = 'btn-debug-tour';
-        btn.innerHTML = '✨ Reiniciar Tour';
-        btn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 2147483647; background: #f97316; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4); font-family: Inter, sans-serif; transition: transform 0.2s;';
-        btn.onmouseover = () => btn.style.transform = 'scale(1.05)';
-        btn.onmouseout = () => btn.style.transform = 'scale(1)';
-        btn.onclick = () => {
-            migrateLegacyTourKeys();
-            TOUR_LS_NAMES.forEach((n) => localStorage.removeItem(tourKey(n)));
-            localStorage.removeItem('mirest_tu_tour_unscoped_migrated');
-            window.location.reload();
-        };
+        btn.type = 'button';
+        btn.textContent = 'Reiniciar tour (solo dev)';
+        btn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 2147483646; background: #f97316; color: #fff; border: none; padding: 12px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4); font-family: Inter, sans-serif; transition: transform 0.2s;';
+        btn.onmouseover = () => { btn.style.transform = 'scale(1.05)'; };
+        btn.onmouseout = () => { btn.style.transform = 'scale(1)'; };
+        btn.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          migrateLegacyTourKeys();
+          TOUR_LS_NAMES.forEach((n) => localStorage.removeItem(tourKey(n)));
+          localStorage.removeItem('mirest_tu_tour_unscoped_migrated');
+          window.location.reload();
+        });
         document.body.appendChild(btn);
-    }
+      }
 
-    // Solo dispara si el usuario no ha terminado ni saltado el tour antes
+      // Solo dispara si el usuario no ha terminado ni saltado el tour antes
     migrateLegacyTourKeys();
     if (localStorage.getItem(tourKey('tourCompletado')) !== 'true') {
       window.tourInstance.iniciar();

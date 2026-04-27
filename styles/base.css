@@ -17,13 +17,13 @@ html.js body:not(.page-ready) > *:not(#appBootLoader) {
 html.js body.page-ready:not(.page-leaving) > *:not(#appBootLoader) {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.1s ease, transform 0.1s ease;
 }
 
 html.js body.page-leaving > *:not(#appBootLoader) {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transform: translateY(4px);
+  transition: opacity 0.1s ease, transform 0.1s ease;
 }
 
 body {

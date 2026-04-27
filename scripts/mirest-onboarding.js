@@ -15,11 +15,11 @@ const PHASE_DEFS = {
     subtitle: "Setup inicial — antes de operar",
     items: [
       { id: "presupuesto", text: "Presupuesto definido" },
-      { id: "almacen", text: "Almacén habilitado con productos y proveedores" },
-      { id: "equipo", text: "Equipo coordinado (cocina, mozos, caja)" },
-      { id: "celular", text: "Celular listo para tomar pedidos" },
-      { id: "horario", text: "Horario de operación configurado" },
-      { id: "marketing_inicial", text: "Marketing: fotos a 3 redes, menú digital, plato del día" },
+      { id: "almacen", text: "Almacén con productos y proveedores" },
+      { id: "equipo", text: "Equipo coordinado cocina mozos caja" },
+      { id: "celular", text: "Celular listo para pedidos" },
+      { id: "horario", text: "Horario de operación listo" },
+      { id: "marketing_inicial", text: "Marketing fotos redes menú digital plato del día" },
     ],
   },
   pro: {
@@ -29,8 +29,8 @@ const PHASE_DEFS = {
     items: [
       { id: "caja_a", text: "Primera sesión de caja abierta" },
       { id: "pedido1", text: "Primer pedido tomado" },
-      { id: "cocina_items", text: "Cocina recibiendo items" },
-      { id: "stock_auto", text: "Stock descontándose automáticamente" },
+      { id: "cocina_items", text: "Cocina recibiendo ítems" },
+      { id: "stock_auto", text: "Stock bajando solo con ventas" },
     ],
   },
   post: {
@@ -41,7 +41,7 @@ const PHASE_DEFS = {
       { id: "reporte1", text: "Primer reporte generado" },
       { id: "meta_diaria", text: "Meta diaria configurada" },
       { id: "dallia", text: "DallA activa con datos reales" },
-      { id: "objetivos", text: "Objetivos claros: ahorro / ventas / nueva sede / innovar" },
+      { id: "objetivos", text: "Objetivos claros ahorro ventas sede innovación" },
     ],
   },
 };
@@ -144,7 +144,7 @@ export function renderAdminOnboardingPanel(host, user, profile) {
   if (!host) return;
   host.innerHTML = "";
   host.classList.add("onboarding-rail", "onboarding-rail--empty");
-  if (!profile || profile.isDemo || profile.role !== "admin") {
+  if (!profile || profile.isDemo || (profile.role !== "admin" && profile.role !== "superadmin")) {
     return;
   }
 
@@ -166,12 +166,12 @@ export function renderAdminOnboardingPanel(host, user, profile) {
           <span class="eyebrow">Onboarding del negocio</span>
           <h3>Plan en 3 fases</h3>
           <p class="onboarding-3f__lede" style="margin:0.35rem 0 0;font-size:14px;color:var(--color-text-muted);line-height:1.45">
-            Progreso guardado en <strong>tu usuario</strong> (“${name}”, ${getRoleLabel("admin")}). 
-            Tú o el <strong>SuperAdmin</strong> podéis ajustar módulos a cada colaborador en <strong>Accesos</strong>. 
-            La IA (DallA) solo comenta lo que aplica a los módulos de cada quien.
+            Progreso en <strong>tu usuario</strong> (${name} · ${getRoleLabel(profile.role)})
+            Ajustes de módulos por persona en <strong>Accesos</strong>
+            DallA respeta solo los módulos asignados a cada perfil
           </p>
         </div>
-        <span class="chip chip--accent" id="mirestOnbSummary">${done}/${total} completado — ${pct}%</span>
+        <span class="chip chip--accent" id="mirestOnbSummary">${done}/${total} completado ${pct}%</span>
       </div>
       <div class="onboarding-3f__phases" role="list">
         ${(
@@ -179,6 +179,16 @@ export function renderAdminOnboardingPanel(host, user, profile) {
         )
         .map((id) => renderPhase(st, id))
         .join("")}
+      </div>
+      <div class="onboarding-post-insights card" style="margin-top:1rem;padding:1rem 1.1rem;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-muted)">
+        <span class="eyebrow">Fase POST · Insights</span>
+        <p style="margin:0.4rem 0 0.6rem;font-size:13px;color:var(--color-text-muted);line-height:1.45">
+          Las automatizaciones de mercado y captación van <strong>antes o después</strong> del turno no durante el servicio pico
+        </p>
+        <ul style="margin:0;padding-left:1.1rem;font-size:13px;line-height:1.5;color:var(--color-text)">
+          <li style="margin-bottom:0.35rem"><strong>Evento 1 · General</strong> — Saca el pulso del día en <strong>Inicio</strong> y <strong>Reportes</strong> con datos ya cerrados en caja y pedidos</li>
+          <li><strong>Evento 2 · Mañana</strong> — Desde <strong>Clientes</strong> y campañas define objetivos de demanda y adquisición para la siguiente apertura sin mezclarlo con la operación en vivo</li>
+        </ul>
       </div>
     </div>
   `;
@@ -238,7 +248,7 @@ function renderPhase(state, phaseId) {
   return `
     <div class="onboarding-3f__phase" role="listitem">
       <div class="onboarding-3f__phase-top">
-        <h4 class="onboarding-3f__h">${def.title} — <span class="onboarding-3f__h-sub">${def.subtitle}</span></h4>
+        <h4 class="onboarding-3f__h">${def.title} <span class="onboarding-3f__h-sub">${def.subtitle}</span></h4>
       </div>
       <ul class="onboarding-3f__ul">
         ${def.items

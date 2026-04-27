@@ -105,7 +105,7 @@ export const MODULES = [
     short: "FC",
     icon: "file-text",
     path: "Facturacion/facturacion.html",
-    description: "Comprobantes, emisión, control tributario y estados de venta.",
+    description: "Comprobantes y control tributario",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Facturacion.",
     handoff: [

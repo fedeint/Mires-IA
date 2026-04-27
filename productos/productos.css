@@ -56,6 +56,21 @@
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
+@media (max-width: 900px) {
+  header.topbar .topbar__actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 12px;
+  }
+  header.topbar .topbar__actions .search-container {
+    order: -1;
+    flex: 1 1 100%;
+    max-width: min(420px, 100%);
+    margin: 0 auto;
+  }
+}
+
 /* ─── Categorías ─── */
 .categories-filter {
   display: flex;

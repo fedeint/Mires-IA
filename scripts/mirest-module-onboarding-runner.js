@@ -13,7 +13,7 @@ import { getVerifyHandler, MIREST_MODULE_ONBOARDING, createMirestOnboardingConte
  * @property {boolean} [guiaSinTenant] — sin `tenant` en nube: tour visible, comprobación remota desactivada
  */
 
-const POLL_MS = 4000;
+const POLL_MS = 12000;
 
 export class MirestModuleOnboardingRunner {
   /**
@@ -71,11 +71,11 @@ export class MirestModuleOnboardingRunner {
           </div>
           <button type="button" class="onboarding-skip" id="mirestModObSkip">Cerrar</button>
         </div>
-        <p id="mirestModObDesc" style="margin:10px 0 6px;font-size:14px;line-height:1.45;color:var(--color-text)"></p>
-        <p id="mirestModObAction" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--color-accent)"></p>
-        <p id="mirestModObGuiaAviso" style="display:none;font-size:12px;line-height:1.4;padding:8px 10px;border-radius:8px;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.12);color:var(--color-text);margin:0 0 10px"></p>
-        <div class="mirest-mod-onb-cond" style="font-size:12px;padding:8px 10px;border-radius:8px;background:var(--color-surface-muted);color:var(--color-text-muted);margin-bottom:10px">
-          <strong style="color:var(--color-text)">Completado cuando:</strong>
+        <p id="mirestModObDesc" style="margin:8px 0 4px;font-size:13px;line-height:1.4;color:var(--color-text)"></p>
+        <p id="mirestModObAction" style="margin:0 0 6px;font-size:12px;font-weight:600;color:var(--color-accent)"></p>
+        <p id="mirestModObGuiaAviso" style="display:none;font-size:11px;line-height:1.35;padding:6px 8px;border-radius:8px;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.12);color:var(--color-text);margin:0 0 8px"></p>
+        <div class="mirest-mod-onb-cond" style="font-size:11px;padding:6px 8px;border-radius:8px;background:var(--color-surface-muted);color:var(--color-text-muted);margin-bottom:8px">
+          <strong style="color:var(--color-text)">Listo cuando</strong>
           <span id="mirestModObWhen"></span>
         </div>
         <p id="mirestModObState" style="font-size:13px;margin:0 0 8px"></p>
@@ -94,9 +94,7 @@ export class MirestModuleOnboardingRunner {
     if (guiaAviso && this.ctx?.guiaSinTenant) {
       guiaAviso.style.display = "block";
       guiaAviso.textContent =
-        "Cuenta sin local (tenant) asignado aún. Estás en modo guía: puedes leer los pasos y el spotlight; " +
-        "no se comprobarán reglas en la base hasta que tu usuario tenga `tenant_id` (Accesos / public.usuarios o public.user_profiles). " +
-        "Esto es habitual en superadmin sin fila, o con políticas RLS estrictas.";
+        "Sin tenant en la cuenta modo guía sin comprobaciones en base hasta vincular local en Accesos o perfiles";
     }
     document.getElementById("mirestModObModLabel").textContent = this.def.label;
     document.getElementById("mirestModObSkip").onclick = () => this.finish(false);
@@ -148,8 +146,8 @@ export class MirestModuleOnboardingRunner {
     spotlight.style.width = `${rect.width + padding * 2}px`;
     spotlight.style.height = `${rect.height + padding * 2}px`;
     this._positionCardNear(rect, card);
-    if (rect.bottom < 0 || rect.top > window.innerHeight) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (rect.bottom < 0 || rect.top > window.innerHeight || rect.top < 80) {
+      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     }
   }
 
@@ -195,10 +193,10 @@ export class MirestModuleOnboardingRunner {
     this._lastOk = ok;
     if (st) {
       st.textContent = guiaSolo
-        ? "Modo guía sin `tenant` en la base: puedes continuar. Cuando tengas local (tenant) vinculado, las comprobaciones en Supabase volverán a aplicarse."
+        ? "Modo guía sin tenant continúa cuando vincules local las comprobaciones volverán"
         : ok
-        ? "Condición de este paso: cumplida. Puedes avanzar."
-        : "Aún no se cumple la condición. Guarda en el sistema o completa el dato, luego vuelve a verificar.";
+        ? "Paso listo puedes avanzar"
+        : "Falta dato en sistema guarda y vuelve a verificar";
       st.style.color = ok ? "var(--color-success, #16a34a)" : "var(--color-text-muted)";
     }
     const nextBtn = document.getElementById("mirestModObNext");
@@ -224,7 +222,7 @@ export class MirestModuleOnboardingRunner {
     const prog = document.getElementById("mirestModObProg");
     if (title) title.textContent = `Paso ${step.paso} — ${step.titulo}`;
     if (desc) desc.textContent = step.descripcion || "";
-    if (act) act.textContent = `Acción: ${step.accion || ""}`;
+    if (act) act.textContent = step.accion ? `Acción ${step.accion}` : "";
     if (when) when.textContent = step.completado_cuando || "—";
     if (prog) {
       prog.textContent = `Paso ${this.currentIndex + 1} de ${this.def.steps.length}`;
@@ -237,6 +235,14 @@ export class MirestModuleOnboardingRunner {
     this._lastOk = false;
     await this._runVerify(true);
     this._scheduleSpotlight();
+    const sel0 = (step?.element && String(step.element).trim()) || "body";
+    const el0 = document.querySelector(sel0.split(",")[0].trim());
+    if (el0 && el0.offsetParent !== null) {
+      requestAnimationFrame(() => {
+        el0.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+        window.setTimeout(() => this._scheduleSpotlight(), 320);
+      });
+    }
   }
 
   async _next() {
