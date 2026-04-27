@@ -50,13 +50,6 @@
     flex-wrap: wrap;
 }
 
-.breadcrumb {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--muted-foreground);
-    margin-bottom: 0.25rem;
-}
-
 h1 {
     font-size: 1.875rem;
     font-weight: 700;

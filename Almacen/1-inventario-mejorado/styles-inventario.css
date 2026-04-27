@@ -35,38 +35,7 @@
     margin: 0 auto;
 }
 
-/* Navegación */
-.modulo-nav {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding: 0.5rem;
-    background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow-x: auto;
-}
-
-.modulo-nav a {
-    text-decoration: none;
-    color: var(--muted-foreground);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-
-.modulo-nav a:hover {
-    background-color: var(--muted);
-    color: var(--primary);
-}
-
-.modulo-nav a.active {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-}
+/* Pestañas de secciones: ver /Almacen/almacen-sublayout.css (evita duplicar y pisar el tema) */
 
 header {
     display: flex;
