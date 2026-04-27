@@ -1,4 +1,5 @@
-const CACHE_VERSION = "mirest-pwa-v26";
+const CACHE_VERSION = "mirest-pwa-v27";
+const MAX_RUNTIME_ENTRIES = 80;
 
 const CORE_ASSETS = [
   "/",
@@ -76,7 +77,10 @@ self.addEventListener("fetch", (event) => {
     if (!isCacheable) return response;
 
     const clone = response.clone();
-    caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone)).catch(() => null);
+    caches.open(CACHE_VERSION).then(async (cache) => {
+      await cache.put(req, clone);
+      await trimCache(cache, MAX_RUNTIME_ENTRIES);
+    }).catch(() => null);
     return response;
   };
 
@@ -99,6 +103,12 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+async function trimCache(cache, maxEntries) {
+  const keys = await cache.keys();
+  if (keys.length <= maxEntries) return;
+  await Promise.all(keys.slice(0, keys.length - maxEntries).map((key) => cache.delete(key)));
+}
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();

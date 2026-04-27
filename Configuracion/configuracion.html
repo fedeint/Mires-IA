@@ -498,7 +498,12 @@
                     <h2 class="cfg-section-title">Personalizar DallIA</h2>
                     <p class="cfg-section-subtitle">Ajusta el nombre, tono y capacidades</p>
                   </div>
-                  <button class="cfg-btn-save" id="btnSaveDallia"><i data-lucide="save"></i> Guardar</button>
+                  <div class="cfg-section-actions">
+                    <button class="btn btn--secondary cfg-back-btn" type="button" onclick="history.length > 1 ? history.back() : window.location.href='../index.html'">
+                      <i data-lucide="arrow-left"></i> Volver
+                    </button>
+                    <button class="cfg-btn-save" id="btnSaveDallia"><i data-lucide="save"></i> Guardar</button>
+                  </div>
                 </div>
 
                 <div class="cfg-card">

@@ -169,11 +169,40 @@ body.page-almacen-sub nav.modulo-nav.almacen-subnav a .almacen-subnav__label {
 }
 
 body.page-almacen-sub .page-footer {
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--color-border, #e2e8f0);
-  font-size: 0.8rem;
-  color: var(--color-text-muted, #64748b);
+  display: none;
+}
+
+body.page-almacen-sub .module-page::before {
+  content: "Flujo Yauri  stock compras movimientos y proveedores";
+  display: block;
+  width: min(100%, 1200px);
+  margin: 0 auto var(--space-4);
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 1023px) {
+  body.page-almacen-sub .module-page > nav.breadcrumb {
+    display: none;
+  }
+
+  body.page-almacen-sub .almacen-subnav,
+  body.page-almacen-sub nav.modulo-nav.almacen-subnav {
+    flex-wrap: nowrap;
+    border-radius: 20px;
+    scroll-snap-type: x mandatory;
+  }
+
+  body.page-almacen-sub .almacen-subnav a,
+  body.page-almacen-sub nav.modulo-nav.almacen-subnav a {
+    scroll-snap-align: start;
+    min-height: 44px;
+  }
 }
 
 @media (max-width: 600px) {

@@ -2,6 +2,7 @@
  * MiRest con IA - Onboarding Engine
  * Motor genérico para crear guías interactivas con resaltado de elementos
  */
+import { clearActiveOnboarding, registerOnboarding } from "./onboarding-controller.js";
 
 export class Onboarding {
   constructor(steps, storageKey) {
@@ -10,6 +11,8 @@ export class Onboarding {
     this.currentStep = 0;
     this.overlay = null;
     this._spotlightRaf = null;
+    this._onScroll = () => this.scheduleSpotlightUpdate();
+    this._onResize = () => this.scheduleSpotlightUpdate();
     this.init();
   }
 
@@ -20,6 +23,7 @@ export class Onboarding {
   start(force = true) {
     if (!force && localStorage.getItem(this.storageKey)) return;
     if (this.overlay) return;
+    registerOnboarding(this, this.storageKey);
     this.createOverlay();
   }
 
@@ -48,8 +52,8 @@ export class Onboarding {
     document.getElementById('onboardingNext').onclick = () => this.next();
     
     // Escuchar scroll y resize para reposicionar spotlight
-    window.addEventListener('scroll', () => this.scheduleSpotlightUpdate(), { passive: true });
-    window.addEventListener('resize', () => this.scheduleSpotlightUpdate(), { passive: true });
+    window.addEventListener('scroll', this._onScroll, { passive: true, capture: true });
+    window.addEventListener('resize', this._onResize, { passive: true });
 
     this.showStep();
   }
@@ -109,7 +113,8 @@ export class Onboarding {
     spotlight.style.height = `${rect.height + (padding * 2)}px`;
 
     // Scroll inteligente: solo si el elemento no está bien visible
-    const isVisible = (rect.top >= 0 && rect.bottom <= window.innerHeight);
+    const safeBottom = window.innerWidth < 1024 ? 150 : 0;
+    const isVisible = (rect.top >= 88 && rect.bottom <= window.innerHeight - safeBottom);
     if (!isVisible && !this.scrolling) {
       this.scrolling = true;
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -129,7 +134,8 @@ export class Onboarding {
   }
 
   positionCard(targetRect, card) {
-    const margin = 20;
+    const margin = window.innerWidth < 1024 ? 12 : 20;
+    const safeBottom = window.innerWidth < 1024 ? 150 : 20;
     // Escribir primero, luego leer geometría (evita reflow forzado lectura→escritura)
     card.style.transform = 'none';
     const cardRect = card.getBoundingClientRect();
@@ -138,7 +144,7 @@ export class Onboarding {
     let left = targetRect.left;
 
     // Si no cabe abajo, poner arriba
-    if (top + cardRect.height > window.innerHeight) {
+    if (top + cardRect.height > window.innerHeight - safeBottom) {
       top = targetRect.top - cardRect.height - margin;
     }
 
@@ -165,12 +171,29 @@ export class Onboarding {
   }
 
   finish() {
+    window.removeEventListener('scroll', this._onScroll, { capture: true });
+    window.removeEventListener('resize', this._onResize);
+    if (this._spotlightRaf != null) {
+      cancelAnimationFrame(this._spotlightRaf);
+      this._spotlightRaf = null;
+    }
     this.overlay.classList.remove('open');
     localStorage.setItem(this.storageKey, 'true');
     setTimeout(() => {
-      this.overlay.remove();
+      this.overlay?.remove();
       this.overlay = null;
       this.currentStep = 0;
+      clearActiveOnboarding(this);
     }, 500);
+  }
+
+  cancel() {
+    if (!this.overlay) return;
+    window.removeEventListener('scroll', this._onScroll, { capture: true });
+    window.removeEventListener('resize', this._onResize);
+    this.overlay.remove();
+    this.overlay = null;
+    this.currentStep = 0;
+    clearActiveOnboarding(this);
   }
 }

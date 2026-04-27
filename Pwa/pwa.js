@@ -4,13 +4,13 @@ export async function registerServiceWorker(rootPath = "") {
   if (!("serviceWorker" in navigator)) return null;
 
   const scope = `${rootPath}/`;
-  const swUrl = `${rootPath}/sw.js?v=20260427-pwa-v26`.replace(/\\+/g, "/");
+  const swUrl = `${rootPath}/sw.js?v=20260427-pwa-v27`.replace(/\\+/g, "/");
   const registrations = await navigator.serviceWorker.getRegistrations();
 
   await Promise.all(
     registrations.map(async (registration) => {
       const activeScript = registration.active?.scriptURL || registration.waiting?.scriptURL || registration.installing?.scriptURL || "";
-      if (registration.scope.endsWith(scope) && activeScript && !activeScript.includes("20260427-pwa-v26")) {
+      if (registration.scope.endsWith(scope) && activeScript && !activeScript.includes("20260427-pwa-v27")) {
         await registration.unregister();
       }
     })
@@ -20,7 +20,7 @@ export async function registerServiceWorker(rootPath = "") {
     try {
       const keys = await caches.keys();
       await Promise.all(
-        keys.filter((key) => key !== "mirest-pwa-v26").map((key) => caches.delete(key))
+        keys.filter((key) => key !== "mirest-pwa-v27").map((key) => caches.delete(key))
       );
     } catch {}
   }

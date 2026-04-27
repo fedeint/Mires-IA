@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <title>Mockups PWA Android | MiRest con IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="./pwa-android-mockups.css" />
+  </head>
+  <body>
+    <main class="mockup-page">
+      <section class="mockup-hero">
+        <span class="mockup-eyebrow">MiRest PWA Android</span>
+        <h1>Mockups reales para app instalada</h1>
+        <p>Inicio, Pedidos y Cocina priorizados para operación con una mano, dock inferior, topbar compacta, safe areas y dark mode.</p>
+      </section>
+
+      <section class="phone-grid" aria-label="Mockups Android">
+        <article class="phone-frame" aria-label="Mockup Inicio Android">
+          <div class="phone-screen">
+            <header class="android-topbar">
+              <button aria-label="Menú">☰</button>
+              <div>
+                <span>Panel de operación</span>
+                <strong>Inicio</strong>
+              </div>
+              <button aria-label="DalIA">✦</button>
+              <div class="avatar-dot">AD</div>
+            </header>
+
+            <section class="service-card service-card--hero">
+              <span class="pill">Turno activo · 12:45</span>
+              <h2>Servicio en marcha</h2>
+              <p>Pedidos, caja y cocina conectados para evitar cuellos de botella.</p>
+              <div class="metric-strip">
+                <div><strong>18</strong><span>pedidos</span></div>
+                <div><strong>S/ 840</strong><span>ventas</span></div>
+                <div><strong>3</strong><span>alertas</span></div>
+              </div>
+            </section>
+
+            <section class="quick-grid">
+              <button class="quick-card quick-card--active"><span>🍽️</span><strong>Salón</strong><small>8 mesas</small></button>
+              <button class="quick-card"><span>🛵</span><strong>Delivery</strong><small>5 en ruta</small></button>
+              <button class="quick-card"><span>💳</span><strong>Caja</strong><small>2 pagos</small></button>
+              <button class="quick-card"><span>📦</span><strong>Stock</strong><small>3 críticos</small></button>
+            </section>
+
+            <section class="ticket-list">
+              <h3>Acciones sugeridas</h3>
+              <div class="ticket-row"><span></span><p>Revisar pedido #124 por demora en cocina.</p><strong>P1</strong></div>
+              <div class="ticket-row"><span></span><p>Confirmar cierre parcial de caja.</p><strong>P0</strong></div>
+            </section>
+
+            <nav class="android-dock">
+              <a class="active">⌂<span>Inicio</span></a><a>▣<span>Pedidos</span></a><a>♨<span>Cocina</span></a><a>💵<span>Caja</span></a><a>▤<span>Stock</span></a>
+            </nav>
+          </div>
+        </article>
+
+        <article class="phone-frame" aria-label="Mockup Pedidos Android">
+          <div class="phone-screen">
+            <header class="android-topbar">
+              <button aria-label="Menú">☰</button>
+              <div><span>Operación</span><strong>Pedidos</strong></div>
+              <button aria-label="Buscar">⌕</button>
+              <div class="avatar-dot">MS</div>
+            </header>
+
+            <section class="mode-tabs">
+              <button class="active">Salón</button><button>Delivery</button><button>Llevar</button>
+            </section>
+
+            <section class="order-focus">
+              <span class="pill pill--danger">Mesa 04 · 12 min</span>
+              <h2>Ceviche clásico + chicha</h2>
+              <p>Prioridad alta: cliente esperando confirmación de cocina.</p>
+              <button>Enviar a cocina</button>
+            </section>
+
+            <section class="order-stack">
+              <article><strong>#124 Mesa 04</strong><span>2 items · S/ 48.00</span><em>Preparando</em></article>
+              <article><strong>#125 Delivery</strong><span>4 items · S/ 92.00</span><em>Nuevo</em></article>
+              <article><strong>#126 Mesa 08</strong><span>1 item · S/ 18.00</span><em>Listo</em></article>
+            </section>
+
+            <nav class="android-dock">
+              <a>⌂<span>Inicio</span></a><a class="active">▣<span>Pedidos</span></a><a>♨<span>Cocina</span></a><a>💵<span>Caja</span></a><a>▤<span>Stock</span></a>
+            </nav>
+          </div>
+        </article>
+
+        <article class="phone-frame phone-frame--dark" aria-label="Mockup Cocina Android dark mode">
+          <div class="phone-screen">
+            <header class="android-topbar">
+              <button aria-label="Menú">☰</button>
+              <div><span>Producción</span><strong>Cocina</strong></div>
+              <button aria-label="Modo oscuro">☀</button>
+              <div class="avatar-dot">CH</div>
+            </header>
+
+            <section class="kitchen-rail">
+              <article class="kitchen-ticket hot"><span>12 min</span><strong>#124 Mesa 04</strong><p>Ceviche clásico · Sin ají</p><button>Marcar listo</button></article>
+              <article class="kitchen-ticket"><span>7 min</span><strong>#125 Delivery</strong><p>Arroz con mariscos x2</p><button>Preparando</button></article>
+              <article class="kitchen-ticket ready"><span>Listo</span><strong>#126 Mesa 08</strong><p>Chicha morada</p><button>Despachar</button></article>
+            </section>
+
+            <section class="stock-alert">
+              <strong>Stock crítico</strong>
+              <p>Limón: queda para 8 platos. Solicitar reposición.</p>
+            </section>
+
+            <nav class="android-dock">
+              <a>⌂<span>Inicio</span></a><a>▣<span>Pedidos</span></a><a class="active">♨<span>Cocina</span></a><a>💵<span>Caja</span></a><a>▤<span>Stock</span></a>
+            </nav>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

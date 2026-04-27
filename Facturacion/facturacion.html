@@ -63,7 +63,7 @@
             <div class="topbar__copy">
               <span class="eyebrow" id="pageEyebrow">Módulo</span>
               <h1 id="pageTitle">Facturacion</h1>
-              <p id="pageSubtitle">Inicializando módulo...</p>
+              <p id="pageSubtitle">Comprobantes</p>
             </div>
           </div>
 
@@ -74,9 +74,21 @@
         </header>
 
         <main class="module-page facturacion-module" style="max-width:920px;margin:0 auto;padding:0 1rem 2.5rem">
-          <nav class="breadcrumb" aria-label="Breadcrumb" style="justify-content:center;margin-bottom:1rem">
-            <a id="breadcrumbHome" href="../index.html">Volver al inicio</a>
-          </nav>
+          <nav class="breadcrumb" aria-label="Breadcrumb" style="display:none"></nav>
+
+          <section class="card" style="display:grid;gap:16px;margin-bottom:18px;padding:20px;text-align:left">
+            <div>
+              <span class="chip chip--accent">Estado tributario</span>
+              <h2 style="margin:10px 0 6px;font-size:clamp(24px,4vw,38px);line-height:1">Comprobantes listos</h2>
+              <p style="margin:0;color:var(--color-text-muted)">Emite revisa pendientes y controla ventas del día</p>
+            </div>
+            <div class="mod-stats-row" style="margin:0">
+              <article class="mod-stat-card"><div class="mod-stat-info"><span class="mod-stat-label">Acción principal</span><div class="mod-stat-value" style="font-size:18px">Emitir</div></div></article>
+              <article class="mod-stat-card"><div class="mod-stat-info"><span class="mod-stat-label">Pendiente</span><div class="mod-stat-value">0</div></div></article>
+              <article class="mod-stat-card"><div class="mod-stat-info"><span class="mod-stat-label">SUNAT</span><div class="mod-stat-value" style="font-size:18px">Listo</div></div></article>
+            </div>
+            <a class="btn btn--primary" href="#moduleTitle" style="width:max-content">Emitir comprobante</a>
+          </section>
 
           <div class="mod-stats-row">
             <article class="mod-stat-card">

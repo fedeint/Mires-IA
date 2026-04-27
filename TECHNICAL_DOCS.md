@@ -95,5 +95,16 @@ La capa móvil instalada se implementa sin romper módulos legacy:
 - [scripts/navigation.js](scripts/navigation.js): expone `MOBILE_DOCK_KEYS` y renderiza el dock inferior según permisos.
 - [scripts/app.js](scripts/app.js): crea `#mobileAppDock` una sola vez por página y conserva sidebar como navegación extendida.
 - [styles/mobile.css](styles/mobile.css): define topbar Android compacta, bottom dock, safe areas, glass surface y reubicación de FAB/instalador.
+- [Pedidos/implementacion/frontend/styles/mirest-global-bridge.css](Pedidos/implementacion/frontend/styles/mirest-global-bridge.css): adapta Pedidos legacy al shell PWA Android global sin quitar su bottom nav interna de Salón/Delivery/Para llevar.
+- [scripts/onboarding-controller.js](scripts/onboarding-controller.js): controla que solo exista un onboarding activo y limpia overlays/listeners antes de navegar.
+- [Pwa/sw.js](Pwa/sw.js) y [Pedidos/implementacion/service-worker.js](Pedidos/implementacion/service-worker.js): limitan entradas de cache runtime para controlar consumo de memoria y datos.
 
 Validación recomendada: Lighthouse PWA, Chrome DevTools con Pixel 7/Android, modo `standalone`, rotación bloqueada en portrait y pruebas táctiles con una mano.
+
+### Mockups de referencia
+
+Abrir [docs/pwa-android-mockups.html](docs/pwa-android-mockups.html) para revisar tres pantallas base: Inicio, Pedidos y Cocina dark mode. Estos mockups usan [docs/pwa-android-mockups.css](docs/pwa-android-mockups.css) y deben funcionar como referencia visual antes de tocar CSS local de módulos legacy.
+
+### QA Android
+
+Checklist operativo en [docs/PWA_ANDROID_QA_CHECKLIST.md](docs/PWA_ANDROID_QA_CHECKLIST.md)

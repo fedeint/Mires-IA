@@ -9,7 +9,10 @@
  *   - API/datos: Network First con fallback a caché
  */
 
-const CACHE_VERSION   = 'v5-solo-pedidos-html';
+const CACHE_VERSION   = 'v6-pwa-android-light';
+const MAX_SHELL_CACHE_ENTRIES = 90;
+const MAX_IMAGE_CACHE_ENTRIES = 60;
+const MAX_DATA_CACHE_ENTRIES = 50;
 const CACHE_SHELL     = `mirest-shell-${CACHE_VERSION}`;
 const CACHE_FONTS     = `mirest-fonts-${CACHE_VERSION}`;
 const CACHE_IMAGES    = `mirest-images-${CACHE_VERSION}`;
@@ -235,7 +238,7 @@ async function cacheFirst(request, cacheName) {
 
   try {
     const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
+    if (response.ok) cache.put(request, response.clone()).then(() => trimCache(cacheName, MAX_SHELL_CACHE_ENTRIES));
     return response;
   } catch {
     return new Response('Offline — recurso no disponible.', { status: 503 });
@@ -249,7 +252,7 @@ async function networkFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
+    if (response.ok) cache.put(request, response.clone()).then(() => trimCache(cacheName, MAX_DATA_CACHE_ENTRIES));
     return response;
   } catch {
     const cached = await cache.match(request);
@@ -269,12 +272,19 @@ async function staleWhileRevalidate(request, cacheName) {
 
   const networkPromise = fetch(request)
     .then(response => {
-      if (response.ok) cache.put(request, response.clone());
+      if (response.ok) cache.put(request, response.clone()).then(() => trimCache(cacheName, MAX_IMAGE_CACHE_ENTRIES));
       return response;
     })
     .catch(() => null);
 
   return cached || networkPromise;
+}
+
+async function trimCache(cacheName, maxEntries) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length <= maxEntries) return;
+  await Promise.all(keys.slice(0, keys.length - maxEntries).map((key) => cache.delete(key)));
 }
 
 // ═══════════════════════════════════════════════════════════════

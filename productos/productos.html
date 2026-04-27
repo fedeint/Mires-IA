@@ -64,7 +64,7 @@
             <div class="topbar__copy">
               <span class="eyebrow" id="pageEyebrow">Gestión</span>
               <h1 id="pageTitle">Productos</h1>
-              <p id="pageSubtitle">Catálogo y disponibilidad comercial</p>
+              <p id="pageSubtitle">Carta y precios</p>
             </div>
           </div>
 
@@ -81,11 +81,18 @@
         <main class="module-page">
           <nav class="breadcrumb" aria-label="Breadcrumb">
             <a href="../index.html" id="breadcrumbHome">Dashboard</a>
-            <span>/</span>
             <span id="moduleBreadcrumbCurrent">Productos</span>
           </nav>
 
           <div class="module-stack">
+            <section class="productos-app-hero card" aria-label="Resumen de carta">
+              <div>
+                <span class="chip chip--accent">Carta activa</span>
+                <h2>Productos listos para vender</h2>
+                <p>Busca filtra y revisa disponibilidad sin salir del turno</p>
+              </div>
+              <a class="btn btn--primary" href="#productsContainer">Ver carta</a>
+            </section>
             <!-- Métricas del Módulo -->
             <section class="mod-metrics-grid" id="metricsContainer">
               <!-- Renderizado dinámico por productos.js -->
@@ -102,9 +109,6 @@
             </section>
           </div>
           
-          <footer class="page-footer">
-            MiRest con IA · <span id="currentYear">2026</span> · Módulo de Productos.
-          </footer>
         </main>
       </div>
     </div>

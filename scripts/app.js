@@ -17,6 +17,7 @@ import {
 import { initializeDashboard } from "./dashboard.js";
 import { registerServiceWorker, requestWakeLock, enableWakeLockAutoReacquire, vibrate } from "../Pwa/pwa.js";
 import { initPwaInstallWidget } from "./pwa-install-widget.js";
+import { cancelActiveOnboarding } from "./onboarding-controller.js";
 
 import { supabase, getCurrentUser } from "./supabase.js";
 import { startSessionIdleTimeout } from "./session-idle-timeout.js";
@@ -248,8 +249,12 @@ function setupLogoutBtn(rootPath) {
   if (topbarAvatar && !topbarAvatar.dataset.logoutBound) {
     topbarAvatar.dataset.logoutBound = "1";
     topbarAvatar.style.cursor = "pointer";
-    topbarAvatar.title = "Cerrar sesión";
-    topbarAvatar.addEventListener("click", signOutAndGoLogin);
+    topbarAvatar.title = "Cuenta";
+    topbarAvatar.addEventListener("click", () => {
+      document.getElementById("appSidebar")?.classList.add("sidebar--open");
+      document.body.classList.add("sidebar-open");
+      document.getElementById("sidebarToggle")?.setAttribute("aria-expanded", "true");
+    });
   }
 }
 
@@ -408,12 +413,13 @@ function initializePageTransitions() {
       event.preventDefault();
 
       const destination = link.href;
+      cancelActiveOnboarding();
       document.body.classList.remove("sidebar-open");
       document.body.classList.add("page-leaving");
 
       window.setTimeout(() => {
         window.location.href = destination;
-      }, 55);
+      }, 24);
     });
   });
 

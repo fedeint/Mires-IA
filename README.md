@@ -130,3 +130,12 @@ Este proyecto puede desplegarse como sitio estático.
 - El dock móvil se genera desde [scripts/navigation.js](scripts/navigation.js) y se monta en [scripts/app.js](scripts/app.js), respetando permisos por rol.
 - Los estilos globales viven en [styles/mobile.css](styles/mobile.css) y reutilizan tokens de [styles/tokens.css](styles/tokens.css).
 - Para probar: abrir con Live Server/hosting HTTPS, instalar desde Chrome Android y validar en modo standalone.
+- Mockups navegables: [docs/pwa-android-mockups.html](docs/pwa-android-mockups.html) y auditoría de 50 hallazgos en [docs/PWA_ANDROID_DESIGN_AUDIT_50.md](docs/PWA_ANDROID_DESIGN_AUDIT_50.md).
+
+### Correcciones críticas Android 6.5
+
+- Un solo onboarding activo a la vez con limpieza al navegar.
+- Avatar de topbar abre menú y no cierra sesión.
+- Logout queda solo en Cuenta dentro del menú lateral.
+- Productos Proveedores y Facturación ocultan breadcrumbs footers y avatares duplicados en mobile.
+- Cache PWA limitada para reducir crecimiento de memoria y datos.

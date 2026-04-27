@@ -1,0 +1,465 @@
+:root {
+  --mockup-phone-bg: #111827;
+  --mockup-phone-bezel: #0b1020;
+  --mockup-ticket: #fff8ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(240, 124, 42, 0.16), transparent 28%),
+    linear-gradient(180deg, #fff9f2, #eef2f7);
+  color: var(--color-text);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+.mockup-page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.mockup-hero {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+
+.mockup-eyebrow {
+  color: var(--color-primary-500);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.mockup-hero h1 {
+  margin: 10px 0;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 6vw, 68px);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.mockup-hero p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.phone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.phone-frame {
+  padding: 12px;
+  border-radius: 42px;
+  background: linear-gradient(145deg, #1f2937, #050816);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.22);
+}
+
+.phone-frame--dark {
+  background: linear-gradient(145deg, #030712, #111827);
+}
+
+.phone-screen {
+  position: relative;
+  min-height: 720px;
+  overflow: hidden;
+  padding: 18px 14px 104px;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at top left, rgba(240, 124, 42, 0.12), transparent 28%),
+    linear-gradient(180deg, #fff9f2, #eef2f7);
+}
+
+.phone-frame--dark .phone-screen {
+  background: linear-gradient(180deg, #101527, #070b16);
+  color: #f8fafc;
+}
+
+.android-topbar {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px 44px;
+  gap: 8px;
+  align-items: center;
+  min-height: 58px;
+  margin: -4px -2px 14px;
+  padding: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+}
+
+.phone-frame--dark .android-topbar {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(23, 29, 51, 0.88);
+}
+
+.android-topbar button,
+.avatar-dot {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--color-text);
+  font-weight: 900;
+}
+
+.phone-frame--dark .android-topbar button,
+.phone-frame--dark .avatar-dot {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: #202740;
+  color: #f8fafc;
+}
+
+.android-topbar span {
+  display: block;
+  color: var(--color-primary-500);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.android-topbar strong {
+  display: block;
+  overflow: hidden;
+  font-size: 18px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-card,
+.order-focus,
+.stock-alert {
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+}
+
+.phone-frame--dark .service-card,
+.phone-frame--dark .order-focus,
+.phone-frame--dark .stock-alert {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(23, 29, 51, 0.9);
+}
+
+.service-card h2,
+.order-focus h2 {
+  margin: 12px 0 8px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.service-card p,
+.order-focus p,
+.stock-alert p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.phone-frame--dark p {
+  color: #b2bdd4;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(240, 124, 42, 0.14);
+  color: var(--color-primary-500);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.pill--danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.metric-strip div,
+.quick-card,
+.ticket-row,
+.order-stack article,
+.kitchen-ticket {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.metric-strip div {
+  padding: 10px;
+}
+
+.metric-strip strong,
+.metric-strip span {
+  display: block;
+}
+
+.metric-strip strong {
+  font-size: 18px;
+  letter-spacing: -0.04em;
+}
+
+.metric-strip span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.quick-card {
+  min-height: 104px;
+  padding: 14px;
+  text-align: left;
+}
+
+.quick-card--active {
+  background: linear-gradient(135deg, rgba(240, 124, 42, 0.18), rgba(255, 255, 255, 0.82));
+  border-color: rgba(240, 124, 42, 0.3);
+}
+
+.quick-card span,
+.quick-card strong,
+.quick-card small {
+  display: block;
+}
+
+.quick-card span {
+  font-size: 22px;
+}
+
+.quick-card strong {
+  margin-top: 10px;
+}
+
+.quick-card small {
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.ticket-list h3 {
+  margin: 14px 0 10px;
+  font-size: 16px;
+}
+
+.ticket-row {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 12px;
+}
+
+.ticket-row span {
+  width: 8px;
+  height: 34px;
+  border-radius: 99px;
+  background: var(--color-primary-500);
+}
+
+.ticket-row p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.mode-tabs button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 15px;
+  background: transparent;
+  font-weight: 900;
+  color: var(--color-text-muted);
+}
+
+.mode-tabs .active {
+  background: #fff;
+  color: var(--color-primary-500);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.order-focus {
+  margin: 12px 0;
+}
+
+.order-focus button,
+.kitchen-ticket button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--color-primary-gradient);
+  color: #fff;
+  font-weight: 900;
+}
+
+.order-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.order-stack article {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+}
+
+.order-stack span,
+.order-stack em {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.kitchen-rail {
+  display: grid;
+  gap: 10px;
+}
+
+.kitchen-ticket {
+  padding: 14px;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(23, 29, 51, 0.92);
+}
+
+.kitchen-ticket.hot {
+  border-color: rgba(239, 68, 68, 0.42);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(23, 29, 51, 0.94));
+}
+
+.kitchen-ticket.ready {
+  border-color: rgba(16, 185, 129, 0.42);
+}
+
+.kitchen-ticket span {
+  color: var(--color-primary-400);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.kitchen-ticket strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+}
+
+.stock-alert {
+  margin-top: 12px;
+  border-color: rgba(245, 158, 11, 0.34) !important;
+}
+
+.stock-alert strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #f59e0b;
+}
+
+.android-dock {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  min-height: 78px;
+  padding: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 -18px 50px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+.phone-frame--dark .android-dock {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(23, 29, 51, 0.92);
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.42);
+}
+
+.android-dock a {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  min-width: 0;
+  border-radius: 20px;
+  color: var(--color-text-muted);
+  font-size: 18px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.android-dock a span {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.android-dock a.active {
+  background: rgba(240, 124, 42, 0.14);
+  color: var(--color-primary-500);
+}
+
+@media (max-width: 980px) {
+  .phone-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .phone-frame {
+    width: min(390px, 100%);
+    margin: 0 auto;
+  }
+}

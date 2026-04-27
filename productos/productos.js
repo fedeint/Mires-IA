@@ -131,12 +131,12 @@ class ProductosController {
 
     if (this.products.length === 0) {
       this.productsContainer.innerHTML = `
-        <div class="mod-placeholder">
+        <div class="mod-placeholder productos-empty-state">
           <div class="mod-placeholder-icon">
             <i data-lucide="package"></i>
           </div>
-          <h2>Sin productos en catálogo</h2>
-          <p>${this.notes || "Añade productos activos en DallA o inicia sesión."}</p>
+          <h2>Sin productos</h2>
+          <p>${this.notes || "Agrega productos activos para vender"}</p>
         </div>
       `;
       if (window.lucide) lucide.createIcons();
@@ -149,8 +149,8 @@ class ProductosController {
           <div class="mod-placeholder-icon">
             <i data-lucide="search-x"></i>
           </div>
-          <h2>No se encontraron productos</h2>
-          <p>Prueba otra categoría o término de búsqueda.</p>
+          <h2>Sin resultados</h2>
+          <p>Prueba otra búsqueda</p>
         </div>
       `;
     } else {

@@ -2,6 +2,7 @@
  * Runner de onboarding por módulo: spotlight + verificación en BD / local (como Pedidos PRO).
  */
 import { getVerifyHandler, MIREST_MODULE_ONBOARDING, createMirestOnboardingContext } from "./mirest-module-onboarding-registry.js";
+import { clearActiveOnboarding, registerOnboarding, showPostOnboardingInsights } from "./onboarding-controller.js";
 
 /**
  * @typedef {object} MirestOnboardingContext
@@ -30,6 +31,8 @@ export class MirestModuleOnboardingRunner {
     this.overlay = null;
     this._poll = null;
     this._spotlightRaf = null;
+    this._onScroll = () => this._scheduleSpotlight();
+    this._onResize = () => this._scheduleSpotlight();
     this.ctx = /** @type {MirestOnboardingContext | null} */ (null);
     this._lastOk = false;
   }
@@ -50,6 +53,7 @@ export class MirestModuleOnboardingRunner {
       window.alert("Inicia sesión con tu cuenta (Auth) para abrir el tour de este módulo.");
       return;
     }
+    registerOnboarding(this, `module:${this.moduleKey}`);
     this._buildOverlay();
   }
 
@@ -71,7 +75,7 @@ export class MirestModuleOnboardingRunner {
           </div>
           <button type="button" class="onboarding-skip" id="mirestModObSkip">Cerrar</button>
         </div>
-        <p id="mirestModObDesc" style="margin:8px 0 4px;font-size:13px;line-height:1.4;color:var(--color-text)"></p>
+        <p id="mirestModObDesc" style="margin:8px 0 4px;font-size:13px;line-height:1.35;color:var(--color-text)"></p>
         <p id="mirestModObAction" style="margin:0 0 6px;font-size:12px;font-weight:600;color:var(--color-accent)"></p>
         <p id="mirestModObGuiaAviso" style="display:none;font-size:11px;line-height:1.35;padding:6px 8px;border-radius:8px;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.12);color:var(--color-text);margin:0 0 8px"></p>
         <div class="mirest-mod-onb-cond" style="font-size:11px;padding:6px 8px;border-radius:8px;background:var(--color-surface-muted);color:var(--color-text-muted);margin-bottom:8px">
@@ -103,8 +107,8 @@ export class MirestModuleOnboardingRunner {
     };
     document.getElementById("mirestModObCheck").onclick = () => this._runVerify();
 
-    window.addEventListener("scroll", () => this._scheduleSpotlight(), { passive: true, capture: true });
-    window.addEventListener("resize", () => this._scheduleSpotlight(), { passive: true });
+    window.addEventListener("scroll", this._onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", this._onResize, { passive: true });
 
     void this._showStep();
     this._poll = window.setInterval(() => {
@@ -146,7 +150,8 @@ export class MirestModuleOnboardingRunner {
     spotlight.style.width = `${rect.width + padding * 2}px`;
     spotlight.style.height = `${rect.height + padding * 2}px`;
     this._positionCardNear(rect, card);
-    if (rect.bottom < 0 || rect.top > window.innerHeight || rect.top < 80) {
+    const bottomSafe = window.innerWidth < 1024 ? 150 : 24;
+    if (rect.bottom < 0 || rect.top > window.innerHeight - bottomSafe || rect.top < 88) {
       el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     }
   }
@@ -154,15 +159,18 @@ export class MirestModuleOnboardingRunner {
   _positionCardNear(targetRect, card) {
     card.style.transform = "none";
     const cr = card.getBoundingClientRect();
-    let top = targetRect.bottom + 18;
+    const isMobile = window.innerWidth < 1024;
+    const safeBottom = isMobile ? 150 : 16;
+    card.style.maxWidth = isMobile ? "min(320px, calc(100vw - 24px))" : "min(400px, 92vw)";
+    let top = targetRect.bottom + 12;
     let left = targetRect.left;
-    if (top + cr.height > window.innerHeight - 16) {
-      top = Math.max(16, targetRect.top - cr.height - 18);
+    if (top + cr.height > window.innerHeight - safeBottom) {
+      top = Math.max(12, targetRect.top - cr.height - 12);
     }
-    if (left + cr.width > window.innerWidth - 16) {
-      left = window.innerWidth - cr.width - 16;
+    if (left + cr.width > window.innerWidth - 12) {
+      left = window.innerWidth - cr.width - 12;
     }
-    if (left < 16) left = 16;
+    if (left < 12) left = 12;
     card.style.top = `${top}px`;
     card.style.left = `${left}px`;
   }
@@ -261,6 +269,12 @@ export class MirestModuleOnboardingRunner {
       clearInterval(this._poll);
       this._poll = null;
     }
+    window.removeEventListener("scroll", this._onScroll, { capture: true });
+    window.removeEventListener("resize", this._onResize);
+    if (this._spotlightRaf != null) {
+      cancelAnimationFrame(this._spotlightRaf);
+      this._spotlightRaf = null;
+    }
     if (this.overlay) {
       this.overlay.classList.remove("open");
       setTimeout(() => {
@@ -274,7 +288,13 @@ export class MirestModuleOnboardingRunner {
       } catch {
         /* */
       }
+      showPostOnboardingInsights({ moduleKey: this.def.label, role: this.ctx?.profile?.role || document.body.dataset.userRole || "operativo" });
     }
+    clearActiveOnboarding(this);
+  }
+
+  cancel() {
+    this.finish(false);
   }
 }
 

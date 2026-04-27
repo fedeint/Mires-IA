@@ -76,12 +76,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function renderViews(clients) {
     if (allClients.length === 0) {
-      const empty = `<tr><td colspan="5" class="text-center" style="padding:2rem">${listMessage || "Sin datos aún."}${
+      const empty = `<tr><td colspan="5" class="text-center crm-empty-state" style="padding:2rem"><strong>Sin Clientes</strong><span>${listMessage || "Aún no hay clientes"}</span>${
         listOnboardingStep != null ? ` (paso de onboarding: ${listOnboardingStep})` : ""
       }</td></tr>`;
       if (tableBody) tableBody.innerHTML = empty;
       if (gridContainer)
-        gridContainer.innerHTML = `<div class="crm-card" style="max-width:40rem;margin:0 auto;cursor:default"><p class="client-name">Sin clientes aún</p><p class="client-email" style="white-space:normal;line-height:1.5">${listMessage || "—"}</p></div>`;
+        gridContainer.innerHTML = `<div class="crm-card crm-empty-card" style="max-width:40rem;margin:0 auto;cursor:default"><p class="client-name">Sin Clientes</p><p class="client-email" style="white-space:normal;line-height:1.5">${listMessage || "Aún no hay clientes"}</p></div>`;
       if (typeof lucide !== "undefined") lucide.createIcons();
       return;
     }

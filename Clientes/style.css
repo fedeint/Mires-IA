@@ -147,6 +147,50 @@
     box-shadow: 0 0 0 3px rgba(222, 90, 37, 0.05);
 }
 
+.crm-empty-state {
+    display: grid;
+    gap: 6px;
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.crm-empty-state strong,
+.crm-empty-card .client-name {
+    color: var(--color-text);
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+@media (max-width: 1023px) {
+    .clientes-container,
+    .crm-database-container {
+        width: min(100%, 720px) !important;
+        margin-inline: auto !important;
+    }
+
+    .module-header,
+    .crm-header,
+    .crm-toolbar {
+        display: grid !important;
+        justify-items: center !important;
+        text-align: center !important;
+        gap: 12px !important;
+    }
+
+    .header-center,
+    .crm-search,
+    .search-box {
+        width: min(100%, 420px) !important;
+        margin-inline: auto !important;
+    }
+
+    .crm-filters {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+}
+
 .btn-orange-gradient {
     background: linear-gradient(135deg, #f26522 0%, #de5a25 100%);
     color: white;
