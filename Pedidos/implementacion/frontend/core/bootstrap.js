@@ -15,16 +15,21 @@ try {
     /* webpackIgnore: true */ "./pwa-auth-bootstrap.js" + v
   );
   await hydratePwaFromAuth();
+
+  // Cargar shell de navegación (sidebar) y runtime modular *antes* de PWA, para
+  // que nunca queden #sidebarNav vacío si pwa.js falla o se corta el arranque.
+  const { initModularApp } = await import("./modular-app.js" + v);
+  const { initGlobalAppShell } = await import("./global-app-shell.js" + v);
+  await initGlobalAppShell();
+  console.debug("[boot] Shell global (sidebar) montado");
+
   if (showPwaAccessGateIfNeeded()) {
     document.body.classList.add("page-ready");
     return;
   }
 
-  // ── 1. Arrancar runtime modular (tras hidratar sesión + roles_config) ─
-  console.debug("[boot] Importando runtime modular: ./modular-app.js");
-  const { initModularApp } = await import("./modular-app.js" + v);
-  const { initGlobalAppShell } = await import("./global-app-shell.js" + v);
-  console.debug("[boot] Runtime modular importado. Ejecutando initModularApp()");
+  // ── 1. Runtime operativo (Salón, Delivery, KPI, workspace) ───────
+  console.debug("[boot] Ejecutando initModularApp()");
   initModularApp();
   console.debug("[boot] initModularApp() completado");
 
@@ -37,13 +42,14 @@ try {
       console.warn("[boot] Storage no disponible en este entorno:", error);
     });
 
-  // ── 3. PWA Shell + Wake Lock + Install Banner ───────────────────
-  //   pwa.js se auto-inicia al importarse (llama initPWA() al final)
-  console.debug("[boot] Importando PWA shell: ./pwa.js");
-  await import("./pwa.js" + v);
-  console.debug("[boot] PWA shell importado");
-  await initGlobalAppShell();
-  console.debug("[boot] Navegación del dashboard global (shell) en Pedidos");
+  // ── 3. PWA: bottom-nav, SW, etc. (el fallo no debe dejar el módulo ciego) ─
+  try {
+    console.debug("[boot] Importando PWA: ./pwa.js");
+    await import("./pwa.js" + v);
+    console.debug("[boot] PWA importada");
+  } catch (e) {
+    console.warn("[boot] PWA no pudo cargarse; el módulo sigue en modo navegador", e);
+  }
 
   // ── 4. Bridge mobile: FAB ↔ runtime modular ─────────────────────
   console.debug("[boot] Importando bridge mobile: ./mesero-bridge.js");
