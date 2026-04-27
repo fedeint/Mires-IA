@@ -32,6 +32,14 @@ const SHELL_TO_APP = {
  * @returns {string}
  */
 export function resolveShellRoleFromProfile(appRole, user) {
+  const jwtApp = user?.app_metadata && typeof user.app_metadata.role === "string" && user.app_metadata.role.trim();
+  if (jwtApp && jwtApp.toLowerCase() === "superadmin") {
+    return "superadmin";
+  }
+  const jwtUm = user?.user_metadata && typeof user.user_metadata.role === "string" && user.user_metadata.role.trim();
+  if (jwtUm && jwtUm.toLowerCase() === "superadmin") {
+    return "superadmin";
+  }
   if (appRole && APP_ROLE_TO_SHELL[appRole]) {
     return APP_ROLE_TO_SHELL[appRole];
   }

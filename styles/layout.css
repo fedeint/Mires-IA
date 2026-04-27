@@ -177,36 +177,103 @@ button.topbar__menu-toggle,
   right: 0;
   bottom: 0;
   z-index: 40;
-  padding: 8px calc(12px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
+  align-items: end;
+  padding: 12px 10px calc(12px + env(safe-area-inset-bottom)) 10px;
+  padding-left: calc(10px + env(safe-area-inset-left));
+  padding-right: calc(10px + env(safe-area-inset-right));
+  background: linear-gradient(180deg, #151a24 0%, #0b0d12 100%);
+  border: 0;
+  border-top-left-radius: 36px;
+  border-top-right-radius: 36px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(52px, 0.72fr);
+  gap: 4px 4px;
 }
 
 .mirest-bottom-nav__item {
   border: 0;
   background: transparent;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.58);
   text-decoration: none;
-  min-height: 56px;
-  border-radius: 12px;
+  min-height: 52px;
+  padding: 4px 2px;
+  border-radius: 16px;
   display: grid;
   place-items: center;
+  align-content: end;
   gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.mirest-bottom-nav__item i {
-  width: 18px;
-  height: 18px;
+.mirest-bottom-nav__item i,
+.mirest-bottom-nav__item svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.85;
+}
+
+.mirest-bottom-nav__item span:last-child {
+  line-height: 1.1;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mirest-bottom-nav__item.is-active {
-  color: #e85e00;
-  background: rgba(232, 94, 0, 0.08);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mirest-bottom-nav__item.mirest-bottom-nav__item--more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  min-height: auto;
+  padding-bottom: 0;
+  color: #fff;
+  background: transparent;
+}
+
+.mirest-bottom-nav__item--more.is-active {
+  background: transparent;
+}
+
+.mirest-bottom-nav__more-bubble {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd54a 0%, #f59e0b 38%, #ea580c 100%);
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  box-shadow: 0 8px 22px rgba(234, 88, 12, 0.5);
+}
+
+.mirest-bottom-nav__item--more.is-active .mirest-bottom-nav__more-bubble {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.28), 0 8px 22px rgba(234, 88, 12, 0.5);
+}
+
+.mirest-bottom-nav__more-bubble i,
+.mirest-bottom-nav__more-bubble svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.4;
+}
+
+.mirest-bottom-nav__more-label {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.03em;
 }
 
 .mirest-bottom-sheet-backdrop {
@@ -244,8 +311,15 @@ button.topbar__menu-toggle,
 }
 
 .mirest-bottom-sheet__header {
-  padding: 6px 6px 12px;
-  font-size: 14px;
+  padding: 8px 4px 14px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+body[data-theme="dark"] .mirest-bottom-sheet__header {
+  color: #f8fafc;
 }
 
 .mirest-bottom-sheet__list,
@@ -265,15 +339,21 @@ button.topbar__menu-toggle,
 .mirest-bottom-sheet__link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  color: var(--color-text);
-  padding: 11px 12px;
-  border-radius: 10px;
+  gap: 12px;
+  border: 0;
+  background: #f3f4f6;
+  color: #0f172a;
+  padding: 14px 16px;
+  border-radius: 16px;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+body[data-theme="dark"] .mirest-bottom-sheet__link {
+  background: rgba(255, 255, 255, 0.07);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mirest-bottom-sheet__logout {
@@ -293,7 +373,7 @@ button.topbar__menu-toggle,
   .app-main {
     width: 100%;
     padding-top: calc(96px + env(safe-area-inset-top));
-    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
     overflow-x: hidden;
     overflow-y: visible;
   }

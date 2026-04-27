@@ -384,7 +384,9 @@ export function getModulesByRole(role, permissions) {
   return NAV_ITEMS.filter((item) => item.key === "dashboard" || perms.includes(item.key));
 }
 
-function isModuleGloballyEnabled(key) {
+function isModuleGloballyEnabled(key, role) {
+  if (key === "configuracion" && canAccessConfiguracion(role)) return true;
+  if (key === "accesos" && isAccesosManagerRole(role)) return true;
   const cfg = getCachedMirestConfig();
   const mod = cfg?.modulos;
   if (!mod || typeof mod !== "object") return true;
@@ -395,12 +397,13 @@ function isModuleGloballyEnabled(key) {
 export function getEffectiveNavItems(role, permissions) {
   return getModulesByRole(role, permissions).filter((item) => {
     if (item.key === "dashboard") return true;
-    return isModuleGloballyEnabled(item.key);
+    return isModuleGloballyEnabled(item.key, role);
   });
 }
 
 const MOBILE_SLOT_PRIORITY = {
-  superadmin: ["dashboard", "pedidos", "configuracion", "reportes"],
+  /** Inicio · Mesas · Cocina · Ventas (caja); resto en «Más». */
+  superadmin: ["dashboard", "pedidos", "cocina", "caja"],
   admin: ["dashboard", "pedidos", "caja", "reportes"],
   caja: ["caja", "pedidos", "productos"],
   chef: ["cocina", "pedidos", "recetas"],
@@ -430,12 +433,22 @@ function buildMobilePrimary(role, allowed) {
   return primary;
 }
 
-function renderBottomNavItem(item, activeKey) {
+/** Etiquetas cortas del nav inferior (referencia producto); solo donde aplica. */
+function getMobileBottomLabel(item, userRole) {
+  if (userRole === "superadmin") {
+    if (item.key === "pedidos") return "Mesas";
+    if (item.key === "caja") return "Ventas";
+  }
+  return item.label;
+}
+
+function renderBottomNavItem(item, activeKey, userRole) {
   const isActive = item.key === activeKey;
+  const label = getMobileBottomLabel(item, userRole);
   return `
     <a class="mirest-bottom-nav__item ${isActive ? "is-active" : ""}" href="${toHref(item.path)}" data-nav-key="${item.key}">
       <i data-lucide="${item.icon || "circle"}" aria-hidden="true"></i>
-      <span>${item.label}</span>
+      <span>${label}</span>
     </a>
   `;
 }
@@ -460,10 +473,12 @@ export function renderBottomNavigation({
   nav.className = "mirest-bottom-nav";
   nav.setAttribute("aria-label", "Navegación móvil");
   nav.innerHTML = `
-    ${primary.map((item) => renderBottomNavItem(item, activeKey)).join("")}
-    <button type="button" class="mirest-bottom-nav__item ${activeKey === "__more__" ? "is-active" : ""}" id="mirestBottomMoreBtn" aria-expanded="false" aria-controls="mirestBottomSheet">
-      <i data-lucide="ellipsis" aria-hidden="true"></i>
-      <span>Más</span>
+    ${primary.map((item) => renderBottomNavItem(item, activeKey, userRole)).join("")}
+    <button type="button" class="mirest-bottom-nav__item mirest-bottom-nav__item--more ${activeKey === "__more__" ? "is-active" : ""}" id="mirestBottomMoreBtn" aria-expanded="false" aria-controls="mirestBottomSheet">
+      <span class="mirest-bottom-nav__more-bubble" aria-hidden="true">
+        <i data-lucide="more-horizontal" aria-hidden="true"></i>
+      </span>
+      <span class="mirest-bottom-nav__more-label">Más</span>
     </button>
   `;
   document.body.appendChild(nav);
