@@ -148,7 +148,13 @@ body[data-theme="dark"] .topbar {
   }
 }
 
-.topbar__menu-toggle,
+/* Cofre lateral en desktop: menú cajón solo en ≤1180px.
+   components.css define .icon-button { display: inline-grid } y, al ir después, pisa
+   a .topbar__menu-toggle — sin !important, la hamburguesa aparecía en escritorio. */
+button.topbar__menu-toggle,
+.topbar__menu-toggle {
+  display: none !important;
+}
 .sidebar-backdrop {
   display: none;
 }
@@ -197,8 +203,11 @@ body[data-theme="dark"] .topbar {
     overflow-y: auto;
   }
 
-  .topbar__menu-toggle {
-    display: inline-grid;
+  .topbar__menu-toggle,
+  button.topbar__menu-toggle,
+  .icon-button.topbar__menu-toggle,
+  .topbar__menu-toggle.icon-button {
+    display: inline-grid !important;
   }
 
   .sidebar-backdrop {
