@@ -227,6 +227,8 @@ export const NAV_ITEMS = [
   ...MODULES,
 ];
 
+export const MOBILE_DOCK_KEYS = ["dashboard", "pedidos", "cocina", "caja", "almacen"];
+
 const NAV_MODULE_KEYS = new Set(["dashboard", "accesos", ...MODULES.map((m) => m.key)]);
 
 const ADMIN_MODULE_KEYS = MODULES
@@ -442,6 +444,30 @@ export function renderSidebar(target, activeKey, userRole = "admin", permissions
   }
 }
 
+export function renderMobileDock(target, activeKey, userRole = "admin", permissions = null) {
+  if (!target) return;
+
+  const allowedItems = getModulesByRole(userRole, permissions);
+  const allowedByKey = new Map(allowedItems.map((item) => [item.key, item]));
+  const dockItems = MOBILE_DOCK_KEYS
+    .map((key) => allowedByKey.get(key))
+    .filter(Boolean)
+    .slice(0, 5);
+
+  if (dockItems.length < 2) {
+    target.hidden = true;
+    target.innerHTML = "";
+    return;
+  }
+
+  target.hidden = false;
+  target.innerHTML = dockItems.map((item) => renderMobileDockItem(item, activeKey)).join("");
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
 function renderNavItem(item, activeKey) {
   const isActive = item.key === activeKey;
   const iconName = item.icon || "circle";
@@ -455,6 +481,21 @@ function renderNavItem(item, activeKey) {
         <strong>${item.label}</strong>
       </span>
       <span class="nav-item__arrow" aria-hidden="true">›</span>
+    </a>
+  `;
+}
+
+function renderMobileDockItem(item, activeKey) {
+  const isActive = item.key === activeKey;
+  const iconName = item.icon || "circle";
+  const label = item.key === "dashboard" ? "Inicio" : item.label;
+
+  return `
+    <a class="mobile-dock__item ${isActive ? "mobile-dock__item--active" : ""}" href="${toHref(item.path)}" aria-current="${isActive ? "page" : "false"}">
+      <span class="mobile-dock__icon" aria-hidden="true">
+        <i data-lucide="${iconName}"></i>
+      </span>
+      <span class="mobile-dock__label">${label}</span>
     </a>
   `;
 }

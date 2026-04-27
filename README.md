@@ -123,3 +123,10 @@ Recomendación operativa:
 ## Deploy
 
 Este proyecto puede desplegarse como sitio estático.
+
+## PWA Android instalada
+
+- La experiencia móvil prioriza uso tipo app instalada Android: topbar compacta, navegación inferior fija, safe areas y targets táctiles de 48px.
+- El dock móvil se genera desde [scripts/navigation.js](scripts/navigation.js) y se monta en [scripts/app.js](scripts/app.js), respetando permisos por rol.
+- Los estilos globales viven en [styles/mobile.css](styles/mobile.css) y reutilizan tokens de [styles/tokens.css](styles/tokens.css).
+- Para probar: abrir con Live Server/hosting HTTPS, instalar desde Chrome Android y validar en modo standalone.

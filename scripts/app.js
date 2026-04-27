@@ -8,6 +8,7 @@ import {
   isDemoRole,
   isAccesosManagerRole,
   canAccessConfiguracion,
+  renderMobileDock,
   renderSidebar,
   resolveUserPermissions,
   resolveUserRole,
@@ -113,6 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   renderSidebar(document.getElementById("sidebarNav"), activeKey, userRole, userPermissions);
+  renderMobileDock(ensureMobileDock(), activeKey, userRole, userPermissions);
   initializeThemeToggle(document.getElementById("themeToggle"));
   initializeResponsiveSidebar(pageType);
   initializePageTransitions();
@@ -326,6 +328,18 @@ function setText(id, value) {
 function setHref(id, value) {
   const element = document.getElementById(id);
   if (element) element.setAttribute("href", value);
+}
+
+function ensureMobileDock() {
+  let dock = document.getElementById("mobileAppDock");
+  if (dock) return dock;
+
+  dock = document.createElement("nav");
+  dock.id = "mobileAppDock";
+  dock.className = "mobile-dock";
+  dock.setAttribute("aria-label", "Navegación inferior PWA");
+  document.body.appendChild(dock);
+  return dock;
 }
 
 function capitalize(value) {

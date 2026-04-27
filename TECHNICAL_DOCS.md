@@ -39,6 +39,7 @@ Usar una extensión tipo Live Server para trabajar con recarga automática duran
 3. Verificar retorno desde cada módulo al dashboard.
 4. Revisar responsive base del dashboard principal, incluyendo menú lateral móvil.
 5. Verificar toggle de tema.
+6. En Android/Chrome, instalar la PWA y validar: topbar compacta, dock inferior, safe areas, scroll vertical y acceso rápido a Inicio/Pedidos/Cocina/Caja/Almacén.
 
 ## Despliegue
 
@@ -84,3 +85,15 @@ Cuando se tengan los correos o usernames de GitHub, invitarlos desde `Settings` 
 1. Agregar componentes reutilizables documentados por patrón.
 2. Incorporar dark mode persistente más completo.
 3. Establecer reglas de PR por carpeta de módulo y changelog compartido.
+
+## Sistema PWA Android unificado
+
+La capa móvil instalada se implementa sin romper módulos legacy:
+
+- [Pwa/manifest.webmanifest](Pwa/manifest.webmanifest): fuerza orientación portrait, agrega `display_override`, categorías y configuración regional `es-PE`.
+- [Pwa/sw.js](Pwa/sw.js): cache `mirest-pwa-v26` para invalidar estilos/scripts móviles.
+- [scripts/navigation.js](scripts/navigation.js): expone `MOBILE_DOCK_KEYS` y renderiza el dock inferior según permisos.
+- [scripts/app.js](scripts/app.js): crea `#mobileAppDock` una sola vez por página y conserva sidebar como navegación extendida.
+- [styles/mobile.css](styles/mobile.css): define topbar Android compacta, bottom dock, safe areas, glass surface y reubicación de FAB/instalador.
+
+Validación recomendada: Lighthouse PWA, Chrome DevTools con Pixel 7/Android, modo `standalone`, rotación bloqueada en portrait y pruebas táctiles con una mano.

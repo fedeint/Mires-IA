@@ -1,4 +1,4 @@
-const CACHE_VERSION = "mirest-pwa-v25";
+const CACHE_VERSION = "mirest-pwa-v26";
 
 const CORE_ASSETS = [
   "/",
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   "/scripts/app.js",
   "/scripts/pwa-install-widget.js",
   "/scripts/navigation.js",
+  "/Pwa/pwa.js",
   "/Pwa/install.js",
   "/Pwa/manifest.webmanifest",
   "/Pedidos/implementacion/assets/icons/icon-192.svg",
