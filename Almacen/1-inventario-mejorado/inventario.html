@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="/styles/premium-modules.css?v=20260427-almacen" />
     <link rel="stylesheet" href="/styles/mobile.css?v=20260427-almacen" />
     <link rel="stylesheet" href="/Almacen/almacen-submodules-theme.css?v=20260427-almacen" />
-    <link rel="stylesheet" href="/Almacen/almacen-sublayout.css?v=20260426-almacen-subnav2" />
+    <link rel="stylesheet" href="/Almacen/almacen-sublayout.css?v=20260426-almacen-lucide" />
     <link rel="stylesheet" href="/Almacen/1-inventario-mejorado/styles-inventario.css?v=20260426-almacen-subnav2" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
@@ -96,12 +96,30 @@
           <div class="module-stack">
             <div class="almacen-subcontent container animate-fade-in" id="almacenInventarioRoot">
               <nav class="modulo-nav almacen-subnav" aria-label="Secciones de almacén">
-                <a href="inventario.html" class="active">📋 Inventario</a>
-                <a href="../2-entrada-de-insumos-mejorado/entrada-de-insumos.html">📥 Entrada</a>
-                <a href="../3-salida-de-insumos-mejorado/salida.html">📤 Salida</a>
-                <a href="../4-que-comprar-mejorado/que-comprar.html">🛒 Qué Comprar</a>
-                <a href="../5-proveedores-mejorado/proveedores.html">🚚 Proveedores</a>
-                <a href="../6-historial-mejorado/historial.html">📜 Historial</a>
+                <a href="inventario.html" class="active"
+                  ><i data-lucide="clipboard-list" aria-hidden="true"></i
+                  ><span class="almacen-subnav__label">Inventario</span></a
+                >
+                <a href="../2-entrada-de-insumos-mejorado/entrada-de-insumos.html"
+                  ><i data-lucide="package-plus" aria-hidden="true"></i
+                  ><span class="almacen-subnav__label">Entrada</span></a
+                >
+                <a href="../3-salida-de-insumos-mejorado/salida.html"
+                  ><i data-lucide="package-minus" aria-hidden="true"></i
+                  ><span class="almacen-subnav__label">Salida</span></a
+                >
+                <a href="../4-que-comprar-mejorado/que-comprar.html"
+                  ><i data-lucide="shopping-cart" aria-hidden="true"></i
+                  ><span class="almacen-subnav__label">Qué Comprar</span></a
+                >
+                <a href="../5-proveedores-mejorado/proveedores.html"
+                  ><i data-lucide="truck" aria-hidden="true"></i
+                  ><span class="almacen-subnav__label">Proveedores</span></a
+                >
+                <a href="../6-historial-mejorado/historial.html"
+                  ><i data-lucide="history" aria-hidden="true"></i
+                  ><span class="almacen-subnav__label">Historial</span></a
+                >
               </nav>
 
               <header>

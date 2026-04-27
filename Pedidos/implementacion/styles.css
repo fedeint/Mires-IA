@@ -1,32 +1,18 @@
 :root {
-  --font-family: "Inter", system-ui, -apple-system, sans-serif;
-  --color-primary: #de5a25;
-  --color-accent: #f6a456;
+  /* Legado: alias al DS global; no repetir --color-text/--color-bg/--shadow-* (vienen de ../../styles/tokens.css) */
+  --font-family: var(--font-body, "Inter", system-ui, -apple-system, sans-serif);
+  /* --color-accent y neutros: heredan de ../../styles/tokens.css (no pisar) */
+  --color-primary: var(--color-accent, #f07c2a);
   --color-delivery: #2563eb;
   --color-takeaway: #0f766e;
-  --color-text: #15192c;
-  --color-text-secondary: #6b7280;
-  --color-text-tertiary: #94a3b8;
-  --color-bg: #f6f7fb;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f8fafc;
-  --color-border: #e5e7eb;
-  --color-sidebar: #121726;
+  --color-sidebar: var(--color-nav-950, #0f1324);
   --color-sidebar-text: rgba(255, 255, 255, 0.72);
-  --color-success: #22c55e;
-  --color-success-soft: #f0fdf4;
   --color-danger: #ef4444;
   --color-danger-soft: #fef2f2;
-  --color-warning: #f59e0b;
-  --color-warning-soft: #fffbeb;
-  --color-info: #3b82f6;
-  --color-info-soft: #eff6ff;
   --color-neutral-soft: #eef2ff;
-  --color-accent-soft: #fff7ed;
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --shadow-card: 0 10px 30px rgba(15, 23, 42, 0.07);
-  --shadow-card-hover: 0 18px 42px rgba(15, 23, 42, 0.12);
-  --shadow-elevated: 0 24px 56px rgba(15, 23, 42, 0.18);
+  /* Compat legado: el DS global usa --color-text-muted / --color-text-soft */
+  --color-text-secondary: var(--color-text-muted, #475569);
+  --color-text-tertiary: var(--color-text-soft, #94a3b8);
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
@@ -38,29 +24,14 @@
   --transition-fast: 160ms ease;
   --transition-base: 220ms ease;
   --mode-accent: var(--color-primary);
-  --mode-soft: rgba(222, 90, 37, 0.08);
+  --mode-soft: color-mix(in srgb, var(--color-accent, #f07c2a) 10%, transparent);
   --skeleton-base: rgba(148, 163, 184, 0.14);
   --skeleton-highlight: rgba(255, 255, 255, 0.72);
 }
 
-body[data-theme="dark"] {
-  --color-text: #f3f4f6;
-  --color-text-secondary: #c7cfdd;
-  --color-text-tertiary: #8b96ad;
-  --color-bg: #0f1220;
-  --color-surface: #171b2e;
-  --color-surface-alt: #1d2438;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-success-soft: rgba(34, 197, 94, 0.14);
-  --color-danger-soft: rgba(239, 68, 68, 0.14);
-  --color-warning-soft: rgba(245, 158, 11, 0.14);
-  --color-info-soft: rgba(59, 130, 246, 0.14);
-  --color-neutral-soft: rgba(99, 102, 241, 0.14);
-  --color-accent-soft: rgba(246, 164, 86, 0.14);
-  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.18);
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.24);
-  --shadow-card-hover: 0 18px 42px rgba(0, 0, 0, 0.32);
-  --shadow-elevated: 0 24px 56px rgba(0, 0, 0, 0.4);
+/* Oscuro: heredado de :root[data-theme="dark"] en styles/tokens.css; solo afinamos sombras suaves en UI legada */
+:root[data-theme="dark"] body.pedidos-module,
+body.pedidos-module[data-theme="dark"] {
   --skeleton-base: rgba(148, 163, 184, 0.16);
   --skeleton-highlight: rgba(255, 255, 255, 0.08);
 }
@@ -131,7 +102,7 @@ select:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(246, 164, 86, 0.24);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #f07c2a) 32%, transparent);
 }
 
 .mobile-only {
@@ -2585,6 +2556,16 @@ body[data-pwa-shell="true"] {
   border-radius: 14px;
   background: var(--mode-soft);
   color: var(--mode-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state__lucide,
+.empty-state__icon svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .btn,

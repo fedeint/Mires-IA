@@ -348,6 +348,18 @@ function renderPwaModuleStrip(activeModule) {
   return { html, show: true };
 }
 
+function modeSwitchIconName(mode) {
+  if (mode === 'salon') return 'utensils-crossed';
+  if (mode === 'delivery') return 'bike';
+  return 'package';
+}
+
+function modeSwitchLabel(mode) {
+  if (mode === 'salon') return 'Salón';
+  if (mode === 'delivery') return 'Delivery';
+  return 'Para llevar';
+}
+
 function renderModeSwitcher(activeMode) {
   return `
     <div class="mode-switcher" role="tablist" aria-label="Selector de área operativa">
@@ -359,7 +371,8 @@ function renderModeSwitcher(activeMode) {
           role="tab"
           aria-selected="${String(activeMode === mode)}"
         >
-          ${mode === 'salon' ? '🍽️ Salón' : mode === 'delivery' ? '🛵 Delivery' : '📦 Para llevar'}
+          <i data-lucide="${modeSwitchIconName(mode)}" class="mode-switch__ic" aria-hidden="true"></i>
+          <span class="mode-switch__txt">${modeSwitchLabel(mode)}</span>
         </button>
       `).join('')}
     </div>
@@ -452,7 +465,9 @@ function renderFallbackWorkspace(error) {
     toolbar: '',
     content: `
       <div class="empty-state" role="status">
-        <div class="empty-state__icon" aria-hidden="true">🧭</div>
+        <div class="empty-state__icon" aria-hidden="true">
+          <i data-lucide="compass" class="empty-state__lucide"></i>
+        </div>
         <h3>No se pudo cargar la vista</h3>
         <p>Volvimos al inicio operativo para mantener el turno activo.</p>
       </div>
@@ -686,6 +701,8 @@ function renderApp() {
 
   const isPedidosActive = document.querySelector('[data-nav-module="pedidos"]');
   if (isPedidosActive) isPedidosActive.setAttribute('aria-current', 'page');
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function handleModeChange(mode) {

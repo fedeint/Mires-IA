@@ -29,6 +29,14 @@ export const canVibrate = 'vibrate' in navigator;
 
 let _pwaInitialized = false;
 
+function refreshLucide() {
+  try {
+    window.lucide?.createIcons?.();
+  } catch {
+    /* noop */
+  }
+}
+
 // ── Activar shell PWA ─────────────────────────────────────────────
 
 /**
@@ -61,26 +69,27 @@ function injectBottomNav() {
   nav.className = 'bottom-nav';
   nav.setAttribute('aria-label', 'Navegación principal');
   nav.innerHTML = `
-    <button class="bottom-nav__item is-active" data-set-mode="salon" id="bnSalon">
-      <span class="bottom-nav__icon" aria-hidden="true">🍽️</span>
+    <button class="bottom-nav__item is-active" data-set-mode="salon" id="bnSalon" type="button">
+      <span class="bottom-nav__icon" aria-hidden="true"><i data-lucide="utensils-crossed"></i></span>
       <span class="bottom-nav__label">Salón</span>
     </button>
-    <button class="bottom-nav__item" data-set-mode="delivery" id="bnDelivery">
-      <span class="bottom-nav__icon" aria-hidden="true">🛵</span>
+    <button class="bottom-nav__item" data-set-mode="delivery" id="bnDelivery" type="button">
+      <span class="bottom-nav__icon" aria-hidden="true"><i data-lucide="bike"></i></span>
       <span class="bottom-nav__label">Delivery</span>
     </button>
-    <button class="bottom-nav__item" data-set-mode="takeaway" id="bnTakeaway">
-      <span class="bottom-nav__icon" aria-hidden="true">📦</span>
+    <button class="bottom-nav__item" data-set-mode="takeaway" id="bnTakeaway" type="button">
+      <span class="bottom-nav__icon" aria-hidden="true"><i data-lucide="package"></i></span>
       <span class="bottom-nav__label">Para llevar</span>
     </button>
-    <button class="bottom-nav__item" id="bnAlerts" aria-label="Alertas de cocina">
-      <span class="bottom-nav__icon" aria-hidden="true">🔔</span>
+    <button class="bottom-nav__item" id="bnAlerts" type="button" aria-label="Alertas de cocina">
+      <span class="bottom-nav__icon" aria-hidden="true"><i data-lucide="bell"></i></span>
       <span class="bottom-nav__label">Alertas</span>
       <span class="bottom-nav__badge badge-dot" id="kitchenAlertBadge" hidden>0</span>
     </button>
   `;
 
   document.body.appendChild(nav);
+  refreshLucide();
 
   // Sincronizar estado activo con el modo actual del body
   function syncBottomNavActive() {
@@ -114,9 +123,15 @@ function injectPWAModeChips() {
   chips.id = 'pwaModeChips';
   chips.className = 'pwa-mode-chips';
   chips.innerHTML = `
-    <button class="chip is-active" data-set-mode="salon">🍽️ Salón</button>
-    <button class="chip" data-set-mode="delivery">🛵 Delivery</button>
-    <button class="chip" data-set-mode="takeaway">📦 Para llevar</button>
+    <button type="button" class="chip is-active" data-set-mode="salon">
+      <i data-lucide="utensils-crossed" class="pwa-mode-chips__ic" aria-hidden="true"></i> Salón
+    </button>
+    <button type="button" class="chip" data-set-mode="delivery">
+      <i data-lucide="bike" class="pwa-mode-chips__ic" aria-hidden="true"></i> Delivery
+    </button>
+    <button type="button" class="chip" data-set-mode="takeaway">
+      <i data-lucide="package" class="pwa-mode-chips__ic" aria-hidden="true"></i> Para llevar
+    </button>
   `;
 
   // Insertar después del topbar
@@ -139,6 +154,7 @@ function injectPWAModeChips() {
   });
 
   syncChips();
+  refreshLucide();
 }
 
 // ── FAB de pedido activo ──────────────────────────────────────────
@@ -155,12 +171,13 @@ function injectOrderFAB() {
   fab.setAttribute('aria-label', 'Ver pedido activo');
   fab.hidden = true;
   fab.innerHTML = `
-    <span aria-hidden="true">📋</span>
+    <span aria-hidden="true" class="pwa-fab__ic"><i data-lucide="clipboard-list"></i></span>
     <span id="orderFABLabel">Ver pedido</span>
   `;
 
   document.body.appendChild(fab);
   _fabEl = fab;
+  refreshLucide();
 }
 
 /**
@@ -334,7 +351,7 @@ function renderInstallBanner(promptEvent) {
   banner.setAttribute('aria-label', 'Instalar aplicación');
   banner.innerHTML = `
     <div>
-      <strong>🍽️ Instala MiRest Pedidos</strong>
+      <strong>Instala MiRest Pedidos</strong>
       <p>Acceso rápido desde tu celular, sin abrir el navegador.</p>
     </div>
     <div class="install-banner__actions">

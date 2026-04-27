@@ -119,6 +119,23 @@ body.page-almacen-sub nav.modulo-nav.almacen-subnav a:focus-visible {
   outline-offset: 2px;
 }
 
+body.page-almacen-sub .almacen-subnav a [data-lucide],
+body.page-almacen-sub nav.modulo-nav.almacen-subnav a [data-lucide] {
+  flex-shrink: 0;
+}
+
+body.page-almacen-sub .almacen-subnav a [data-lucide] svg,
+body.page-almacen-sub nav.modulo-nav.almacen-subnav a [data-lucide] svg {
+  width: 1.1em;
+  height: 1.1em;
+  stroke-width: 2.25;
+}
+
+body.page-almacen-sub .almacen-subnav a .almacen-subnav__label,
+body.page-almacen-sub nav.modulo-nav.almacen-subnav a .almacen-subnav__label {
+  display: inline;
+}
+
 /* Título h1 de cada página: ya está en topbar; no duplicar en hero local */
 .page-almacen-sub .almacen-subcontent > header > div:first-of-type:has(h1) {
   display: none;

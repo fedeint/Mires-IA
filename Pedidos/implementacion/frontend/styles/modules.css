@@ -20,10 +20,10 @@ body.pedidos-module .app-main {
 /* Botón hamburguesa del topbar: mismo hit target que en otros módulos */
 .topbar--pedidos__open-nav {
   color: #fff;
-  background: var(--app-gradient-primary, var(--color-primary-gradient, #de5a25));
+  background: var(--app-gradient-primary, var(--color-primary-gradient));
   border: none;
   border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(222, 90, 37, 0.22);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent, #f07c2a) 30%, transparent);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -232,6 +232,13 @@ body.has-scrolled .topbar {
   white-space: nowrap;
   cursor: pointer;
   transition: all var(--app-transition-fast);
+}
+
+.mode-switch__ic,
+.mode-switch__ic svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 .mode-switch:hover {
   background: var(--app-color-bg);

@@ -280,6 +280,8 @@ function initializeModulePage(module) {
   if (checklist) {
     checklist.innerHTML = module.handoff.map((item) => `<li>${item}</li>`).join("");
   }
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function setText(id, value) {

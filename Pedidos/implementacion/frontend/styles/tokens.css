@@ -27,41 +27,41 @@
   --app-line-height-normal: 1.4;
   --app-line-height-relaxed: 1.5;
 
-  /* ── Paleta de colores principales ────────────────────── */
-  --app-color-primary: #DE5A25;          /* Naranja fuerte — CTA, botón primario */
-  --app-color-primary-soft: #F6A456;     /* Naranja claro — hover, highlights */
-  --app-color-control: #15192C;          /* Azul oscuro — sidebar, texto principal */
+  /* ── Paleta: puente a styles/tokens.css (MiRest global) ───────────────── */
+  --app-color-primary: var(--color-accent, #f07c2a);
+  --app-color-primary-soft: var(--color-primary-400, #fb923c);
+  --app-color-control: var(--color-nav-900, #15192c);
 
-  /* ── Neutros ────────────────────────────────────────────── */
-  --app-color-bg: #F8F9FB;               /* Fondo principal de app */
-  --app-color-surface: #FFFFFF;          /* Cards, modales, superficies elevadas */
-  --app-color-surface-alt: #F8FAFC;      /* Filas alternas, items de lista */
-  --app-color-border: #E5E7EB;           /* Bordes de inputs, cards, separadores */
-  --app-color-text: #15192C;             /* Texto principal */
-  --app-color-text-secondary: #6B7280;   /* Labels, hints, metadata */
-  --app-color-text-tertiary: #9CA3AF;    /* Placeholders, texto deshabilitado */
+  /* ── Neutros (mismo ritmo que el dashboard) ────────────────────────── */
+  --app-color-bg: var(--color-bg, #f3f5f8);
+  --app-color-surface: var(--color-surface, #ffffff);
+  --app-color-surface-alt: var(--color-surface-muted, #edf0f5);
+  --app-color-border: var(--color-border, #e2e8f0);
+  --app-color-text: var(--color-text, #0f172a);
+  --app-color-text-secondary: var(--color-text-muted, #475569);
+  --app-color-text-tertiary: var(--color-text-soft, #94a3b8);
 
   /* ── Estados semánticos ─────────────────────────────────── */
-  --app-color-success: #22C55E;
-  --app-color-success-soft: #F0FDF4;
-  --app-color-success-text: #16A34A;
+  --app-color-success: var(--color-success, #10b981);
+  --app-color-success-soft: var(--color-success-soft, #ecfdf5);
+  --app-color-success-text: #16a34a;
 
-  --app-color-danger: #EF4444;
-  --app-color-danger-soft: #FEF2F2;
-  --app-color-danger-text: #DC2626;
+  --app-color-danger: #ef4444;
+  --app-color-danger-soft: #fef2f2;
+  --app-color-danger-text: #dc2626;
 
-  --app-color-warning: #F59E0B;
-  --app-color-warning-soft: #FFFBEB;
-  --app-color-warning-text: #D97706;
+  --app-color-warning: var(--color-warning, #f59e0b);
+  --app-color-warning-soft: var(--color-warning-soft, #fffbeb);
+  --app-color-warning-text: #d97706;
 
-  --app-color-info: #3B82F6;
-  --app-color-info-soft: #EFF6FF;
-  --app-color-info-text: #2563EB;
+  --app-color-info: var(--color-info, #0ea5e9);
+  --app-color-info-soft: var(--color-info-soft, #f0f9ff);
+  --app-color-info-text: #2563eb;
 
   --app-color-neutral-soft: #F3F4F6;
   --app-color-neutral-text: #4B5563;
 
-  --app-color-accent-soft: #FFF7ED;      /* Naranja ultra-suave para selección */
+  --app-color-accent-soft: var(--color-surface-soft, #fff1e6);
 
   /* ── Tokens operativos Mesero-First ─────────────────────── */
   --app-touch-target-min: 44px;
@@ -81,16 +81,19 @@
   --app-color-sidebar-line: rgba(255, 255, 255, 0.08);
 
   /* ── Gradientes ─────────────────────────────────────────── */
-  --app-gradient-primary: linear-gradient(135deg, #F6A456 0%, #DE5A25 100%);
-  --app-gradient-sidebar: linear-gradient(180deg, #20264A 0%, #11162E 42%, #090D1B 100%);
+  --app-gradient-primary: var(
+    --color-primary-gradient,
+    linear-gradient(135deg, #fb923c, #f97316)
+  );
+  --app-gradient-sidebar: linear-gradient(180deg, #20264a 0%, #11162e 42%, #090d1b 100%);
 
-  /* ── Sombras ─────────────────────────────────────────────── */
-  --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
-  --app-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --app-shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --app-shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.1);
+  /* ── Sombras (alineadas al DS global) ───────────────────── */
+  --app-shadow-sm: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+  --app-shadow-card: var(--shadow-card, 0 10px 15px -3px rgba(0, 0, 0, 0.08));
+  --app-shadow-card-hover: var(--shadow-card-hover, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+  --app-shadow-elevated: var(--shadow-elevated, 0 25px 50px -12px rgba(0, 0, 0, 0.15));
   --app-shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --app-shadow-primary-glow: 0 8px 24px rgba(222, 90, 37, 0.28);
+  --app-shadow-primary-glow: 0 8px 24px color-mix(in srgb, var(--color-accent) 32%, transparent);
 
   /* ── Border Radius ───────────────────────────────────────── */
   --app-radius-sm: 8px;      /* Badges pequeños, elementos internos */
@@ -125,7 +128,7 @@
 
   /* ── Modo operativo (cambia según salón/delivery/takeaway) ─ */
   --app-mode-accent: var(--app-color-primary);
-  --app-mode-soft: rgba(222, 90, 37, 0.08);
+  --app-mode-soft: color-mix(in srgb, var(--color-accent) 10%, transparent);
 
   /* ── Skeleton loading ────────────────────────────────────── */
   --app-skeleton-base: rgba(148, 163, 184, 0.14);
@@ -138,15 +141,16 @@
   --app-safe-right: env(safe-area-inset-right, 0px);
 }
 
-/* ── Modo oscuro ─────────────────────────────────────────── */
+/* ── Modo oscuro (mismo mapeo que :root[data-theme="dark"] global) ─ */
+:root[data-theme="dark"],
 [data-theme="dark"] {
-  --app-color-bg: #0F1220;
-  --app-color-surface: #171B2E;
-  --app-color-surface-alt: #1D2438;
-  --app-color-border: rgba(255, 255, 255, 0.08);
-  --app-color-text: #F3F4F6;
-  --app-color-text-secondary: #C7CFDD;
-  --app-color-text-tertiary: #8B96AD;
+  --app-color-bg: var(--color-bg, #101527);
+  --app-color-surface: var(--color-surface, #171d33);
+  --app-color-surface-alt: var(--color-surface-muted, #202740);
+  --app-color-border: var(--color-border, #2b3453);
+  --app-color-text: var(--color-text, #f3f6fc);
+  --app-color-text-secondary: var(--color-text-muted, #b2bdd4);
+  --app-color-text-tertiary: var(--color-text-soft, #8d98b3);
 
   --app-color-success-soft: rgba(34, 197, 94, 0.14);
   --app-color-danger-soft: rgba(239, 68, 68, 0.14);
