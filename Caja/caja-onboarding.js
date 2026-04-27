@@ -1,3 +1,8 @@
+/**
+ * Tour de UI (spotlight) opcional. El recorrido principal con verificación
+ * (mirest_onb_done_caja) se lanza desde el shell vía `scripts/app.js` + MirestOnboarding.
+ * Puedes vincular este script en HTML si reactivas una guía rápida solo visual.
+ */
 import { Onboarding } from '../scripts/onboarding-engine.js';
 
 const stepsAll = [

@@ -25,6 +25,7 @@ import {
   syncHorariosFromShell,
   updateTenantModulo,
 } from "../scripts/mirest-config-service.js";
+import { MIREST_MODULE_ONBOARDING } from "../scripts/mirest-module-onboarding-registry.js";
 
 const DEFAULT_CONFIG = {
   dallIA: {
@@ -80,6 +81,10 @@ const DEFAULT_CONFIG = {
   },
   tour: {
     completado: false,
+    /** Desactiva todos los tours automáticos (PWA Pedidos y spotlight por módulo). */
+    modulosHabilitado: true,
+    /** Puede desactivar módulos puntuales; clave = id del tour (caja, pedidos, clientes, …). */
+    activoPorModulo: /** @type {Record<string, boolean>} */ ({}),
     pasos: {
       dashboard: { label: "Dashboard y KPIs", estado: "Pendiente" },
       mesas: { label: "Mesas y Pedidos", estado: "Pendiente" },
@@ -118,6 +123,18 @@ const LEGACY_TO_TENANT_MOD = {
   clientesFidelidad: "clientes",
   facturacionSUNAT: "facturacion",
 };
+
+/** Asegura claves nuevas de `tour` en estados guardados antes de la migración. */
+function normalizeTourInState(st) {
+  if (!st || typeof st !== "object") return;
+  if (!st.tour || typeof st.tour !== "object") {
+    st.tour = structuredClone(DEFAULT_CONFIG.tour);
+    return;
+  }
+  if (st.tour.modulosHabilitado === undefined) st.tour.modulosHabilitado = true;
+  if (st.tour.activoPorModulo == null || typeof st.tour.activoPorModulo !== "object")
+    st.tour.activoPorModulo = {};
+}
 
 /** Alineado con public.config_modulo_key — controla public.tenants.dalla_activo_por_modulo. */
 const DALLA_MODULO_LIST = [
@@ -182,6 +199,7 @@ const ConfigStore = {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         this.state = JSON.parse(stored);
+        normalizeTourInState(this.state);
       } else {
         this.state = structuredClone(DEFAULT_CONFIG);
         this.persistLocalOnly();
@@ -232,6 +250,7 @@ const ConfigStore = {
     const remote = await fetchRestaurantAppConfig(supabase, rid);
     if (remote) {
       applyRemoteConfigFragments(DEFAULT_CONFIG, this.state, remote);
+      normalizeTourInState(this.state);
       this.persistLocalOnly();
     }
   },
@@ -496,6 +515,7 @@ const ConfigUI = {
 
   hydrate() {
     const st = ConfigStore.state;
+    normalizeTourInState(st);
     // DallIA
     document.getElementById("cfg-ia-name").value = st.dallIA.nombre;
     this.updateTopbarName(st.dallIA.nombre);
@@ -530,6 +550,7 @@ const ConfigUI = {
     // Render dynamically sections
     this.renderHorarios();
     this.renderTour();
+    this.renderToursInteractivosModulos();
     this.renderUsuarios();
   },
 
@@ -774,8 +795,37 @@ const ConfigUI = {
     if (window.lucide) window.lucide.createIcons();
   },
 
+  /** Toggles de tours con verificación (módulo shell + PWA Pedidos), persistidos en `tour` / Supabase. */
+  renderToursInteractivosModulos() {
+    const st = ConfigStore.state;
+    const master = document.getElementById("tourModulosHabilitado");
+    if (master) {
+      master.checked = st.tour?.modulosHabilitado !== false;
+    }
+    const host = document.getElementById("tourPerModuloContainer");
+    if (!host) return;
+    host.innerHTML = "";
+    const defByKey = MIREST_MODULE_ONBOARDING;
+    const keys = Object.keys(defByKey).sort((a, b) =>
+      (defByKey[a].label || a).localeCompare(defByKey[b].label || b, "es")
+    );
+    const per = st.tour?.activoPorModulo && typeof st.tour.activoPorModulo === "object" ? st.tour.activoPorModulo : {};
+    keys.forEach((k) => {
+      const d = defByKey[k];
+      const id = `tour-mod-${k}`;
+      const on = per[k] === false ? false : true;
+      const row = document.createElement("label");
+      row.className = "cfg-tour-mod";
+      row.style.cssText =
+        "display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cfg-border);cursor:pointer;font-size:14px";
+      row.innerHTML = `<input type="checkbox" id="${id}" data-tour-mod="${k}" ${on ? "checked" : ""} style="width:18px;height:18px" />
+        <span style="font-weight:600">${d.icon || ""} ${d.label || k}</span>`;
+      host.appendChild(row);
+    });
+  },
+
   setupTourHandlers() {
-    document.getElementById("btnRestartTour").addEventListener("click", () => {
+    document.getElementById("btnRestartTour")?.addEventListener("click", () => {
        const pasos = ConfigStore.state.tour.pasos;
        Object.values(pasos).forEach(p => p.estado = "Pendiente");
        ConfigStore.persist();
@@ -787,6 +837,21 @@ const ConfigUI = {
        ConfigStore.persist();
        this.renderTour();
     };
+
+    document.getElementById("btnSaveToursInteractivos")?.addEventListener("click", () => {
+      if (!ConfigStore.state.tour) return;
+      const master = document.getElementById("tourModulosHabilitado");
+      if (master) ConfigStore.state.tour.modulosHabilitado = master.checked;
+      const next = { ...ConfigStore.state.tour.activoPorModulo };
+      document.querySelectorAll("[data-tour-mod]").forEach((el) => {
+        if (!(el instanceof HTMLInputElement)) return;
+        const k = el.getAttribute("data-tour-mod");
+        if (k) next[k] = el.checked;
+      });
+      ConfigStore.state.tour.activoPorModulo = next;
+      ConfigStore.persist();
+      this.cfgToast("Ajustes de tutoriales guardados (caché y nube).");
+    });
   },
 
   // ── Usuarios

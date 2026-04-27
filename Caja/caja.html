@@ -306,6 +306,77 @@
       .cj-field textarea { resize: vertical; min-height: 72px; }
       .cj-modal .cj-btn--primary { width: 100%; justify-content: center; padding: 12px; font-size: 15px; margin-top: 6px; border-radius: 10px; }
 
+      /* ── Diálogos de confirmación (reemplaza window.confirm) ── */
+      .cj-modal.cj-confirm-dialog {
+        max-width: 400px;
+        padding: 24px;
+      }
+      .cj-modal.cj-confirm-dialog .cj-modal__head {
+        margin-bottom: 8px;
+        font-size: 1.15rem;
+      }
+      .cj-confirm__body {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin: 4px 0 20px;
+      }
+      .cj-confirm__icon {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: var(--cj-orange-dim);
+        color: var(--cj-orange);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+      }
+      .cj-confirm__icon--close {
+        background: var(--cj-red-dim);
+        color: var(--cj-red);
+      }
+      .cj-confirm__icon svg,
+      .cj-confirm__icon [data-lucide] {
+        width: 26px;
+        height: 26px;
+        stroke-width: 2.1;
+      }
+      .cj-confirm__text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--color-text-muted);
+        padding-top: 2px;
+      }
+      .cj-confirm__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 4px;
+      }
+      .cj-confirm__actions .cj-btn,
+      .cj-confirm__actions .cj-btn--primary {
+        width: auto;
+        min-width: 120px;
+        margin-top: 0;
+        justify-content: center;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .cj-confirm__actions .cj-btn:not(.cj-btn--primary) {
+        background: var(--color-surface-muted);
+        color: var(--color-text);
+        border-color: var(--color-border);
+      }
+      .cj-confirm__actions .cj-btn:not(.cj-btn--primary):hover {
+        background: var(--color-surface);
+        border-color: var(--color-border-strong);
+      }
+
       /* ── Button Groups ── */
       .cj-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
       .cj-selectable-btn {
@@ -517,6 +588,86 @@
       </div>
     </div>
 
+    <!-- Confirmar: abrir turno (sustituye window.confirm) -->
+    <div
+      class="cj-modal-overlay"
+      id="confirmOpenCajaModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmOpenCajaTitle"
+    >
+      <div class="cj-modal cj-confirm-dialog">
+        <div class="cj-modal__head">
+          <span id="confirmOpenCajaTitle">Iniciar turno de caja</span>
+          <button type="button" class="cj-modal__close" data-cj-close-modal="confirmOpenCajaModal" aria-label="Cerrar">
+            <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+          </button>
+        </div>
+        <div class="cj-confirm__body">
+          <div class="cj-confirm__icon" aria-hidden="true">
+            <i data-lucide="wallet"></i>
+          </div>
+          <p class="cj-confirm__text">
+            Se abrirá la sesión de caja y podrás registrar ingresos, egresos y movimientos. ¿Deseas
+            <strong style="color: var(--color-text)">iniciar el turno ahora</strong>?
+          </p>
+        </div>
+        <div class="cj-confirm__actions">
+          <button type="button" class="cj-btn" id="btnCancelOpenCaja">Cancelar</button>
+          <button type="button" class="cj-btn cj-btn--primary" id="btnConfirmOpenCaja">Iniciar turno</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmar: cierre de caja (sustituye window.confirm) -->
+    <div
+      class="cj-modal-overlay"
+      id="confirmCloseCajaModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmCloseCajaTitle"
+    >
+      <div class="cj-modal cj-confirm-dialog">
+        <div class="cj-modal__head">
+          <span id="confirmCloseCajaTitle">Cerrar caja</span>
+          <button type="button" class="cj-modal__close" data-cj-close-modal="confirmCloseCajaModal" aria-label="Cerrar">
+            <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+          </button>
+        </div>
+        <div class="cj-confirm__body">
+          <div class="cj-confirm__icon cj-confirm__icon--close" aria-hidden="true">
+            <i data-lucide="lock"></i>
+          </div>
+          <p class="cj-confirm__text">
+            ¿Confirmas el <strong style="color: var(--color-text)">cierre de caja</strong> para este turno? No podrás
+            registrar más movimientos hasta abrir de nuevo.
+          </p>
+          <div class="cj-field" style="margin-top: 14px; text-align: left">
+            <label for="cierreMontoCaja" style="display: block; font-size: 13px; color: var(--color-text-muted); margin-bottom: 6px"
+              >Monto contado / arqueo (S/)</label
+            >
+            <input
+              type="number"
+              id="cierreMontoCaja"
+              class="input"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              inputmode="decimal"
+              style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,.12)"
+            />
+            <p style="margin: 8px 0 0; font-size: 12px; color: var(--color-text-muted)">
+              Obligatorio si la sesión está vinculada a Supabase (caja y pedidos comparten la regla de negocio).
+            </p>
+          </div>
+        </div>
+        <div class="cj-confirm__actions">
+          <button type="button" class="cj-btn" id="btnCancelCloseCaja">Cancelar</button>
+          <button type="button" class="cj-btn cj-btn--primary" id="btnConfirmCloseCaja">Sí, cerrar caja</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Password Modal -->
     <div class="cj-modal-overlay" id="passwordModal">
       <div class="cj-modal" style="max-width: 320px;">
@@ -626,7 +777,6 @@
     <!-- Shell scripts -->
     <script type="module" src="../scripts/app.js"></script>
     <script type="module" src="./caja.js"></script>
-    <script type="module" src="./caja-onboarding.js"></script>
     <script src="../scripts/dalia-widget.js"></script>
   </body>
 </html>

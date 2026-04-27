@@ -13,10 +13,13 @@ import {
 } from '../scripts/navigation.js';
 import { supabase } from '../scripts/supabase.js';
 import { listOperationalStaffForCaja } from '../scripts/operational-staff.js';
+import { recordModuloBloqueo, resolveTenantIdForUser } from '../scripts/module-conditions.js';
 
 /* ── Estado ── */
 let cajaOpen = false;
 let openedAt = null;
+/** @type {string | null} id en public.cash_sessions si hay sesión persistida */
+let activeCashSessionId = null;
 let transactions = [];
 /** @type {Array<{ name: string, mesa: string, products: number, status: string, role?: string, hasLiveStatus?: boolean }>} */
 let cajaTeamMeseros = [];
@@ -72,6 +75,74 @@ async function initCajaMeserosVisibility() {
   }
 }
 
+function cajaToastError(message) {
+  showToast('welcomeToast', 'welcomeToastMsg', message, 'welcomeToastIcon', 'x-circle');
+}
+
+function applyCajaOpenUi() {
+  cajaOpen = true;
+  if (cajaBadge) {
+    cajaBadge.textContent = 'Abierta';
+    cajaBadge.className   = 'cj-badge cj-badge--green';
+  }
+  if (closedScreen) closedScreen.style.display = 'none';
+  if (openContent) openContent.style.display  = 'block';
+}
+
+function applyCajaClosedUi() {
+  cajaOpen = false;
+  openedAt = null;
+  activeCashSessionId = null;
+  if (cajaBadge) {
+    cajaBadge.textContent = 'Cerrada';
+    cajaBadge.className   = 'cj-badge cj-badge--red';
+  }
+  if (cajaTimeEl) cajaTimeEl.textContent = '';
+  if (openContent) openContent.style.display  = 'none';
+  if (closedScreen) closedScreen.style.display = 'flex';
+}
+
+/**
+ * @param {import('@supabase/supabase-js').SupabaseClient} client
+ * @param {string} tenantId
+ */
+async function resolveRestaurantIdForCaja(client, tenantId) {
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) return null;
+  const { data: prof } = await client
+    .from('user_profiles')
+    .select('restaurant_id')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (prof?.restaurant_id) return prof.restaurant_id;
+  const { data: r } = await client
+    .from('restaurants')
+    .select('id')
+    .eq('tenant_id', tenantId)
+    .limit(1)
+    .maybeSingle();
+  return r?.id ?? null;
+}
+
+async function syncCajaStateFromServer() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  const tid = await resolveTenantIdForUser(supabase, user.id);
+  if (!tid) return;
+  const { data: row, error } = await supabase
+    .from('cash_sessions')
+    .select('id, opened_at')
+    .eq('tenant_id', tid)
+    .is('closed_at', null)
+    .order('opened_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !row) return;
+  activeCashSessionId = row.id;
+  openedAt = new Date(row.opened_at);
+  applyCajaOpenUi();
+}
+
 /* ── Referencias DOM ── */
 const closedScreen  = document.getElementById('cajaClosedScreen');
 const openContent   = document.getElementById('cajaOpenContent');
@@ -85,6 +156,7 @@ const cajaTimeEl    = document.getElementById('cajaTime');
 /* ── Inicialización ── */
 document.addEventListener('DOMContentLoaded', async () => {
   await initCajaMeserosVisibility();
+  await syncCajaStateFromServer();
   await refreshOperationalTeam();
   if (cajaOpen) render(transactions, meserosForSession(), cajaTeamMessage, cajaTeamOnboardingStep);
   initSelectableButtons('incConceptGroup', 'incConcept');
@@ -94,55 +166,176 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
-/* Abrir / cerrar caja: sin contraseña fija; la sesión real se valida con Supabase (rol + caja en backend en despliegues con API). */
+/* Abrir / cerrar: RPC mirest_guard_caja_* + fila en cash_sessions (tenant vía JWT). */
 
 /* ── Abrir Caja ── */
 async function performOpenCaja() {
-  cajaOpen = true;
-  openedAt = new Date();
-  if (cajaBadge) {
-    cajaBadge.textContent = 'Abierta';
-    cajaBadge.className   = 'cj-badge cj-badge--green';
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    openedAt = new Date();
+    applyCajaOpenUi();
+    await finishOpenCajaUi();
+    return;
   }
-  if (closedScreen) closedScreen.style.display = 'none';
-  if (openContent) openContent.style.display  = 'block';
+  const tid = await resolveTenantIdForUser(supabase, user.id);
+  if (!tid) {
+    cajaToastError('No hay restaurante/tenant en tu perfil. Revisa Accesos o inicia sesión de nuevo.');
+    return;
+  }
+  const { data: gr, error: eGr } = await supabase.rpc('mirest_guard_caja_abrir', { p_tenant: tid });
+  if (eGr) {
+    console.warn('[caja] mirest_guard_caja_abrir', eGr);
+    cajaToastError('No se pudo validar la apertura con el servidor. ¿Migraciones y JWT con tenant?');
+    return;
+  }
+  if (!gr?.ok) {
+    void recordModuloBloqueo(supabase, {
+      tenantId: tid,
+      modulo: 'caja',
+      accion: 'abrir_sesion',
+      condicion_faltante: String(gr?.codigo || 'caja.guard'),
+      metadata: { rpc: 'mirest_guard_caja_abrir', response: gr },
+    });
+    cajaToastError(String(gr?.mensaje || 'No puedes abrir caja ahora.'));
+    return;
+  }
+  const restId = await resolveRestaurantIdForCaja(supabase, tid);
+  if (!restId) {
+    cajaToastError('Falta un restaurante asociado. Completa el perfil o crea un local en Configuración.');
+    return;
+  }
+  const { data: row, error: eIns } = await supabase
+    .from('cash_sessions')
+    .insert({
+      tenant_id: tid,
+      restaurant_id: restId,
+      opening_float: 0,
+      opened_by: user.id,
+    })
+    .select('id, opened_at')
+    .single();
+  if (eIns) {
+    console.warn('[caja] insert cash_sessions', eIns);
+    cajaToastError(eIns.message || 'No se pudo abrir la sesión en base de datos.');
+    return;
+  }
+  activeCashSessionId = row.id;
+  openedAt = new Date(row.opened_at);
+  applyCajaOpenUi();
+  await finishOpenCajaUi();
+}
 
+async function finishOpenCajaUi() {
   await refreshOperationalTeam();
   showToast('welcomeToast', 'welcomeToastMsg', '¡Bienvenido, Cajero! <strong>Turno iniciado</strong>', 'welcomeToastIcon', 'check-circle');
   render(transactions, meserosForSession(), cajaTeamMessage, cajaTeamOnboardingStep);
-  
-  // Iniciar onboarding si corresponde
-  if (window.startCajaOnboarding) window.startCajaOnboarding();
 }
 
 if (btnToggle) {
   btnToggle.addEventListener('click', () => {
-    if (confirm('¿Iniciar turno de caja?')) {
-      void performOpenCaja();
-    }
+    openModal('confirmOpenCajaModal');
   });
 }
 
 /* ── Cerrar Caja ── */
-function performCloseCaja() {
-  cajaOpen = false;
-  openedAt = null;
-  if (cajaBadge) {
-    cajaBadge.textContent = 'Cerrada';
-    cajaBadge.className   = 'cj-badge cj-badge--red';
+/**
+ * @param {number} [montoCierre] monto de arqueo (requerido si hay sesión en BD)
+ */
+async function performCloseCaja(montoCierre) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !activeCashSessionId) {
+    applyCajaClosedUi();
+    render(transactions, meserosForSession(), cajaTeamMessage, cajaTeamOnboardingStep);
+    return;
   }
-  if (cajaTimeEl) cajaTimeEl.textContent = '';
-  if (openContent) openContent.style.display  = 'none';
-  if (closedScreen) closedScreen.style.display = 'flex';
+  const tid = await resolveTenantIdForUser(supabase, user.id);
+  if (!tid) {
+    applyCajaClosedUi();
+    return;
+  }
+  const { data: gr, error: eGr } = await supabase.rpc('mirest_guard_caja_cerrar', { p_tenant: tid });
+  if (eGr) {
+    console.warn('[caja] mirest_guard_caja_cerrar', eGr);
+    cajaToastError('No se pudo validar el cierre con el servidor.');
+    return;
+  }
+  if (!gr?.ok) {
+    void recordModuloBloqueo(supabase, {
+      tenantId: tid,
+      modulo: 'caja',
+      accion: 'cerrar_sesion',
+      condicion_faltante: String(gr?.codigo || 'caja.cerrar.guard'),
+      metadata: { rpc: 'mirest_guard_caja_cerrar', response: gr },
+    });
+    cajaToastError(String(gr?.mensaje || 'No puedes cerrar caja ahora.'));
+    return;
+  }
+  const { error: eUp } = await supabase
+    .from('cash_sessions')
+    .update({
+      closed_at: new Date().toISOString(),
+      closing_count: montoCierre != null && !Number.isNaN(montoCierre) ? montoCierre : null,
+      closed_by: user.id,
+    })
+    .eq('id', activeCashSessionId);
+  if (eUp) {
+    cajaToastError(eUp.message || 'No se pudo guardar el cierre de sesión.');
+    return;
+  }
+  applyCajaClosedUi();
+  render(transactions, meserosForSession(), cajaTeamMessage, cajaTeamOnboardingStep);
+  showToast('welcomeToast', 'welcomeToastMsg', 'Caja cerrada correctamente.', 'welcomeToastIcon', 'check-circle');
 }
 
 if (btnClose) {
   btnClose.addEventListener('click', () => {
-    if (confirm('¿Confirmas el cierre de caja para este turno?')) {
-      performCloseCaja();
-    }
+    const m = document.getElementById('cierreMontoCaja');
+    if (m) m.value = '';
+    openModal('confirmCloseCajaModal');
   });
 }
+
+const btnConfirmOpenCaja = document.getElementById('btnConfirmOpenCaja');
+const btnCancelOpenCaja = document.getElementById('btnCancelOpenCaja');
+if (btnConfirmOpenCaja) {
+  btnConfirmOpenCaja.addEventListener('click', () => {
+    closeModal('confirmOpenCajaModal');
+    void performOpenCaja();
+  });
+}
+if (btnCancelOpenCaja) {
+  btnCancelOpenCaja.addEventListener('click', () => closeModal('confirmOpenCajaModal'));
+}
+
+const btnConfirmCloseCaja = document.getElementById('btnConfirmCloseCaja');
+const btnCancelCloseCaja = document.getElementById('btnCancelCloseCaja');
+if (btnConfirmCloseCaja) {
+  btnConfirmCloseCaja.addEventListener('click', () => {
+    void (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const montoEl = document.getElementById('cierreMontoCaja');
+      const monto = parseFloat(montoEl?.value || '');
+      if (user && activeCashSessionId) {
+        if (!monto || monto <= 0) {
+          cajaToastError('Ingresa el monto contado del arqueo para cerrar la sesión.');
+          return;
+        }
+      }
+      closeModal('confirmCloseCajaModal');
+      await performCloseCaja(monto);
+      if (montoEl) montoEl.value = '';
+    })();
+  });
+}
+if (btnCancelCloseCaja) {
+  btnCancelCloseCaja.addEventListener('click', () => closeModal('confirmCloseCajaModal'));
+}
+
+document.querySelectorAll('[data-cj-close-modal]').forEach((btn) => {
+  const id = btn.getAttribute('data-cj-close-modal');
+  if (!id) return;
+  btn.addEventListener('click', () => closeModal(id));
+});
 
 /* ── Chip de tiempo en vivo ── */
 setInterval(() => {

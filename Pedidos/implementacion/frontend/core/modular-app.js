@@ -60,6 +60,7 @@ import { renderAlmacenModule } from '../modules/almacen/index.js';
 import { renderSalonModule } from '../modules/pedidos/salon/index.js';
 import { renderDeliveryModule } from '../modules/pedidos/delivery/index.js';
 import { renderTakeawayModule } from '../modules/pedidos/takeaway/index.js';
+import { assertPedidoCrearGuard } from './mirest-pedido-guard.js';
 
 const THEME_KEYS = ['mirest_theme', 'mirest-theme'];
 
@@ -843,7 +844,14 @@ function bindEvents() {
     const openModuleButton = target.closest('[data-open-module]');
     if (openModuleButton instanceof HTMLElement) {
       if (openModuleButton.dataset.openModule === 'menu' && getState().activeModule === 'pedidos') {
-        openMenuPickerModal();
+        void (async () => {
+          const g = await assertPedidoCrearGuard();
+          if (!g.ok) {
+            showToast('Bloqueo de pedido', g.mensaje || 'No se puede añadir un pedido en este momento.', 'error');
+            return;
+          }
+          openMenuPickerModal();
+        })();
         return;
       }
 

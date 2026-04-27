@@ -26,7 +26,16 @@ import {
   groupByUserId,
   replaceUserTurnos,
   resumirTurnosParaArbol,
-} from "../scripts/usuario-turnos.js?v=20260503-v1";
+  diaSemanaHoyLima,
+} from "../scripts/usuario-turnos.js?v=20260526-pres";
+import {
+  buildPresenciaAlertas,
+  fetchHistorialSesiones,
+  fetchPresenciaMap,
+  hasTurnoHoy,
+  presenciaIconAndHint,
+  subscribePresenciaCambios,
+} from "../scripts/mirest-presence-cronograma.js?v=20260526-pres";
 import {
   getAssignableModules,
   getRoleLabel,
@@ -91,6 +100,9 @@ let isRendering = false;
 let isLoadingUsers = false;
 let showRejected = false;
 let showApproved = false;
+/** @type {import('@supabase/supabase-js').RealtimeChannel | null} */
+let accesosPresenciaCh = null;
+let lastCronoTenantId = null;
 
 const ASSIGNABLE_MODULES = getAssignableModules();
 const ASSIGNABLE_KEYS = getAssignablePermissionKeys();
@@ -1199,6 +1211,89 @@ function buildWeekCell(user, dia, byUser) {
   return `<div class="crono-cell crono-cell--empty">—</div>`;
 }
 
+function setPresenciaDrawerOpen(open) {
+  const dr = document.getElementById("cronoPresenciaDrawer");
+  if (!dr) return;
+  if (open) {
+    dr.hidden = false;
+    dr.classList.add("is-open");
+    dr.setAttribute("aria-hidden", "false");
+  } else {
+    dr.classList.remove("is-open");
+    dr.setAttribute("aria-hidden", "true");
+    dr.hidden = true;
+  }
+}
+
+function setupCronoPresenciaDrawer() {
+  const dr = document.getElementById("cronoPresenciaDrawer");
+  if (!dr || dr.dataset.bound) return;
+  dr.dataset.bound = "1";
+  const close = () => setPresenciaDrawerOpen(false);
+  dr.querySelectorAll("[data-close-pres-drawer], [data-close-pres-tab]").forEach((el) => {
+    el.addEventListener("click", close);
+  });
+}
+
+/**
+ * @param {string} userId
+ */
+async function openPresenciaDrawer(userId) {
+  if (!userId) return;
+  const tId = lastCronoTenantId || accesosCallerTenant || usersList.find((x) => x.tenant_id)?.tenant_id || null;
+  if (!tId) {
+    const el = document.getElementById("cronoPresenciaDrawerBody");
+    if (el) el.innerHTML = "<p>Contexto sin tenant. Recarga o vuelve a Accesos.</p>";
+    setPresenciaDrawerOpen(true);
+    return;
+  }
+  const u = usersList.find((x) => x.id === userId);
+  const m = await fetchPresenciaMap(String(tId), [userId]);
+  const pRow = m.get(String(userId)) || null;
+  const rows = await fetchHistorialSesiones(userId, String(tId), 30);
+  const hoyDia = diaSemanaHoyLima("America/Lima");
+  const tlist = (turnosRows || []).filter((r) => r.user_id === userId);
+  const tHoy = tlist.find((r) => r.activo !== false && r.dia === hoyDia);
+  const hoyText = tHoy
+    ? `Hoy: ${DIA_CORTO[hoyDia]} con turno ${String(tHoy.hora_entrada || "—").slice(0, 5)} – ${String(tHoy.hora_salida || "—").slice(0, 5)}.`
+    : "Hoy: sin franja asignada activa (según datos cargados).";
+  const body = document.getElementById("cronoPresenciaDrawerBody");
+  const title = document.getElementById("cronoPresenciaDrawerTitle");
+  if (title) title.textContent = `Presencia · ${u?.full_name || u?.email || userId}`;
+  if (body) {
+    const listHtml =
+      Array.isArray(rows) && rows.length
+        ? rows
+            .map(
+              (r) =>
+                `<li>
+          <div>
+            <strong>${escapeHtml(String(r.fecha))}</strong> ·
+            ${r.hora_conexion ? new Date(r.hora_conexion).toLocaleString("es-PE") : "—"} →
+            ${r.hora_desconexion ? new Date(r.hora_desconexion).toLocaleString("es-PE") : "en curso / cierre no registrado"}
+          </div>
+          <div class="crono-hint-below" style="margin:4px 0 0; font-size: 12px; color: var(--color-text-muted)">
+            ${r.duracion_minutos != null ? String(r.duracion_minutos) : "—"} min ·
+            cierre: ${escapeHtml(r.cierre_tipo != null ? String(r.cierre_tipo) : "—")} ·
+            ${r.dispositivo != null ? escapeHtml(String(r.dispositivo)) : "—"}
+          </div>
+        </li>`
+            )
+            .join("")
+        : '<li class="crono-hint-below" style="border: none; padding: 0">Aún no hay <code>usuario_sesiones</code> (migración o aún no hay login con presencia).</li>';
+    body.innerHTML = `
+    <p class="crono-hero-hint" style="margin: 0 0 6px">
+      <strong>Estado en base:</strong> ${escapeHtml(String(pRow?.estado || "—"))} ·
+      dispositivo: ${escapeHtml(pRow && pRow.dispositivo != null ? String(pRow.dispositivo) : "—")}
+    </p>
+    <p class="crono-hero-hint" style="margin: 0 0 10px">${escapeHtml(hoyText)}</p>
+    <h3 class="crono-prese-h">Historial (últimas 30 conexiones)</h3>
+    <ul class="crono-prese-list">${listHtml}</ul>`;
+  }
+  setPresenciaDrawerOpen(true);
+  if (window.lucide) window.lucide.createIcons();
+}
+
 async function loadCrono() {
   const treeEl = document.getElementById("cronoArbolTree");
   const weekEl = document.getElementById("cronoWeekGrid");
@@ -1229,6 +1324,31 @@ async function loadCrono() {
     admin?.email ||
     "Admin";
 
+  const hoyDia = diaSemanaHoyLima("America/Lima");
+  let presMap = new Map();
+  if (tid) {
+    lastCronoTenantId = String(tid);
+    try {
+      presMap = await fetchPresenciaMap(String(tid), ids);
+    } catch (e) {
+      console.warn(e);
+    }
+    if (!accesosPresenciaCh) {
+      accesosPresenciaCh = subscribePresenciaCambios(String(tid), { onEvent: () => void loadCrono() });
+    }
+  }
+
+  const presAlerts = tid
+    ? buildPresenciaAlertas({ presMap, hoyDia, byUser, usersList, tenantTz: "America/Lima" })
+    : [];
+  const alHost = document.getElementById("cronoPresenciaAlertas");
+  if (alHost) {
+    alHost.innerHTML = presAlerts.length
+      ? presAlerts.map((a) => `<p>▸ ${escapeHtml(a.text)}</p>`).join("")
+      : "";
+    alHost.hidden = presAlerts.length === 0;
+  }
+
   const staffItems = [];
   for (const u of usersList) {
     if (u.protected) continue;
@@ -1238,6 +1358,21 @@ async function loadCrono() {
     const isInactive = !!u.banned_until;
     const isGrey = isInactive;
     const turnoPendiente = !isInactive && !isPendingActivation(u) && !hasActivo;
+    const hoyT = hasTurnoHoy(tlist, hoyDia);
+    const pRow = presMap.get(String(u.id));
+    const st = (pRow && pRow.estado) || "offline";
+    const { symbol, label, tone } = presenciaIconAndHint(st, hoyT);
+    const ult = pRow?.ultima_actividad;
+    const udisp = pRow?.dispositivo;
+    const presSub = !hoyT
+      ? "No trabaja hoy"
+      : st === "online" && ult
+        ? "En línea — últ. act. " + new Date(ult).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })
+            + (udisp ? " · " + udisp : "")
+        : st === "inactivo"
+          ? "Inactivo (sin señal operativa: revisa 15+ min o heartbeat)"
+          : "Fuera de línea (sesión o pestaña sin presencia)";
+
     const badge = isGrey
       ? "<span class=\"crono-tree-badge crono-tree-badge--grey\" aria-label=\"Cuenta inactiva\">Inactivo</span>"
       : isPendingActivation(u)
@@ -1250,8 +1385,18 @@ async function loadCrono() {
   <div class="crono-tree-user__id">
     <div class="crono-tree-avatar crono-tree-avatar--round" aria-hidden="true"><span class="crono-tree-avatar__face">${isGrey ? "⏸" : "🧑‍💼"}</span></div>
     <div class="crono-tree-user__id-text">
-      <span class="crono-tree-user__name">${escapeHtml(u.full_name || u.email || u.id)}</span>
+      <span class="crono-tree-user__name" style="display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px;">
+        <button
+          type="button"
+          class="crono-pres-dot ${tone || ""}"
+          data-pres-user="${u.id}"
+          title="${escapeHtml(label)}"
+          aria-label="Presencia: ${escapeHtml(label)}. Ver historial de sesión."
+        ><span class="crono-pres-emoji" aria-hidden="true">${symbol}</span></button>
+        ${escapeHtml(u.full_name || u.email || u.id)}
+      </span>
       <span class="crono-tree-user__role">${escapeHtml(roleL)}</span>
+      <span class="crono-pres-line">${escapeHtml(presSub)}</span>
     </div>
   </div>
   <div class="crono-tree-user__badges">${badge}</div>
@@ -1570,6 +1715,18 @@ function initAccesosSubnav() {
 document.addEventListener("DOMContentLoaded", () => {
   void loadRolesConfigMap().catch((e) => console.warn("[accesos] roles_modulos", e));
   initAccesosSubnav();
+  setupCronoPresenciaDrawer();
+  const panCronoA = document.getElementById("panelCronoArbol");
+  if (panCronoA && !panCronoA.dataset.presenceDel) {
+    panCronoA.dataset.presenceDel = "1";
+    panCronoA.addEventListener("click", (e) => {
+      const t = e.target && e.target.closest && e.target.closest("[data-pres-user]");
+      if (!t) return;
+      e.preventDefault();
+      const id = t.getAttribute("data-pres-user");
+      if (id) void openPresenciaDrawer(id);
+    });
+  }
   refreshBtn.addEventListener("click", loadRequests);
   if (refreshUsersBtn) refreshUsersBtn.addEventListener("click", loadUsers);
 

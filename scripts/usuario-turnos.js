@@ -25,6 +25,28 @@ export const DIA_CORTO = {
   domingo: "Dom",
 };
 
+const WEEKDAY_EN_TO_DIA = {
+  monday: "lunes",
+  tuesday: "martes",
+  wednesday: "miercoles",
+  thursday: "jueves",
+  friday: "viernes",
+  saturday: "sabado",
+  sunday: "domingo",
+};
+
+/**
+ * Alinea con enum `public.dia_semana` (America/Lima por defecto).
+ * @param {string} [timeZone] IANA, ej. America/Lima
+ * @returns {string}
+ */
+export function diaSemanaHoyLima(timeZone = "America/Lima") {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "long" })
+    .formatToParts(new Date());
+  const w = (parts.find((p) => p.type === "weekday")?.value || "monday").toLowerCase();
+  return WEEKDAY_EN_TO_DIA[w] || "lunes";
+}
+
 /**
  * @param {string[]} [userIds] — filtra por usuarios; si se omite, carga el tenant (RLS) completo
  * @returns {Promise<Array<Record<string, unknown>>>}

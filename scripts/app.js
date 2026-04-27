@@ -73,6 +73,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
       console.warn("[App] Contexto usuarios (Supabase); se usan metadatos Auth", e);
     }
+    try {
+      const { initMirestPresence } = await import("./mirest-presence-client.js");
+      await initMirestPresence();
+    } catch (e) {
+      console.debug("[App] Presencia (opcional):", e);
+    }
   }
   const profile = buildUserProfile(user, userRole, userPermissions);
 
@@ -130,6 +136,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         start: (key, opts) => m.startMirestModuleOnboarding(String(key), opts),
         list: m.getModuleOnboardingKeys,
       };
+      if (pageType === "module" && user) {
+        const modKey = (document.body.dataset.moduleKey || activeKey || "").trim();
+        void import("./mirest-tour-policy.js")
+          .then((pol) => {
+            if (!modKey || !pol.isMirestModuleTourEnabled(modKey)) return;
+            if (!m.getModuleOnboardingKeys().includes(modKey)) return;
+            m.startMirestModuleOnboarding(modKey, {});
+          })
+          .catch(() => null);
+      }
     })
     .catch(() => null);
 
@@ -206,6 +222,12 @@ function setupLogoutBtn(rootPath) {
   const loginHref = resolveLoginHref(rootPath);
 
   const signOutAndGoLogin = async () => {
+    try {
+      const m = await import("./mirest-presence-client.js");
+      await m.stopMirestPresence();
+    } catch {
+      /* */
+    }
     clearTenantIdCache();
     await supabase.auth.signOut();
     window.location.href = loginHref;

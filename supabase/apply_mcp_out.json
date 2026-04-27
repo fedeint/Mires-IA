@@ -1,0 +1,1 @@
+{"ok":true,"name":"usuario_presencia_sesiones","qLen":14478,"head":"-- Presencia en tiempo real: sesiones (histórico) + fila actual por usuario.\n-- Canales Realtime: cliente usa `channel('mirest-presence-tenant-'+uuid)` con Presence;\n--   esta migración además publica"}

@@ -19,6 +19,7 @@ import { setMirestPwaOnboardingCompletado } from '../../core/pwa-user-metadata.j
 
 import { getTurnStats } from '../../core/app-state.js';
 import { escapeHtml, formatCurrency } from '../../core/ui-helpers.js';
+import { isMirestModuleTourEnabled } from '../../../../../scripts/mirest-tour-policy.js';
 
 const PRE_PAY_REFERENCE = {
   dailySalary: 45,
@@ -824,11 +825,19 @@ function _getTurnLabel(hour) {
  * Punto de entrada. Llama a los 3 flujos en orden correcto.
  */
 export function initOnboarding() {
+  if (!isMirestModuleTourEnabled('pedidos')) {
+    return;
+  }
   if (!hasCompletedOnboardingPre()) {
     initOnboardingPRE();
     return;
   }
-
+  if (!hasSeenOnboardingPro()) {
+    setTimeout(() => {
+      void initOnboardingPRO();
+    }, 450);
+    return;
+  }
   initOnboardingPOST();
 }
 

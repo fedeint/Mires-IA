@@ -668,6 +668,34 @@
                   </div>
                 </div>
                 <div class="cfg-card" style="margin-top:1rem">
+                  <h3 class="cfg-card-title">Tutoriales al abrir módulo (PWA y shell)</h3>
+                  <p class="cfg-card-description">
+                    Desde aquí el administrador o superadministrador decide si los recorridos (spotlight, verificación en
+                    nube, PWA Pedidos) se ofrecen automáticamente. Los cambios se guardan con el botón inferior; se
+                    publican a Supabase (mirest_shell_v1) y al caché de todos los kioscos que compartan el mismo local.
+                  </p>
+                  <label
+                    for="tourModulosHabilitado"
+                    style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15px;font-weight:600"
+                  >
+                    <input type="checkbox" id="tourModulosHabilitado" style="width:20px;height:20px" />
+                    Habilitar tutoriales automáticos (maestro)
+                  </label>
+                  <p class="cfg-card-description" style="margin-top:12px;margin-bottom:8px">
+                    Por módulo (al desmarcar, ese tour no se muestra nunca hasta que vuelvas a activarlo y guardes):
+                  </p>
+                  <div id="tourPerModuloContainer" class="tour-per-mod-list"></div>
+                  <div style="margin-top:16px">
+                    <button
+                      type="button"
+                      class="cfg-btn-save"
+                      id="btnSaveToursInteractivos"
+                    >
+                      <i data-lucide="save"></i> Guardar ajustes de tutoriales
+                    </button>
+                  </div>
+                </div>
+                <div class="cfg-card" style="margin-top:1rem">
                   <h3 class="cfg-card-title">Tour interactivo (nuevo) — con verificación en base</h3>
                   <p class="cfg-card-description">
                     Mismo estilo de spotlight que Pedidos: pasos, acción requerida y comprobación automática de datos en Supabase (mientras tengas sesión).
