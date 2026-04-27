@@ -6,10 +6,11 @@ import { getVerifyHandler, MIREST_MODULE_ONBOARDING, createMirestOnboardingConte
 /**
  * @typedef {object} MirestOnboardingContext
  * @property {import('@supabase/supabase-js').SupabaseClient} supabase
- * @property {string} tenantId
+ * @property {string | null} tenantId
  * @property {string | null} restaurantId
  * @property {import('@supabase/auth-js').User} user
  * @property {Record<string, unknown> | null} profile
+ * @property {boolean} [guiaSinTenant] — sin `tenant` en nube: tour visible, comprobación remota desactivada
  */
 
 const POLL_MS = 4000;
@@ -46,11 +47,7 @@ export class MirestModuleOnboardingRunner {
     }
     this.ctx = await createMirestOnboardingContext();
     if (!this.ctx) {
-      window.alert(
-        "No se pudo preparar el tour: hace falta un tenant vinculado a tu usuario. " +
-          "Debe existir una fila con tenant_id en public.usuarios o public.user_profiles. " +
-          "Si ya iniciaste sesión, revisa en Accesos/Supabase que tu perfil tenga local asignado o políticas RLS.",
-      );
+      window.alert("Inicia sesión con tu cuenta (Auth) para abrir el tour de este módulo.");
       return;
     }
     this._buildOverlay();
@@ -76,6 +73,7 @@ export class MirestModuleOnboardingRunner {
         </div>
         <p id="mirestModObDesc" style="margin:10px 0 6px;font-size:14px;line-height:1.45;color:var(--color-text)"></p>
         <p id="mirestModObAction" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--color-accent)"></p>
+        <p id="mirestModObGuiaAviso" style="display:none;font-size:12px;line-height:1.4;padding:8px 10px;border-radius:8px;border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.12);color:var(--color-text);margin:0 0 10px"></p>
         <div class="mirest-mod-onb-cond" style="font-size:12px;padding:8px 10px;border-radius:8px;background:var(--color-surface-muted);color:var(--color-text-muted);margin-bottom:10px">
           <strong style="color:var(--color-text)">Completado cuando:</strong>
           <span id="mirestModObWhen"></span>
@@ -92,6 +90,14 @@ export class MirestModuleOnboardingRunner {
     `;
     document.body.appendChild(this.overlay);
 
+    const guiaAviso = document.getElementById("mirestModObGuiaAviso");
+    if (guiaAviso && this.ctx?.guiaSinTenant) {
+      guiaAviso.style.display = "block";
+      guiaAviso.textContent =
+        "Cuenta sin local (tenant) asignado aún. Estás en modo guía: puedes leer los pasos y el spotlight; " +
+        "no se comprobarán reglas en la base hasta que tu usuario tenga `tenant_id` (Accesos / public.usuarios o public.user_profiles). " +
+        "Esto es habitual en superadmin sin fila, o con políticas RLS estrictas.";
+    }
     document.getElementById("mirestModObModLabel").textContent = this.def.label;
     document.getElementById("mirestModObSkip").onclick = () => this.finish(false);
     document.getElementById("mirestModObNext").onclick = () => {
@@ -171,9 +177,12 @@ export class MirestModuleOnboardingRunner {
     const step = this._currentStep();
     const st = document.getElementById("mirestModObState");
     if (!this.ctx) return;
+    const guiaSolo = this.ctx.guiaSinTenant === true;
     const fn = step?.verifyId ? getVerifyHandler(step.verifyId) : null;
     let ok = false;
-    if (fn) {
+    if (guiaSolo) {
+      ok = true;
+    } else if (fn) {
       try {
         ok = Boolean(await fn(this.ctx));
       } catch (e) {
@@ -185,7 +194,9 @@ export class MirestModuleOnboardingRunner {
     }
     this._lastOk = ok;
     if (st) {
-      st.textContent = ok
+      st.textContent = guiaSolo
+        ? "Modo guía sin `tenant` en la base: puedes continuar. Cuando tengas local (tenant) vinculado, las comprobaciones en Supabase volverán a aplicarse."
+        : ok
         ? "Condición de este paso: cumplida. Puedes avanzar."
         : "Aún no se cumple la condición. Guarda en el sistema o completa el dato, luego vuelve a verificar.";
       st.style.color = ok ? "var(--color-success, #16a34a)" : "var(--color-text-muted)";

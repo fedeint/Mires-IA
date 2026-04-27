@@ -5,6 +5,7 @@
 import { supabase } from "./supabase.js";
 import { loadMirestUserContext } from "./mirest-user-context.js";
 import { MIREST_SHELL_CONFIG_KEY, resolveDefaultRestaurantId } from "./mirest-app-config.js";
+import { isAccesosManagerRole } from "./navigation.js";
 
 /**
  * Resuelve tenant como el resto del ecosistema: `usuarios` (preferido) y, si no hay
@@ -42,8 +43,51 @@ export async function createMirestOnboardingContext() {
       profile = { ...(profile && typeof profile === "object" ? profile : {}), ...up, tenant_id: up.tenant_id };
     }
   }
+
+  /** @param {import('@supabase/auth-js').User} u */
+  function tenantIdFromMetadata(u) {
+    const am = u.app_metadata && typeof u.app_metadata === "object" ? u.app_metadata : {};
+    const um = u.user_metadata && typeof u.user_metadata === "object" ? u.user_metadata : {};
+    const v = am.tenant_id ?? am.tenantId ?? am.tid ?? um.tenant_id ?? um.tenantId ?? um.tid;
+    return v != null && String(v).trim() !== "" ? String(v) : "";
+  }
   if (!tid) {
-    return null;
+    const fromMeta = tenantIdFromMetadata(user);
+    if (fromMeta) tid = fromMeta;
+  }
+
+  /** superadmin / admin: a veces operan sin fila con tenant en perfiles, pero con acceso a la plataforma.
+   * Usamos el primer tenant accesible por RLS para verificación (no sustituye asignar local en producción). */
+  if (!tid) {
+    const role = (ctxM.shellRole || "demo").toLowerCase();
+    if (isAccesosManagerRole(role)) {
+      const { data: t0, error: tErr } = await supabase
+        .from("tenants")
+        .select("id")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (tErr) {
+        console.warn("[onb] tenants (rol administrativo):", tErr);
+      }
+      if (t0?.id != null) {
+        tid = String(t0.id);
+        const base = profile && typeof profile === "object" ? { ...profile } : {};
+        profile = { ...base, tenant_id: t0.id };
+      }
+    }
+  }
+
+  /** Sesión ok pero imposible resolver local: RLS, perfil inexistente o aún no importado. El tour abre en modo “solo guía” (verificación nube desactivada). */
+  if (!tid) {
+    return {
+      supabase,
+      tenantId: null,
+      restaurantId: null,
+      user,
+      profile: profile && typeof profile === "object" ? profile : null,
+      guiaSinTenant: true,
+    };
   }
   const restaurantId = await resolveDefaultRestaurantId(
     supabase,
@@ -56,6 +100,7 @@ export async function createMirestOnboardingContext() {
     restaurantId: restaurantId ? String(restaurantId) : null,
     user,
     profile: profile && typeof profile === "object" ? profile : null,
+    guiaSinTenant: false,
   };
 }
 
