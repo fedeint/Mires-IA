@@ -86,15 +86,17 @@ function injectBottomNav() {
   function syncBottomNavActive() {
     const mode = document.body.dataset.mode || 'salon';
     const moduleId = document.body.dataset.module || 'pedidos';
+    const pedSec = document.body.dataset.pedidosSection || '';
+    const opsActive = moduleId === 'pedidos' && pedSec === 'operacion';
     nav.querySelectorAll('.bottom-nav__item[data-set-mode]').forEach(btn => {
-      btn.classList.toggle('is-active', moduleId === 'pedidos' && btn.dataset.setMode === mode);
+      btn.classList.toggle('is-active', opsActive && btn.dataset.setMode === mode);
     });
   }
 
   // Observer para cuando cambia data-mode/data-module en body
   new MutationObserver(syncBottomNavActive).observe(document.body, {
     attributes: true,
-    attributeFilter: ['data-mode', 'data-module'],
+    attributeFilter: ['data-mode', 'data-module', 'data-pedidos-section'],
   });
 
   syncBottomNavActive();
@@ -126,14 +128,16 @@ function injectPWAModeChips() {
 
   function syncChips() {
     const mode = document.body.dataset.mode || 'salon';
+    const pedSec = document.body.dataset.pedidosSection || '';
+    const ops = (document.body.dataset.module || 'pedidos') === 'pedidos' && pedSec === 'operacion';
     chips.querySelectorAll('.chip[data-set-mode]').forEach(c => {
-      c.classList.toggle('is-active', c.dataset.setMode === mode);
+      c.classList.toggle('is-active', ops && c.dataset.setMode === mode);
     });
   }
 
   new MutationObserver(syncChips).observe(document.body, {
     attributes: true,
-    attributeFilter: ['data-mode'],
+    attributeFilter: ['data-mode', 'data-module', 'data-pedidos-section'],
   });
 
   syncChips();

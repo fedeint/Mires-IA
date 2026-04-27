@@ -12,11 +12,15 @@ export function renderDashboardHome(summary) {
         ${summary.pendingCards
           .map(
             (card) => `
-              <article class="dashboard-home-card app-surface">
+              <button
+                type="button"
+                class="dashboard-home-card app-surface dashboard-home-card--action"
+                data-jump-ops="${card.jumpMode || 'salon'}"
+              >
                 <strong>${card.label}</strong>
                 <p>${card.helper}</p>
                 <span>${card.cta}</span>
-              </article>
+              </button>
             `,
           )
           .join('')}

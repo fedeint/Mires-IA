@@ -4,6 +4,8 @@
  */
 import { renderSidebar, resolveUserRole, resolveUserPermissions } from '../../../../scripts/navigation.js';
 import { getCurrentUser, supabase } from '../../../../scripts/supabase.js';
+import { getState, subscribe } from './app-state.js';
+import { renderDashboardNav } from '../modules/dashboard/index.js';
 
 function getRootPath() {
   return (document.body?.dataset?.rootPath || './').replace(/\/+$/, '');
@@ -83,4 +85,19 @@ export async function initGlobalAppShell() {
   wireLogout();
   initResponsiveNav();
   window.lucide?.createIcons?.();
+
+  const dashHost = document.getElementById('pedidosDashboardNavHost');
+  if (dashHost) {
+    const paintPedidosNav = () => {
+      const state = getState();
+      const isPed = state.activeModule === 'pedidos';
+      dashHost.innerHTML = isPed ? renderDashboardNav({ state }) : '';
+      dashHost.toggleAttribute('hidden', !isPed);
+      window.lucide?.createIcons?.();
+    };
+    paintPedidosNav();
+    subscribe('activeModule', paintPedidosNav);
+    subscribe('dashboardSection', paintPedidosNav);
+    globalThis.addEventListener('mirest:session-restore', paintPedidosNav);
+  }
 }

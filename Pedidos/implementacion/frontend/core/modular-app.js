@@ -60,6 +60,7 @@ import { renderAlmacenModule } from '../modules/almacen/index.js';
 import { renderSalonModule } from '../modules/pedidos/salon/index.js';
 import { renderDeliveryModule } from '../modules/pedidos/delivery/index.js';
 import { renderTakeawayModule } from '../modules/pedidos/takeaway/index.js';
+import { renderDashboardContent } from '../modules/dashboard/index.js';
 
 const THEME_KEYS = ['mirest_theme', 'mirest-theme'];
 
@@ -117,6 +118,7 @@ function cacheRefs() {
     managementPanel: document.getElementById('managementPanel'),
     workspaceLayout: document.getElementById('workspaceLayout'),
     userChip: document.getElementById('userChip'),
+    pedidosHubNav: document.getElementById('pedidosHubNav'),
   };
 }
 
@@ -329,6 +331,34 @@ function openLogoutSessionGuide() {
   });
 
   syncConfirmState();
+}
+
+function renderPedidosHubRow(state) {
+  if (state.activeModule !== 'pedidos') return '';
+  const sec = state.dashboardSection;
+  return `
+    <div class="pedidos-hub" role="tablist" aria-label="Vista dentro de Pedidos">
+      <button type="button" class="pedidos-hub__tab ${sec === 'overview' ? 'is-active' : ''}" role="tab" aria-selected="${String(sec === 'overview')}" data-dashboard-section="overview">Resumen global</button>
+      <button type="button" class="pedidos-hub__tab ${sec === 'operacion' ? 'is-active' : ''}" role="tab" aria-selected="${String(sec === 'operacion')}" data-dashboard-section="operacion">Operación (Salón · Delivery · Recojo)</button>
+    </div>
+  `;
+}
+
+function renderPedidosOverviewHero(stats) {
+  const m = MODULE_META.pedidos;
+  return `
+    <div class="mode-hero mode-hero--overview">
+      <div>
+        <p class="eyebrow">${escapeHtml(m.eyebrow)}</p>
+        <h2>Resumen global de operación</h2>
+        <p>${escapeHtml(m.heroCopy)}</p>
+      </div>
+      <div class="mode-hero__pills">
+        <span class="mode-pill">Mesas: ${stats.ocupadas} ocup. · ${stats.libres} libre(s)</span>
+        <span class="mode-pill">Delivery: ${stats.dlPending} · Recojo: ${stats.twPending}</span>
+      </div>
+    </div>
+  `;
 }
 
 function renderPwaModuleStrip(activeModule) {
@@ -557,6 +587,52 @@ function renderCurrentMode() {
     };
   }
 
+  if (state.activeModule === 'pedidos' && state.dashboardSection === 'overview') {
+    return {
+      toolbar: '',
+      content: renderDashboardContent({ state, stats, refData }),
+      panel: '',
+      singleColumn: true,
+      hideHero: false,
+      hideSummary: true,
+      modeHeroOverride: renderPedidosOverviewHero(stats),
+      workspaceHeader: `
+    <div class="workspace-heading">
+      <h3>Resumen y atajos de turno</h3>
+      <p>Entra a cada submódulo o revisa cifras del día</p>
+    </div>
+    <div class="workspace-heading__actions">
+      <button type="button" class="btn btn--primary btn--sm" data-dashboard-section="operacion">Abrir operación (mesas, delivery, recojo)</button>
+    </div>`,
+    };
+  }
+
+  if (state.activeModule === 'pedidos' && state.dashboardSection === 'operacion' && state.mode === 'delivery') {
+    return renderDeliveryModule({
+      state,
+      selectedOrder: selectedDeliveryOrder,
+      refData,
+    });
+  }
+
+  if (state.activeModule === 'pedidos' && state.dashboardSection === 'operacion' && state.mode === 'takeaway') {
+    return renderTakeawayModule({
+      state,
+      selectedOrder: selectedTakeawayOrder,
+      refData,
+    });
+  }
+
+  if (state.activeModule === 'pedidos' && state.dashboardSection === 'operacion' && state.mode === 'salon') {
+    return renderSalonModule({
+      state,
+      stats,
+      tables: filteredTables,
+      selectedTable,
+      refData,
+    });
+  }
+
   if (state.mode === 'delivery') {
     return renderDeliveryModule({
       state,
@@ -582,13 +658,24 @@ function renderCurrentMode() {
   });
 }
 
+function resolveTopbarMeta(s) {
+  if (s.activeModule === 'pedidos' && s.dashboardSection === 'overview') {
+    return { ...MODULE_META.pedidos, title: 'Resumen global', heroTitle: 'Resumen global' };
+  }
+  if (s.activeModule === 'pedidos' && s.dashboardSection === 'operacion') {
+    return MODE_META[s.mode] || MODE_META.salon;
+  }
+  if (s.activeModule === 'pedidos') {
+    return MODE_META[s.mode] || MODE_META.salon;
+  }
+  return MODULE_META[s.activeModule] || MODULE_META.pedidos;
+}
+
 function renderApp() {
   ensureSafeNavigationState();
   let state = getState();
   let stats = getTurnStats();
-  let meta = state.activeModule === 'pedidos'
-    ? (MODE_META[state.mode] || MODE_META.salon)
-    : (MODULE_META[state.activeModule] || MODULE_META.pedidos);
+  let meta = resolveTopbarMeta(state);
   let currentView;
   try {
     currentView = renderCurrentMode();
@@ -599,36 +686,53 @@ function renderApp() {
     currentView = renderFallbackWorkspace(error);
     state = getState();
     stats = getTurnStats();
-    meta = state.activeModule === 'pedidos'
-      ? (MODE_META[state.mode] || MODE_META.salon)
-      : (MODULE_META[state.activeModule] || MODULE_META.pedidos);
+    meta = resolveTopbarMeta(state);
   }
   if (!currentView || typeof currentView !== 'object') {
     currentView = renderFallbackWorkspace(new Error('Vista inválida'));
     state = getState();
     stats = getTurnStats();
-    meta = state.activeModule === 'pedidos'
-      ? (MODE_META[state.mode] || MODE_META.salon)
-      : (MODULE_META[state.activeModule] || MODULE_META.pedidos);
+    meta = resolveTopbarMeta(state);
   }
   const shouldHideModeHero = Boolean(currentView.hideHero);
 
   refs.body.dataset.mode = state.mode;
   refs.body.dataset.module = state.activeModule;
+  refs.body.dataset.pedidosSection = state.activeModule === 'pedidos' ? (state.dashboardSection || '') : '';
+  refs.appShell.dataset.module = state.activeModule;
   refs.appShell.dataset.mode = state.mode;
+  refs.appShell.dataset.pedidosSection = state.activeModule === 'pedidos' ? (state.dashboardSection || '') : '';
   refs.workspaceLayout.dataset.mode = state.mode;
   refs.topbarEyebrow.textContent = meta.eyebrow;
   refs.topbarTitle.textContent = meta.title || meta.heroTitle;
-  if (refs.modeSwitcher) refs.modeSwitcher.innerHTML = state.activeModule === 'pedidos' ? renderModeSwitcher(state.mode) : '';
+  const showPedidosModeNav = state.activeModule === 'pedidos' && state.dashboardSection === 'operacion';
+  if (refs.modeSwitcher) {
+    refs.modeSwitcher.innerHTML = showPedidosModeNav ? renderModeSwitcher(state.mode) : '';
+  }
   const pwaStrip = document.getElementById("pwaModuleStrip");
   if (pwaStrip) {
     const { html, show } = renderPwaModuleStrip(state.activeModule);
     pwaStrip.innerHTML = html;
     pwaStrip.toggleAttribute("hidden", !show);
   }
+  if (refs.pedidosHubNav) {
+    if (state.activeModule === 'pedidos') {
+      refs.pedidosHubNav.innerHTML = renderPedidosHubRow(state);
+    } else {
+      refs.pedidosHubNav.innerHTML = '';
+    }
+    refs.pedidosHubNav.toggleAttribute('hidden', state.activeModule !== 'pedidos');
+  }
   refs.modeHero.style.display = shouldHideModeHero ? 'none' : '';
   refs.summaryStats.style.display = currentView.hideSummary ? 'none' : '';
-  refs.modeHero.innerHTML = shouldHideModeHero ? '' : renderHero(state.mode, stats);
+  if (shouldHideModeHero) {
+    refs.modeHero.innerHTML = '';
+  } else {
+    const hero = currentView.modeHeroOverride != null
+      ? currentView.modeHeroOverride
+      : renderHero(state.mode, stats);
+    refs.modeHero.innerHTML = hero;
+  }
   refs.summaryStats.innerHTML = currentView.hideSummary ? '' : renderSummary(stats, state);
   refs.workspaceHeader.innerHTML = currentView.workspaceHeader || renderWorkspaceHeader(state.mode);
   refs.workspaceToolbar.innerHTML = currentView.toolbar;
@@ -652,20 +756,25 @@ function renderApp() {
 
 function handleModeChange(mode) {
   setMode(mode);
-  setActiveModule('pedidos');
+  setDashboardSection('operacion');
+  setActiveModule('pedidos', { preserveDashboard: true });
   persistSession();
   renderApp();
   closeSidebar();
 }
 
 function openDashboardSection(section) {
-  setDashboardSection(section);
-  if (section === 'overview') {
-    setActiveModule('pedidos');
-  } else if (section === 'factura') {
+  if (section === 'factura') {
+    setDashboardSection('factura');
     setActiveModule('facturas');
   } else if (section === 'configuracion') {
+    setDashboardSection('configuracion');
     setActiveModule('configuracion');
+  } else {
+    setDashboardSection(section);
+    if (section === 'overview' || section === 'operacion') {
+      setActiveModule('pedidos', { preserveDashboard: true });
+    }
   }
   closeSidebar();
   persistSession();
@@ -746,6 +855,20 @@ function bindEvents() {
   document.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
+
+    const jumpCard = target.closest('[data-jump-ops]');
+    if (jumpCard instanceof HTMLElement) {
+      const nextMode = /** @type {any} */ (jumpCard).dataset?.jumpOps;
+      if (nextMode === 'salon' || nextMode === 'delivery' || nextMode === 'takeaway') {
+        setMode(nextMode);
+        setDashboardSection('operacion');
+        setActiveModule('pedidos', { preserveDashboard: true });
+        persistSession();
+        renderApp();
+        closeSidebar();
+        return;
+      }
+    }
 
     const modeButton = target.closest('[data-set-mode]');
     if (modeButton instanceof HTMLElement) {
@@ -1070,7 +1193,13 @@ function applyUrlModuleIntent() {
       return;
     }
     const h = (u.hash || "").toLowerCase();
-    if (h === "#pedidos" || h === "#operacion") {
+    if (h === "#operacion") {
+      setDashboardSection("operacion");
+      setActiveModule("pedidos", { preserveDashboard: true });
+      window.history.replaceState(null, "", `${u.pathname}${u.search || ""}`);
+      return;
+    }
+    if (h === "#pedidos") {
       setActiveModule("pedidos");
       window.history.replaceState(null, "", `${u.pathname}${u.search || ""}`);
     }

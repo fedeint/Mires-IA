@@ -50,7 +50,7 @@ const VALID_APP_MODES = ['salon', 'delivery', 'takeaway'];
 const SAFE_DEFAULT_MODE = 'salon';
 const SAFE_OPERATIONAL_MODULE = 'pedidos';
 const SAFE_DASHBOARD_SECTION = 'overview';
-const VALID_DASHBOARD_SECTIONS = ['overview', 'factura', 'configuracion'];
+const VALID_DASHBOARD_SECTIONS = ['overview', 'operacion', 'factura', 'configuracion'];
 
 const ROLE_MODULES = {
   /** Alineado con el shell: admin / superadmin → PWA con stack completo. */
@@ -499,7 +499,7 @@ export function rememberOperationalContext(patch = {}) {
 export function returnToLastOperationalContext() {
   const context = normalizeOperationalContext(_state.lastOperationalContext, _state.mode);
   _state.activeModule = SAFE_OPERATIONAL_MODULE;
-  _state.dashboardSection = SAFE_DASHBOARD_SECTION;
+  _state.dashboardSection = 'operacion';
   setMode(context.mode);
   rememberOperationalContext(context);
   emit('activeModule');
@@ -765,14 +765,23 @@ export function setUserName(name) {
   persistSession();
 }
 
-export function setActiveModule(moduleId) {
+/**
+ * @param {string} moduleId
+ * @param {{ preserveDashboard?: boolean }} [options] Al entrar a Pedidos desde otro módulo, si `true` no fuerza
+ *  la sección a "Resumen" (mantiene overview u operación ya fijada por setDashboardSection).
+ */
+export function setActiveModule(moduleId, options = {}) {
+  const { preserveDashboard = false } = options;
   if (_state.activeModule === SAFE_OPERATIONAL_MODULE) {
     rememberOperationalContext({ mode: _state.mode });
   }
+  const previousModule = _state.activeModule;
   const safeModule = normalizeActiveModule(moduleId, _state.userRole);
   _state.activeModule = safeModule;
   if (safeModule === SAFE_OPERATIONAL_MODULE) {
-    _state.dashboardSection = SAFE_DASHBOARD_SECTION;
+    if (previousModule !== SAFE_OPERATIONAL_MODULE && !preserveDashboard) {
+      _state.dashboardSection = SAFE_DASHBOARD_SECTION;
+    }
     rememberOperationalContext({ mode: _state.mode });
     emit('dashboardSection');
   }
@@ -1151,6 +1160,9 @@ export function restoreSession() {
       _state.lastOperationalContext = normalizeOperationalContext(snap.lastOperationalContext, _state.mode);
     }
     console.info('[state] Sesión restaurada:', snap.mode, snap.activeZone);
+    if (typeof globalThis !== 'undefined' && globalThis.dispatchEvent) {
+      globalThis.dispatchEvent(new CustomEvent('mirest:session-restore'));
+    }
   } catch {
     console.warn('[state] No se pudo restaurar la sesión.');
   }

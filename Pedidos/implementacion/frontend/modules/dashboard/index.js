@@ -21,16 +21,19 @@ export function buildDashboardSummary({ state, stats }) {
         label: `${occupiedTables} mesas activas`,
         helper: 'Revisa atención en salón.',
         cta: 'Abrir salón',
+        jumpMode: 'salon',
       },
       {
         label: `${deliveryPending} delivery pendientes`,
         helper: 'Monitorea despachos.',
         cta: 'Abrir delivery',
+        jumpMode: 'delivery',
       },
       {
         label: `${takeawayPending} recojos activos`,
         helper: 'Controla salidas.',
         cta: 'Abrir para llevar',
+        jumpMode: 'takeaway',
       },
     ],
     quickStats: {
@@ -47,16 +50,27 @@ export function renderDashboardPanel(payload) {
 }
 
 export function renderDashboardNav({ state }) {
-  const items = [
-    { id: 'overview', label: 'Resumen', helper: 'Operación', kind: 'section', target: 'overview' },
+  if (state.activeModule !== 'pedidos') {
+    return '';
+  }
+
+  const baseSections = [
+    { id: 'overview', label: 'Resumen global', helper: 'Cifras y atajos', kind: 'section', target: 'overview' },
+    { id: 'operacion', label: 'Operación', helper: 'Salón · Delivery · Recojo', kind: 'section', target: 'operacion' },
+  ];
+  const moduleItems = [
     { id: 'factura', label: 'Facturación', helper: `${state.invoiceHistory.length} emitidas`, kind: 'module', target: 'facturas' },
     { id: 'configuracion', label: 'Configuración', helper: 'Impresoras y sesión', kind: 'module', target: 'configuracion' },
-  ].filter((item) => item.kind === 'section' || state.visibleModules.includes(item.target));
+  ];
+  const items = [
+    ...baseSections,
+    ...moduleItems.filter((item) => state.visibleModules.includes(item.target)),
+  ];
 
   return `
-    <div class="sidebar__group dashboard-nav-shell">
-      <p class="sidebar__label">Dashboard</p>
-      <nav class="sidebar__nav dashboard-nav-list">
+    <div class="sidebar__group dashboard-nav-shell" id="pedidosInModuleNav">
+      <p class="sidebar__label">Pedidos — vistas</p>
+      <nav class="sidebar__nav dashboard-nav-list" aria-label="Resumen y operación">
         ${items.map((item) => {
           const isActive = item.kind === 'section'
             ? state.activeModule === 'pedidos' && state.dashboardSection === item.target
@@ -70,7 +84,7 @@ export function renderDashboardNav({ state }) {
               ? `data-dashboard-section="${escapeHtml(item.target)}"`
               : `data-open-module="${escapeHtml(item.target)}"`}
           >
-            <div class="nav-icon" aria-hidden="true">${item.id === 'overview' ? 'OV' : item.id === 'factura' ? 'FC' : 'CF'}</div>
+            <div class="nav-icon" aria-hidden="true">${item.id === 'overview' ? 'RS' : item.id === 'operacion' ? 'OP' : item.id === 'factura' ? 'FC' : 'CF'}</div>
             <span>
               <strong>${escapeHtml(item.label)}</strong>
               <small>${escapeHtml(item.helper)}</small>
@@ -242,6 +256,14 @@ export function renderDashboardContent({ state, stats, refData }) {
 
   if (state.activeModule === 'configuracion' || state.dashboardSection === 'configuracion') {
     return renderSettingsSection(state);
+  }
+
+  if (state.activeModule === 'pedidos' && state.dashboardSection === 'operacion') {
+    return '';
+  }
+
+  if (state.activeModule === 'pedidos' && state.dashboardSection === 'overview') {
+    return renderDashboardPanel({ state, stats });
   }
 
   return renderDashboardPanel({ state, stats });

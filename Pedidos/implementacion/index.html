@@ -34,7 +34,7 @@
 
   <!-- Design System — raíz (shell global) → módulo Pedidos → legacy → patch -->
   <script>
-    window.__MIREST_ASSET_VERSION__ = 'pedidos-boot-shell-first-20260527';
+    window.__MIREST_ASSET_VERSION__ = 'pedidos-hub-operacion-20260527';
     window.__MIREST_DEV_BUST__ = ['localhost', '127.0.0.1'].includes(window.location.hostname)
       ? `?v=${window.__MIREST_ASSET_VERSION__}`
       : '';
@@ -94,6 +94,7 @@
           <span>Dashboard administrativo base</span>
         </div>
       </div>
+      <div id="pedidosDashboardNavHost" class="pedidos-dashboard-nav-host" hidden></div>
       <nav id="sidebarNav" class="sidebar__nav" aria-label="Menú principal y módulos"></nav>
     </aside>
 
@@ -144,6 +145,8 @@
       <main class="page-content" id="pageContent">
         <!-- Módulos PWA (Pedidos, Caja, Menú…) — inyecta modular-app.js -->
         <div id="pwaModuleStrip" class="pwa-module-strip" hidden aria-label="Cambiar módulo operativo"></div>
+
+        <div id="pedidosHubNav" class="pedidos-hub-wrap" hidden aria-label="Vistas del módulo Pedidos"></div>
 
         <!-- Hero del modo operativo -->
         <section id="modeHero" aria-label="Estado del área activa"></section>

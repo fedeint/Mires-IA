@@ -1898,3 +1898,72 @@ body.has-scrolled .topbar {
     padding-bottom: calc(80px + var(--app-safe-bottom)) !important;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Hub Pedidos: resumen global vs operación
+   ══════════════════════════════════════════════════════════════ */
+.pedidos-dashboard-nav-host {
+  padding: 0 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--app-color-border, #e5e7eb);
+}
+
+.pedidos-dashboard-nav-host:not([hidden]) + .sidebar__nav {
+  padding-top: 0.25rem;
+}
+
+.pedidos-hub-wrap:not([hidden]) {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.pedidos-hub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--app-color-surface-alt, #f4f4f5);
+  border: 1px solid var(--app-color-border, #e5e7eb);
+  border-radius: 12px;
+  align-items: center;
+}
+
+.pedidos-hub__tab {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-color-text, #1f2937);
+  cursor: pointer;
+  text-align: left;
+  flex: 1 1 140px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pedidos-hub__tab.is-active {
+  background: #fff;
+  border-color: var(--app-color-primary, #de5a25);
+  color: var(--app-color-control, #0f1220);
+  box-shadow: 0 1px 0 rgba(15, 25, 44, 0.04);
+}
+
+.pedidos-hub__tab:focus-visible {
+  outline: 2px solid var(--app-color-primary, #de5a25);
+  outline-offset: 2px;
+}
+
+.dashboard-home-card--action {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  border: 1px solid var(--app-color-border, #e5e7eb);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.dashboard-home-card--action:hover {
+  border-color: color-mix(in srgb, var(--app-color-primary, #de5a25) 45%, transparent);
+  box-shadow: 0 2px 12px rgba(15, 25, 44, 0.08);
+}
