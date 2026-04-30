@@ -1,0 +1,391 @@
+/* ─── Estilos específicos de Delivery Hub ─── */
+body {
+  font-family: var(--font-sans);
+}
+
+.delivery-hub-header {
+  display: flex;
+  justify-content: flex-end; /* Alinear a la derecha como en productos */
+  align-items: center;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
+}
+
+.delivery-hub-title {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.delivery-hub-title h2 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 800;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.delivery-hub-title p {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.search-container {
+  position: relative;
+  max-width: 320px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.search-container i, 
+.search-container svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-soft);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+/* ─── Kanban Board ─── */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-10); /* Mas espacio entre columnas */
+  margin-top: var(--space-6);
+}
+
+.kanban-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.kanban-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6); /* Espacio mayor entre tarjetas */
+}
+
+.kanban-col-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: var(--space-6); /* Mas espacio abajo del header */
+  border-bottom: 2px solid var(--color-border);
+}
+
+.kanban-col-header i {
+  width: 24px;
+  height: 24px;
+}
+
+.kanban-col-header h3 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+}
+
+.col-count {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+}
+
+/* Colores de las columnas */
+.col-header--pendiente i { color: var(--color-accent); }
+.col-header--pendiente .col-count { background: var(--color-accent); }
+
+.col-header--preparacion i { color: var(--color-info); }
+.col-header--preparacion .col-count { background: var(--color-info); }
+
+.col-header--listo i { color: var(--color-success); }
+.col-header--listo .col-count { background: var(--color-success); }
+
+/* ─── Delivery Card ─── */
+.delivery-card {
+  padding: var(--space-6); /* Mas padding interno */
+  display: grid;
+  gap: var(--space-4); /* Mas espacio entre elementos internos */
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; /* Para el detalle flotante */
+  font-family: var(--font-sans);
+}
+
+.delivery-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-accent);
+}
+
+.delivery-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: var(--font-display);
+}
+
+.channel-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10px; /* Mas compacto como en cocina */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+}
+
+.order-id {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-muted); /* Un poco mas suave */
+  flex: 1;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+}
+
+.delivery-card__body {
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+
+.customer-name {
+  font-family: var(--font-display);
+  font-size: 24px; /* Un poco mas grande para mayor jerarquia */
+  font-weight: 800;
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.delivery-card__body p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+
+/* ─── Items Summary Pill ─── */
+.items-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 4px 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  width: 100%;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+}
+
+.items-summary-pill:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.items-summary-pill i {
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent);
+}
+
+.expand-icon {
+  transition: transform 0.3s ease;
+}
+
+.delivery-card.is-expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+/* ─── Items Expanded List (Inside Card) ─── */
+.items-expanded-list {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(240, 124, 42, 0.05);
+  border-radius: var(--radius-md);
+  margin: 8px 0;
+  border: 1px solid var(--color-accent-soft);
+  animation: slide-down 0.3s ease-out;
+  font-family: var(--font-sans);
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.delivery-card.is-expanded .items-expanded-list {
+  display: flex;
+}
+
+.item-detail-row {
+  display: grid;
+  grid-template-columns: 35px 1fr auto;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  align-items: center;
+}
+
+.item-qty {
+  font-weight: 800;
+  color: var(--color-accent);
+  font-family: var(--font-display);
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-price {
+  font-weight: 700;
+  color: var(--color-text);
+  font-family: var(--font-display);
+}
+
+/* ─── Blinking Effect ─── */
+.status-ready-pulse {
+  animation: card-ready-blink 2s infinite;
+  border-color: var(--color-success) !important;
+}
+
+@keyframes card-ready-blink {
+  0%, 100% { border-color: var(--color-success); box-shadow: 0 0 0px var(--color-success-soft); }
+  50% { border-color: var(--color-accent); box-shadow: 0 0 15px var(--color-accent-soft); }
+}
+
+.delivery-card__body i {
+  width: 14px; height: 14px;
+  color: var(--color-text-soft);
+}
+
+.rider-info {
+  color: var(--color-accent) !important;
+  font-weight: 600;
+}
+
+.delivery-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-2);
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.connection-status {
+  font-size: 11px;
+  color: var(--color-text-soft);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.connection-status.connected i { color: var(--color-success); }
+
+.btn-action {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-accept {
+  background: var(--color-accent);
+  color: white;
+  box-shadow: 0 4px 12px var(--color-accent-soft);
+}
+
+.btn-ready {
+  background: var(--color-info);
+  color: white;
+  box-shadow: 0 4px 12px var(--color-info-soft);
+}
+
+.btn-collected {
+  background: var(--color-success);
+  color: white;
+  box-shadow: 0 4px 12px var(--color-success-soft);
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+@media (max-width: 1200px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
+}

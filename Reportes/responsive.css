@@ -1,0 +1,20 @@
+/* ── Media queries ── */
+
+@media (max-width: 640px) {
+    .rp-stats {
+        flex-direction: column;
+    }
+
+    .rp-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-filter-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .rp-filter-btn {
+        white-space: nowrap;
+    }
+}

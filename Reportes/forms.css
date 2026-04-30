@@ -1,0 +1,302 @@
+/* ── Formularios: inputs, selects, toggles, automatización ── */
+
+.rp-form-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.rp-form-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.rp-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.rp-form-group-full {
+    flex: 100%;
+}
+
+.rp-form-footer {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--rp-surface);
+    border-top: 1px solid var(--rp-border);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.rp-form-actions-left {
+    display: flex;
+    gap: 12px;
+}
+
+/* Label */
+.rp-label {
+    font-size: 13px;
+    color: var(--rp-text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rp-label i {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+}
+
+/* Input base */
+.rp-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--rp-border);
+    border-radius: 8px;
+    background: var(--rp-bg-light);
+    color: var(--rp-text-main);
+    font-size: 14px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.rp-input:focus {
+    outline: none;
+    border-color: var(--rp-primary);
+    background: var(--rp-surface);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+textarea.rp-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Select wrapper */
+.rp-input-select-wrap {
+    position: relative;
+}
+
+.rp-input-select-wrap select {
+    appearance: none;
+    cursor: pointer;
+}
+
+.rp-input-select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat center;
+    background-size: contain;
+    pointer-events: none;
+}
+
+/* Input con icono derecho */
+.rp-input-icon-wrap {
+    position: relative;
+}
+
+.rp-input-icon-wrap input {
+    padding-right: 40px;
+}
+
+.rp-input-icon-wrap i,
+.rp-input-icon-wrap svg {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+/* Textarea con iconos */
+.rp-textarea-container {
+    position: relative;
+}
+
+.rp-textarea-icons {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    gap: 12px;
+}
+
+.rp-textarea-icons button {
+    background: none;
+    border: none;
+    color: var(--rp-text-muted);
+    cursor: pointer;
+    padding: 2px;
+}
+
+.rp-textarea-icons button:hover {
+    color: var(--rp-text-main);
+}
+
+.rp-textarea-icons button i {
+    width: 18px;
+    height: 18px;
+}
+
+/* Toggles / Switches */
+.rp-toggles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.rp-toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 1px solid var(--rp-border);
+    border-radius: 8px;
+    background: var(--rp-surface);
+}
+
+.rp-toggle-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--rp-text-main);
+}
+
+.rp-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.rp-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.rp-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #cbd5e1;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.rp-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:checked+.rp-slider {
+    background-color: var(--rp-primary);
+}
+
+input:checked+.rp-slider:before {
+    transform: translateX(20px);
+}
+
+/* Automatización (acordeón) */
+.rp-automation {
+    border: 1px solid var(--rp-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.rp-automation-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--rp-bg-light);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--rp-text-main);
+}
+
+.rp-automation-header i {
+    width: 16px;
+    height: 16px;
+    color: var(--rp-text-muted);
+}
+
+.rp-automation-body {
+    padding: 20px 16px;
+    border-top: 1px solid var(--rp-border);
+    background: var(--rp-surface);
+}
+
+.rp-automation-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.rp-automation-row .rp-form-group {
+    min-width: 180px;
+}
+
+/* Campos en modal */
+.rp-field {
+    margin-bottom: 15px;
+}
+
+.rp-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--color-text-muted);
+}
+
+.rp-field input,
+.rp-field select,
+.rp-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 14px;
+    font-family: var(--rp-font-b);
+    transition: border-color .15s;
+}
+
+.rp-field input:focus,
+.rp-field textarea:focus {
+    outline: none;
+    border-color: var(--rp-orange);
+    box-shadow: 0 0 0 3px rgba(240, 124, 42, .15);
+}
+
+.rp-field textarea {
+    resize: vertical;
+    min-height: 72px;
+}

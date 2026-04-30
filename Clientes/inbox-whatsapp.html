@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <title>MiRest con IA | Inbox WhatsApp</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="crm-sidebar-demo.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="clientes">
+    <div class="app-shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy"><span class="brand-copy__eyebrow">MiRest</span><strong>MiRest con IA</strong><span>Dashboard administrativo</span></div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+      <button class="sidebar-backdrop" id="sidebarBackdrop"></button>
+
+      <div class="app-main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button class="icon-button topbar__menu-toggle" id="sidebarToggle"><i data-lucide="menu"></i></button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">CRM / Comunicación</span>
+              <h1 id="pageTitle">Inbox WhatsApp</h1>
+              <p id="pageSubtitle">Centro de atención en tiempo real. Gestiona mensajes, resuelve quejas y toma el control del Asistente IA.</p>
+            </div>
+          </div>
+        </header>
+
+        <main class="module-page" style="padding-top: 0;">
+          <div class="module-stack">
+            
+            <!-- INBOX LAYOUT (3 COLUMNAS) -->
+            <div class="inbox-container">
+              
+              <!-- 1. PANEL IZQUIERDO: LISTA Y FILTROS -->
+              <div class="inbox-sidebar">
+                <div class="inbox-header-filters">
+                  <div class="inbox-pills">
+                    <button class="inbox-pill active" data-filter="todos">Todos</button>
+                    <button class="inbox-pill" data-filter="cliente">Clientes</button>
+                    <button class="inbox-pill" data-filter="proveedor">Proveedores</button>
+                  </div>
+                  <div class="inbox-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="chatSearchInput" placeholder="Buscar nombre o mensaje...">
+                  </div>
+                </div>
+                <div class="chat-list" id="chatListContainer">
+                  <!-- Llenado por JS -->
+                </div>
+              </div>
+
+              <!-- 2. PANEL CENTRAL: CHAT ACTIVO -->
+              <div class="inbox-main" id="chatMainArea">
+                <!-- Cabecera de chat -->
+                <div class="chat-header" id="chatHeader"></div>
+                
+                <!-- Mensajes -->
+                <div class="chat-messages-area" id="chatMessages"></div>
+                
+                <!-- Input Area -->
+                <div class="chat-input-container">
+                  <button class="btn-chat-icon" title="Respuestas Rápidas"><i class="fa-solid fa-bolt"></i></button>
+                  <button class="btn-chat-icon" title="Adjuntar Documento"><i class="fa-solid fa-paperclip"></i></button>
+                  <div class="chat-input-wrapper"><input type="text" placeholder="Escribe un mensaje aquí..."></div>
+                  <button class="btn-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+              </div>
+
+              <!-- 3. PANEL DERECHO: MINI CRM CONTEXTUAL -->
+              <div class="inbox-context" id="chatContextPanel"></div>
+
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="../scripts/app.js"></script>
+    <script src="crm-components.js"></script>
+    <script src="crm-sidebar-demo.js"></script>
+    <script type="module" src="inbox-whatsapp.js"></script>
+    <script type="module" src="tour-interactivo.js"></script>
+  </body>
+</html>

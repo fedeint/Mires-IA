@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiRest con IA - Navegación CRM</title>
+  <link rel="stylesheet" href="crm-sidebar-demo.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- PANEL FLYOUT CRM -->
+    <div id="crm-flyout" class="flyout-hidden">
+      <header class="flyout-header">
+        <h2>CRM</h2>
+        <p>12 pantallas · Gestión integral</p>
+      </header>
+      
+      <div class="flyout-body">
+        <section class="flyout-section">
+          <h3 class="section-title">CLIENTES <span class="screen-count">(3 pantallas)</span></h3>
+          <ul class="section-links">
+            <li><a href="#">001 Lista de Clientes</a></li>
+            <li><a href="#">003 Lead Scoring RFM</a></li>
+            <li><a href="#">004 Tipo y Nurturing</a></li>
+          </ul>
+        </section>
+
+        <section class="flyout-section">
+          <h3 class="section-title">PROVEEDORES <span class="screen-count">(1 pantalla)</span></h3>
+          <ul class="section-links">
+            <li><a href="#">005 Lista Proveedores</a></li>
+          </ul>
+        </section>
+
+        <section class="flyout-section">
+          <h3 class="section-title">COMUNICACIÓN <span class="screen-count">(2 pantallas)</span></h3>
+          <ul class="section-links">
+            <li><a href="inbox-whatsapp.html">011 Inbox WhatsApp</a></li>
+            <li><a href="campanas.html">012 Campañas</a></li>
+          </ul>
+        </section>
+
+        <section class="flyout-section">
+          <h3 class="section-title">ANALYTICS <span class="screen-count">(1 pantalla)</span></h3>
+          <ul class="section-links">
+            <li><a href="dashboard-crm.html">014 Dashboard CRM</a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-workspace">
+      <h1>Bienvenido a MiRest</h1>
+      <p>Haz clic en "Clientes" en el menú lateral para abrir el panel CRM.</p>
+    </main>
+  </div>
+  <script src="crm-sidebar-demo.js"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" class="js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="/scripts/gtag-config.js?v=20260427-almacen"></script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Historial de almacén | MiRest con IA</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="/Pwa/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles/tokens.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/styles/base.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/styles/layout.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/styles/components.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/styles/dashboard.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/styles/premium-modules.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/styles/mobile.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/Almacen/almacen-submodules-theme.css?v=20260427-almacen" />
+    <link rel="stylesheet" href="/Almacen/almacen-sublayout.css?v=20260426-almacen-lucide" />
+    <link rel="stylesheet" href="/Almacen/6-historial-mejorado/styles-historial.css?v=20260427-almacen" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body
+    class="page-almacen-sub"
+    data-root-path="/"
+    data-page-type="module"
+    data-module-key="almacen"
+    data-sublabel="Historial de movimientos"
+    data-subheadline="Auditoría de entradas, salidas e ingresos al almacén"
+  >
+    <div class="app-shell">
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo</span>
+          </div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+      <button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Cerrar navegación lateral"></button>
+      <div class="app-main">
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button class="icon-button topbar__menu-toggle" id="sidebarToggle" type="button" aria-label="Abrir navegación lateral" aria-controls="appSidebar" aria-expanded="false">
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">Módulo</span>
+              <h1 id="pageTitle">Almacén</h1>
+              <p id="pageSubtitle">Historial</p>
+            </div>
+          </div>
+          <div class="topbar__actions">
+            <span class="chip chip--soft" id="pageContextChip">AL</span>
+            <div class="avatar" id="pageAvatar" aria-label="Almacén">AL</div>
+          </div>
+        </header>
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="/index.html" id="breadcrumbHome">Dashboard</a>
+            <span aria-hidden="true">/</span>
+            <a id="breadcrumbAlmacen" href="/Almacen/almacen.html">Almacén</a>
+            <span aria-hidden="true">/</span>
+            <span id="breadcrumbSubsection">Historial de movimientos</span>
+          </nav>
+          <div class="module-stack">
+            <div id="contenidoHistorial" class="almacen-subcontent container animate-fade-in" data-almacen-historial-root>
+        <nav class="modulo-nav almacen-subnav" aria-label="Secciones de almacén">
+            <a href="../1-inventario-mejorado/inventario.html"
+              ><i data-lucide="clipboard-list" aria-hidden="true"></i
+              ><span class="almacen-subnav__label">Inventario</span></a
+            >
+            <a href="../2-entrada-de-insumos-mejorado/entrada-de-insumos.html"
+              ><i data-lucide="package-plus" aria-hidden="true"></i
+              ><span class="almacen-subnav__label">Entrada</span></a
+            >
+            <a href="../3-salida-de-insumos-mejorado/salida.html"
+              ><i data-lucide="package-minus" aria-hidden="true"></i
+              ><span class="almacen-subnav__label">Salida</span></a
+            >
+            <a href="../4-que-comprar-mejorado/que-comprar.html"
+              ><i data-lucide="shopping-cart" aria-hidden="true"></i
+              ><span class="almacen-subnav__label">Qué Comprar</span></a
+            >
+            <a href="../5-proveedores-mejorado/proveedores.html"
+              ><i data-lucide="truck" aria-hidden="true"></i
+              ><span class="almacen-subnav__label">Proveedores</span></a
+            >
+            <a href="historial.html" class="active"
+              ><i data-lucide="history" aria-hidden="true"></i
+              ><span class="almacen-subnav__label">Historial</span></a
+            >
+        </nav>
+
+        <header>
+            <div>
+                <h1 style="color: var(--primary);">📜 Historial de Movimientos</h1>
+                <p style="color: var(--muted-foreground);">Registro centralizado de todas las operaciones</p>
+            </div>
+            <div id="fechaActual" class="date-badge"></div>
+        </header>
+
+        <!-- Filtros -->
+        <div class="card">
+            <div class="filtros-grid">
+                <div class="form-group">
+                    <label>Desde</label>
+                    <input type="date" id="filtroDesde">
+                </div>
+                <div class="form-group">
+                    <label>Hasta</label>
+                    <input type="date" id="filtroHasta">
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="filtroTipo">
+                        <option value="">Todos</option>
+                        <option value="original">Original</option>
+                        <option value="corregido">Corregido</option>
+                        <option value="no-valido">No Válido</option>
+                        <option value="nuevo-insumo">Nuevo Insumo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <select id="filtroUsuario">
+                        <option value="">Todos</option>
+                        <!-- Cargados por JS -->
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Buscar insumo</label>
+                    <input type="text" id="busquedaInsumo" placeholder="Nombre o código...">
+                </div>
+                <div class="flex-end" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                    <button id="btnLimpiar" class="btn btn-secondary">Limpiar</button>
+                    <button id="btnFiltrar" class="btn btn-primary">Filtrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen -->
+        <div class="summary">
+            <div class="summary-item">
+                <span class="summary-label">Registros Encontrados</span>
+                <span id="totalEncontrados" class="summary-value">0</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Monto Total Filtrado</span>
+                <span id="montoFiltrado" class="summary-value">S/ 0.00</span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="card">
+            <div class="table-container">
+                <table id="tablaHistorial">
+                    <thead>
+                        <tr>
+                            <th>Fecha/Hora</th>
+                            <th>ID / Ref</th>
+                            <th>Tipo</th>
+                            <th>Movimiento</th>
+                            <th>Detalle de Insumos</th>
+                            <th>Proveedor</th>
+                            <th>Monto</th>
+                            <th>Usuario</th>
+                            <th>Adjuntos / Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaHistorial">
+                        <!-- Filas cargadas por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            </div>
+          </div>
+          <footer class="page-footer">
+            MiRest con IA · <span id="currentYear">2026</span> · Almacén
+          </footer>
+        </main>
+      </div>
+    </div>
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+    <script type="module" src="/scripts/app.js?v=20260427-almacen"></script>
+    <script src="/Almacen/supabase-config.js?v=20260427-almacen"></script>
+    <script src="/Almacen/almacen-db.js?v=20260427-almacen"></script>
+    <script src="/scripts/dalia-widget.js?v=20260427-almacen"></script>
+    <script src="historial.js?v=20260427-almacen"></script>
+  </body>
+</html>

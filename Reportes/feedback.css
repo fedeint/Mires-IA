@@ -1,0 +1,44 @@
+/* ── Toast y estados vacíos ── */
+
+.rp-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--color-surface);
+    border: 1px solid var(--rp-orange);
+    border-radius: 12px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--rp-font-b);
+    font-size: 14px;
+    color: var(--color-text);
+    box-shadow: var(--shadow-elevated), 0 0 0 1px rgba(240, 124, 42, .2);
+    z-index: 300;
+    opacity: 0;
+    transition: opacity .4s, transform .4s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.rp-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.rp-toast svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--rp-orange);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+.rp-toast strong {
+    color: var(--rp-orange);
+}

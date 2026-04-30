@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="../scripts/gtag-config.js"></script>
+    <title>MiRest con IA | Recetas</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="manifest" href="../Pwa/manifest.webmanifest" />
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="../styles/mobile.css?v=20260420-mobilev1" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="recetas" data-theme="light">
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo base</span>
+          </div>
+        </div>
+
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div class="topbar__copy">
+            <span class="eyebrow" id="pageEyebrow">Módulo</span>
+            <h1 id="pageTitle">Recetas</h1>
+            <p id="pageSubtitle">Inicializando módulo...</p>
+          </div>
+
+          <div class="topbar__actions">
+            <span class="chip chip--soft" id="pageContextChip">RC</span>
+            <div class="avatar" id="pageAvatar" aria-label="Iniciales del módulo">RC</div>
+          </div>
+        </header>
+
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a id="breadcrumbHome" href="../index.html">Dashboard</a>
+            <span>/</span>
+            <span id="moduleBreadcrumbCurrent">Recetas</span>
+          </nav>
+
+          <div class="module-stack">
+            <div class="recetas-container">
+              <header class="module-header">
+                <div class="header-left">
+                  <h2 id="page-title"><i class="fa-solid fa-file-lines"></i> Recetas</h2>
+                  <div class="header-stats">
+                    <span class="stat-badge"><i class="fa-solid fa-file-lines"></i> <span id="count-total">0</span> recetas</span>
+                    <span class="stat-badge"><i class="fa-solid fa-circle-check"></i> <span id="count-activas">0</span> activas</span>
+                  </div>
+                </div>
+
+                <div class="header-center">
+                  <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="inputBusqueda" placeholder="Buscar receta...">
+                  </div>
+                  
+                  <button class="btn-orange-gradient" id="btnNuevaReceta" type="button">
+                    <i class="fa-solid fa-plus"></i> Nueva Receta 
+                  </button>
+                </div>
+
+                <div class="header-right">
+                </div>
+              </header>
+
+              <div class="filter-bar">
+                <div class="filter-pills" id="filterPills">
+                  <button class="pill active" data-filter="Todos">Todos <span class="pill-count">0</span></button>
+                  <button class="pill" data-filter="MasRentables">Más Rentables <span class="pill-count">0</span></button>
+                  <button class="pill" data-filter="PlatosCaros">Platos Caros <span class="pill-count">0</span></button>
+                  <button class="pill" data-filter="PlatosMódicos">Platos Módicos <span class="pill-count">0</span></button>
+                </div>
+                <div class="view-toggle">
+                  <button class="btn-toggle-view" id="btnViewList" title="Vista de Lista"><i class="fa-solid fa-list-ul"></i></button>
+                  <button class="btn-toggle-view active" id="btnViewGrid" title="Vista de Cuadrícula"><i class="fa-solid fa-grip-vertical"></i></button>
+                </div>
+              </div>
+
+              <!-- CONTENEDOR DE VISTAS (LISTA Y CARDS) -->
+              <div class="views-wrapper">
+                <!-- VISTA DE TABLA (LISTA) -->
+                <div id="container-recetas-lista" class="view-content" style="display: none;">
+                  <div class="table-wrapper">
+                    <table class="recetas-table">
+                      <thead>
+                        <tr>
+                          <th class="col-producto">PRODUCTO</th>
+                          <th class="col-categoria">CATEGORIA</th>
+                          <th class="col-version">VERSION</th>
+                          <th class="col-tiempo">TIEMPO PREP</th>
+                          <th class="col-ingredientes">INGREDIENTES</th>
+                          <th class="col-stock">STOCK</th>
+                          <th class="col-estado">ESTADO</th>
+                          <th class="col-acciones"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="gridRecetas">
+                        <!-- Inyectado por JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- VISTA DE CARDS (CUADRÍCULA) -->
+                <div id="container-recetas-grid" class="view-content grid-layout">
+                  <!-- Inyectado por JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="page-footer">
+            MiRest con IA · <span id="currentYear">2026</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+    <script src="../scripts/dalia-widget.js"></script>
+
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+
+    <script type="module" src="../scripts/app.js"></script>
+
+    <!-- MODAL DE EDICIÓN DE RECETA -->
+    <div id="modalEditReceta" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h3><i class="fa-solid fa-file-pen"></i> Editar Receta</h3>
+                <button class="btn-icon" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <form id="formEditReceta">
+                <input type="hidden" id="editRecipeId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editNombre">Nombre de la Receta</label>
+                        <input type="text" id="editNombre" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCategoria">Categoría</label>
+                        <select id="editCategoria" class="form-control">
+                            <option value="Platos de fondo">Platos de fondo</option>
+                            <option value="Sopas y Entradas">Sopas y Entradas</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Postres">Postres</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCosto">Costo de Producción (S/)</label>
+                        <input type="number" id="editCosto" step="0.01" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPrecioVenta">Precio de Venta (S/)</label>
+                        <input type="number" id="editPrecioVenta" step="0.01" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTiempo">Tiempo de Prep.</label>
+                        <input type="text" id="editTiempo" class="form-control" required placeholder="Ej: 25 min">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPorciones">Porciones</label>
+                        <input type="number" id="editPorciones" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEstado">Estado</label>
+                        <select id="editEstado" class="form-control">
+                            <option value="Activa">Activa</option>
+                            <option value="Inactiva">Inactiva</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editVersion">Versión</label>
+                        <input type="text" id="editVersion" class="form-control" required placeholder="Ej: v1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnCancelEdit">Cancelar</button>
+                    <button type="submit" class="btn-primary-orange">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN -->
+    <div id="modalConfirmDelete" class="modal-overlay">
+        <div class="modal-confirm-content">
+            <div class="confirm-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>¿Estás seguro?</h3>
+            <p>Esta acción no se puede deshacer. Se eliminará permanentemente este registro.</p>
+            <div class="confirm-footer">
+                <button class="btn-cancel" id="btnCancelDelete">Cancelar</button>
+                <button class="btn-confirm-del" id="btnConfirmDeleteAction">Eliminar ahora</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPlantillaImport" class="modal-overlay">
+        <div class="modal-template-content">
+            <header class="modal-header">
+                <h3><i class="fa-solid fa-file-arrow-down"></i> Plantilla e Importación</h3>
+                <button class="btn-icon" id="btnClosePlantillaImport" type="button"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="template-actions">
+                <button class="template-action-btn" id="btnDescargarPlantilla" type="button">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <div>
+                        <strong>Descargar Plantilla</strong>
+                        <span>Excel con columnas correctas</span>
+                    </div>
+                </button>
+                <button class="template-action-btn" id="btnAbrirImport" type="button">
+                    <i class="fa-solid fa-upload"></i>
+                    <div>
+                        <strong>Importar Excel</strong>
+                        <span>Carga y llena la lista</span>
+                    </div>
+                </button>
+                <button class="template-action-btn" id="btnAbrirCrearRapida" type="button">
+                    <i class="fa-solid fa-bolt"></i>
+                    <div>
+                        <strong>Crear Receta Rápida</strong>
+                        <span>Ingreso manual ágil</span>
+                    </div>
+                </button>
+                <input type="file" id="fileImportar" accept=".xlsx, .xls">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="btnCancelPlantillaImport">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalCrearRapida" class="modal-overlay">
+        <div class="modal-quick-content">
+            <header class="modal-header">
+                <h3><i class="fa-solid fa-bolt"></i> Crear Receta Rápida</h3>
+                <button class="btn-icon" id="btnCloseCrearRapida" type="button"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+
+            <form id="formCrearRapida">
+                <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="quickProducto">Producto</label>
+                        <input type="text" id="quickProducto" class="form-control" required placeholder="Ej: Lomo Saltado">
+                    </div>
+                    <div class="form-group">
+                        <label for="quickCategoria">Categoría</label>
+                        <select id="quickCategoria" class="form-control">
+                            <option value="Platos de fondo">Platos de fondo</option>
+                            <option value="Sopas y Entradas">Sopas y Entradas</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Postres">Postres</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quickPorciones">Porciones</label>
+                        <input type="number" id="quickPorciones" class="form-control" required value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="quickTiempo">Tiempo de Prep.</label>
+                        <input type="text" id="quickTiempo" class="form-control" placeholder="Ej: 15 min" value="15 min">
+                    </div>
+                </div>
+
+                <div class="quick-ingredients-header">
+                    <h4>Ingredientes</h4>
+                    <button type="button" id="btnAddQuickIngredient" class="btn-secondary">
+                        <i class="fa-solid fa-plus"></i> Agregar fila
+                    </button>
+                </div>
+
+                <div class="quick-ingredients-table-wrapper">
+                    <table class="quick-ingredients-table">
+                        <thead>
+                            <tr>
+                                <th>Ingrediente</th>
+                                <th style="width: 120px;">Cantidad</th>
+                                <th style="width: 120px;">Unidad</th>
+                                <th style="width: 140px;">Costo</th>
+                                <th style="width: 56px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="quickIngredientsBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="quick-cost-row">
+                    <span class="quick-cost-label">Costo total receta</span>
+                    <span class="quick-cost-value" id="quickCostoTotal">S/ 0.00</span>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnCancelCrearRapida">Cancelar</button>
+                    <button type="submit" class="btn-primary-orange">Crear Receta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastImport" class="toast-import" role="status" aria-live="polite"></div>
+</body>
+</html>

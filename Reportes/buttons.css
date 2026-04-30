@@ -1,0 +1,181 @@
+/* ── Botones: base, variantes, acción, seleccionables ── */
+
+.rp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 9px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--rp-font-b);
+    transition: transform .12s, box-shadow .12s, background .14s, filter .12s;
+    box-shadow: var(--shadow-sm);
+}
+
+.rp-btn i {
+    width: 16px;
+    height: 16px;
+}
+
+.rp-btn:hover {
+    background: var(--color-surface-muted);
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.rp-btn:active {
+    transform: translateY(0);
+}
+
+.rp-btn--primary {
+    background: linear-gradient(135deg, var(--rp-orange), var(--rp-orange2));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(240, 124, 42, .35);
+}
+
+.rp-btn--primary:hover:not(:disabled) {
+    box-shadow: 0 5px 20px rgba(240, 124, 42, .5);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.rp-btn--success {
+    background: var(--rp-green);
+    color: #fff;
+    border-color: transparent;
+}
+
+.rp-btn--success:hover {
+    box-shadow: 0 5px 20px rgba(16, 185, 129, .5);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Alias semánticos (usados en el panel) */
+.rp-btn-primary {
+    background: var(--rp-primary);
+    color: #fff;
+}
+
+.rp-btn-primary:hover {
+    background: var(--rp-primary-hover);
+}
+
+.rp-btn-outline {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+    color: var(--rp-text-main);
+}
+
+.rp-btn-outline:hover {
+    background: var(--rp-bg-light);
+    border-color: #d1d5db;
+}
+
+/* Botones de acción en tarjeta */
+.rp-action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.rp-action-btn:hover {
+    background: var(--color-surface-muted);
+    border-color: var(--rp-orange);
+    color: var(--rp-orange);
+    transform: translateY(-2px);
+}
+
+.rp-action-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.rp-action-btn--primary {
+    background: var(--rp-orange);
+    border-color: var(--rp-orange);
+    color: #fff;
+}
+
+.rp-action-btn--primary:hover {
+    background: var(--rp-orange2);
+    box-shadow: 0 4px 12px rgba(240, 124, 42, .4);
+}
+
+/* Botones de acción en tabla */
+.rp-action-icons {
+    display: flex;
+    gap: 12px;
+    color: var(--rp-text-main);
+}
+
+.rp-action-icons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    padding: 4px;
+}
+
+.rp-action-icons button:hover {
+    opacity: 1;
+}
+
+.rp-action-icons i {
+    width: 18px;
+    height: 18px;
+}
+
+/* Grupos de botones seleccionables (modales) */
+.rp-btn-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.rp-selectable-btn {
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all .2s;
+}
+
+.rp-selectable-btn:hover {
+    background: var(--color-surface);
+    border-color: var(--rp-orange);
+}
+
+.rp-selectable-btn.active {
+    background: linear-gradient(135deg, var(--rp-orange), var(--rp-orange2));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(240, 124, 42, .35);
+}

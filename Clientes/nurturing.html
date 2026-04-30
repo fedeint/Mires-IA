@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <title>MiRest con IA | Tipo y Nurturing</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="../Pwa/manifest.webmanifest" />
+
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="crm-sidebar-demo.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      /* Estilos para Nurturing */
+      .nurturing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px 0; }
+      .n-card { background: var(--color-surface); padding: 20px; border-radius: var(--radius-xl); box-shadow: var(--shadow-card); border: 1px solid var(--color-border); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; text-align: center; }
+      .n-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
+      .n-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; margin: 0 auto 12px; }
+      .n-name { margin: 0 0 8px; font-size: 18px; color: var(--color-text-primary); }
+      .n-email { margin: 0 0 16px; font-size: 13px; color: var(--color-text-secondary); }
+      .n-metrics { display: flex; justify-content: center; gap: 8px; }
+      .badge { padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; display: inline-block; }
+      .badge.vip { background: #fef3c7; color: #d97706; }
+      .badge.habitual { background: #d1fae5; color: #059669; }
+      .badge.altovalor { background: #e0e7ff; color: #2563eb; }
+      .badge.active-client { background: #dbeafe; color: #1d4ed8; }
+
+      /* Panel Lateral */
+      .side-panel { position: fixed; top: 0; right: -450px; width: 400px; height: 100vh; background: var(--color-surface); box-shadow: -4px 0 24px rgba(0,0,0,0.1); z-index: 1000; transition: right 0.3s ease; overflow-y: auto; padding: 24px; border-left: 1px solid var(--color-border); }
+      .side-panel.open { right: 0; }
+      .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
+      .panel-overlay.show { opacity: 1; pointer-events: auto; }
+      
+      .np-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; margin-bottom: 20px; }
+      .np-header-info h2 { margin: 0 0 4px; font-size: 20px; color: var(--color-text-primary); }
+      .np-header-info p { margin: 0; font-size: 13px; color: var(--color-text-secondary); }
+      #btnCloseNPanel { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-secondary); }
+
+      .np-profile { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+      #np-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; flex-shrink: 0; }
+      .np-profile-info h3 { margin: 0 0 8px; font-size: 18px; color: var(--color-text-primary); }
+      .np-profile-tags { display: flex; gap: 8px; }
+
+      .np-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+      .stat-box { background: var(--color-background); padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--color-border); }
+      .stat-box span { display: block; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+      .stat-box strong { display: block; font-size: 16px; color: var(--color-text-primary); }
+
+      .np-section { margin-bottom: 24px; }
+      .np-section h4 { margin: 0 0 12px; font-size: 15px; color: var(--color-text-primary); text-transform: uppercase; font-weight: 600; }
+      .np-arq-card { background: var(--color-background); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+      .np-arq-card h5 { margin: 0 0 8px; font-size: 16px; color: var(--color-text-primary); }
+      .np-arq-card p { margin: 0 0 12px; font-size: 14px; color: var(--color-text-secondary); }
+      #np-arq-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+      #np-arq-tags span { background: var(--color-border); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+
+      .churn-progress { height: 8px; background: var(--color-border); border-radius: 4px; overflow: hidden; margin-top: 8px; margin-bottom: 8px; }
+      .churn-progress-bar { height: 100%; background: #10b981; border-radius: 4px; }
+      
+      .behavior-list { list-style: none; padding: 0; margin: 0; background: var(--color-background); border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+      .behavior-list li { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-size: 14px; color: var(--color-text-primary); }
+      .behavior-list li:last-child { border-bottom: none; }
+      .behavior-label { color: var(--color-text-secondary); font-weight: 500; }
+
+      .seq-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--color-background); border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 8px; }
+      .seq-info strong { display: block; font-size: 14px; margin-bottom: 4px; color: var(--color-text-primary); }
+      .seq-info p { margin: 0; font-size: 12px; color: var(--color-text-secondary); }
+      
+      .rank { font-weight: bold; color: var(--color-primary); margin-right: 4px; }
+      .count { color: var(--color-text-secondary); font-size: 12px; margin-left: auto; }
+
+      /* Modal Style */
+      .modal-overlay.show { display: flex !important; }
+    </style>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="clientes">
+    <div class="app-shell">
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo</span>
+          </div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+        <div class="sidebar__footer card card--sidebar">
+          <span class="sidebar__footer-label" id="moduleStatusLabel">Módulo activo</span>
+          <strong id="moduleTitleDisplay">Clientes</strong>
+          <p id="moduleDescriptionDisplay">Gestión de base de datos y fidelización.</p>
+        </div>
+      </aside>
+
+      <button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Cerrar navegación lateral"></button>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button class="icon-button topbar__menu-toggle" id="sidebarToggle" type="button"
+              aria-label="Abrir navegación lateral" aria-controls="appSidebar" aria-expanded="false">
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">Gestión</span>
+              <h1 id="pageTitle">Nutrición de Leads</h1>
+              <p id="pageSubtitle">Flujos de acompañamiento y personalización para convertir clientes ocasionales en habituales.</p>
+            </div>
+          </div>
+          <div class="topbar__actions">
+            <span class="chip chip--soft" id="pageContextChip">CL</span>
+            <div class="avatar" id="pageAvatar" aria-label="Iniciales del módulo">CL</div>
+          </div>
+        </header>
+
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html" id="breadcrumbHome">Dashboard</a>
+            <span>/</span>
+            <a href="clientes.html">Clientes</a>
+            <span>/</span>
+            <span id="moduleBreadcrumbCurrent">Tipo y Nurturing</span>
+          </nav>
+
+          <div class="module-stack">
+            <div class="crm-database-container">
+              <!-- CABECERA -->
+              <div class="crm-header">
+                <h2 class="crm-title">Base de Datos de Clientes</h2>
+                <div class="crm-header-actions">
+                  <button class="btn-new" id="btnNewSequence"><i class="fa-solid fa-plus"></i> Nueva Secuencia</button>
+                </div>
+              </div>
+
+              <!-- CONTENIDO DINÁMICO -->
+              <div id="nurturingDirectory" class="nurturing-grid"></div>
+
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+
+    <!-- Modal nueva secuencia -->
+    <div id="modalNewSequence" class="modal-overlay" style="display: none; align-items: center; justify-content: center;">
+      <div class="modal-content" style="width: 400px;">
+        <header class="modal-header">
+          <h3><i data-lucide="zap"></i> Nueva Secuencia</h3>
+          <button class="btn-icon" id="btnCloseSeqModal"><i data-lucide="x"></i></button>
+        </header>
+        <form id="formNewSequence">
+          <div class="form-group" style="padding: 0 24px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nombre de la Secuencia</label>
+            <input type="text" class="form-control" style="width: 100%;" required>
+          </div>
+          <div class="modal-footer" style="padding: 24px;">
+            <button type="button" class="btn btn--secondary" id="btnCancelSeq">Cancelar</button>
+            <button type="submit" class="btn btn--primary btn-orange-gradient">Guardar y Activar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Panel Nurturing -->
+    <div id="nurturingPanelOverlay" class="panel-overlay"></div>
+    <div id="nurturingPanel" class="side-panel">
+      <!-- Structure matches the logic injected by nurturing.js -->
+      <div class="np-header">
+        <div class="np-header-info">
+          <h2 id="np-name"></h2>
+          <p>Última visita: <span id="np-visit"></span></p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span id="np-status-tag" class="badge"></span>
+          <button id="btnCloseNPanel"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="np-profile">
+        <div id="np-avatar"></div>
+        <div class="np-profile-info">
+          <h3 id="np-full-name"></h3>
+          <div class="np-profile-tags">
+            <span id="np-badge" class="badge"></span>
+            <span id="np-pedidos-badge" class="badge"></span>
+          </div>
+        </div>
+      </div>
+      <div class="np-stats">
+        <div class="stat-box"><span>Cliente Desde</span><strong id="np-desde"></strong></div>
+        <div class="stat-box"><span>Total Pedidos</span><strong id="np-pedidos"></strong></div>
+        <div class="stat-box"><span>LTV Total</span><strong id="np-ltv"></strong></div>
+        <div class="stat-box"><span>Puntos IA</span><strong id="np-puntos"></strong></div>
+      </div>
+      <div class="np-section">
+        <h4>Arquetipo Identificado</h4>
+        <div class="np-arq-card"><h5 id="np-arq-name"></h5><p id="np-arq-desc"></p><div id="np-arq-tags"></div></div>
+      </div>
+      <div class="np-section">
+        <h4>Riesgo de Churn</h4>
+        <div class="np-arq-card">
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;">
+            <strong><span id="np-churn-text"></span></strong><span style="color: var(--color-text-secondary);">Score de Retención: <strong style="color: var(--color-text-primary);" id="np-retention"></strong>/100</span>
+          </div>
+          <div class="churn-progress"><div class="churn-progress-bar" id="np-churn-bar"></div></div>
+        </div>
+      </div>
+      <div class="np-section">
+        <h4>Comportamiento Frecuente</h4>
+        <ul class="behavior-list">
+          <li><span class="behavior-label">Horario Habitual</span><strong id="np-b-horario"></strong></li>
+          <li><span class="behavior-label">Días Frecuentes</span><strong id="np-b-dias"></strong></li>
+          <li><span class="behavior-label">Frecuencia Visitas</span><strong id="np-b-freq"></strong></li>
+          <li><span class="behavior-label">Ticket Promedio</span><strong id="np-b-ticket"></strong></li>
+        </ul>
+      </div>
+      <div class="np-section">
+        <h4>Top Platos Favoritos</h4>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0 0 12px;">Basado en los últimos <span id="np-fav-pedidos"></span> pedidos</p>
+        <ul class="behavior-list" id="np-fav-list" style="padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;"></ul>
+      </div>
+      <div class="np-section">
+        <h4>Secuencias Activas</h4>
+        <div id="np-seq-list"></div>
+      </div>
+    </div>
+
+    <script type="module" src="../scripts/app.js"></script>
+    <script src="nurturing.js"></script>
+    <script src="crm-components.js"></script>
+    <script src="crm-sidebar-demo.js"></script>
+    <script type="module" src="tour-interactivo.js"></script>
+  </body>
+</html>

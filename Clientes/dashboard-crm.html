@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <title>MiRest con IA | Analytics CRM</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="crm-sidebar-demo.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="clientes">
+    <div class="app-shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy"><span class="brand-copy__eyebrow">MiRest</span><strong>MiRest con IA</strong><span>Dashboard administrativo</span></div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+      <button class="sidebar-backdrop" id="sidebarBackdrop"></button>
+
+      <div class="app-main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button class="icon-button topbar__menu-toggle" id="sidebarToggle"><i data-lucide="menu"></i></button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">CRM / Analytics</span>
+              <h1 id="pageTitle">Dashboard CRM</h1>
+              <p id="pageSubtitle">Diagnóstico general de la salud del negocio, métricas de retención y retorno de inversión de campañas.</p>
+            </div>
+          </div>
+          <div class="topbar__actions">
+            <select class="form-control" style="font-weight: 600; width: 180px; padding: 10px 16px; border-radius: 12px; background: #f8fafc; border-color: #cbd5e1;">
+              <option>Últimos 30 días</option>
+              <option>Últimos 7 días</option>
+              <option>Este mes</option>
+              <option>Mes anterior</option>
+            </select>
+          </div>
+        </header>
+
+        <main class="module-page" style="padding-top: 0;">
+          <div class="module-stack">
+            
+            <!-- TARJETAS DE INDICADORES (KPIs) -->
+            <div class="saas-top-kpis" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="saas-top-kpi">
+                <span class="kpi-label">Revenue Atribuido</span>
+                <strong class="kpi-value">S/ 48,200</strong>
+                <span class="kpi-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12.4% vs mes ant.</span>
+              </div>
+              <div class="saas-top-kpi">
+                <span class="kpi-label">Conversión Campañas</span>
+                <strong class="kpi-value">23.4%</strong>
+                <span class="kpi-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +2.1% vs mes ant.</span>
+              </div>
+              <div class="saas-top-kpi">
+                <span class="kpi-label">LTV Promedio</span>
+                <strong class="kpi-value">S/ 1,840</strong>
+                <span class="kpi-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +5.0% vs mes ant.</span>
+              </div>
+              <div class="saas-top-kpi">
+                <span class="kpi-label">Retención 30 días</span>
+                <strong class="kpi-value">68.0%</strong>
+                <span class="kpi-trend trend-down"><i class="fa-solid fa-arrow-trend-down"></i> -1.2% vs mes ant.</span>
+              </div>
+            </div>
+
+            <div class="analytics-layout">
+              <!-- PANEL IZQUIERDO: FUNNEL -->
+              <div class="funnel-container">
+                <div class="table-header-flex">
+                  <h3 style="margin:0; font-size:18px; color:#0f172a;">Funnel por Campaña</h3>
+                  <i class="fa-solid fa-filter" style="color:#94a3b8;"></i>
+                </div>
+                <div id="funnelRenderArea">
+                  <!-- Renderizado por JS para animación -->
+                </div>
+                <div class="insight-box">
+                  <i class="fa-solid fa-lightbulb"></i>
+                  <p><strong>Insight IA:</strong> El 69% abre tus mensajes (tasa excelente), pero la conversión de visita final es solo del 12%. Considera mejorar el CTA u ofrecer un incentivo con fecha de caducidad corta para generar urgencia.</p>
+                </div>
+              </div>
+
+              <!-- PANEL DERECHO: TOP 10 CLIENTES -->
+              <div class="top-clients-container">
+                <div class="table-header-flex">
+                  <h3 style="margin:0; font-size:18px; color:#0f172a;">Top 10 Clientes por LTV</h3>
+                  <span class="chip chip--soft" style="margin:0;">Ranking Automático</span>
+                </div>
+                <table class="saas-table" style="margin: -24px; width: calc(100% + 48px); border-radius: 0; border-top: 1px solid #e2e8f0;">
+                  <thead><tr><th style="width: 40px;">#</th><th>CLIENTE</th><th>LTV (VALOR)</th><th>PEDIDOS</th><th>SEGMENTO</th></tr></thead>
+                  <tbody id="topClientsTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="../scripts/app.js"></script>
+    <script src="crm-components.js"></script>
+    <script src="crm-sidebar-demo.js"></script>
+    <script type="module" src="dashboard-crm.js"></script>
+    <script type="module" src="tour-interactivo.js"></script>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+/* ── Tarjetas de estadísticas ── */
+
+.rp-stats {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.rp-stat {
+    flex: 1;
+    min-width: 170px;
+    background: linear-gradient(180deg, var(--color-surface) 0%, #fcfdfe 100%);
+    border: 1px solid var(--color-border);
+    border-radius: var(--rp-radius);
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow-card);
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+
+.rp-stat:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-card-hover);
+}
+
+body[data-theme="dark"] .rp-stat {
+    background: linear-gradient(180deg, var(--color-surface), var(--color-surface-muted));
+}
+
+.rp-stat__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.rp-stat__icon--green {
+    background: var(--rp-green-dim);
+}
+
+.rp-stat__icon--orange {
+    background: var(--rp-orange-dim);
+}
+
+.rp-stat__icon--blue {
+    background: var(--rp-blue-dim);
+}
+
+.rp-stat__icon--red {
+    background: var(--rp-red-dim);
+}
+
+.rp-stat__icon--yellow {
+    background: var(--rp-yellow-dim);
+}
+
+.rp-stat__label {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-bottom: 2px;
+}
+
+.rp-stat__value {
+    font-family: var(--rp-font-d);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.rp-stat__value--green {
+    color: var(--rp-green);
+}
+
+.rp-stat__value--orange {
+    color: var(--rp-orange);
+}
+
+.rp-stat__value--blue {
+    color: var(--rp-blue);
+}
+
+.rp-stat__value--red {
+    color: var(--rp-red);
+}
+
+.rp-stat__value--yellow {
+    color: var(--rp-yellow);
+}

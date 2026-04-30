@@ -1,0 +1,16 @@
+/* ================================================
+   Módulo Reportes — punto de entrada de estilos
+   Importa cada sub-módulo en orden de dependencia
+   ================================================ */
+
+@import "tokens.css";
+@import "layout.css";
+@import "buttons.css";
+@import "forms.css";
+@import "stats.css";
+@import "cards.css";
+@import "paper.css";
+@import "history.css";
+@import "modals.css";
+@import "feedback.css";
+@import "responsive.css";

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <title>MiRest con IA | Gestión de Proveedores</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="../Pwa/manifest.webmanifest" />
+
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="crm-sidebar-demo.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      /* Estilos para celdas inyectadas por proveedores.js */
+      .td-prov-name { display: block; font-weight: 600; color: var(--color-text-primary); font-size: 15px; }
+      .td-prov-cat { display: block; font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+      .td-contact-info { display: flex; flex-direction: column; gap: 4px; }
+      .td-contact-info span { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); }
+      .td-contact-info i { width: 14px; text-align: center; color: var(--color-primary); }
+      .td-purchase-time { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+      .td-purchase-amount { display: block; font-weight: 600; color: var(--color-text-primary); }
+      .td-total-month { font-weight: 700; color: var(--color-primary); font-size: 15px; }
+      .wsp-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+      .wsp-badge.green { background: #d1fae5; color: #059669; }
+      .wsp-badge.orange { background: #fef3c7; color: #d97706; }
+      .wsp-badge.red { background: #fee2e2; color: #dc2626; }
+    </style>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="proveedores">
+    <div class="app-shell">
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo</span>
+          </div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+        <div class="sidebar__footer card card--sidebar">
+          <span class="sidebar__footer-label" id="moduleStatusLabel">Módulo activo</span>
+          <strong id="moduleTitleDisplay">Clientes</strong>
+          <p id="moduleDescriptionDisplay">Gestión de base de datos y fidelización.</p>
+        </div>
+      </aside>
+
+      <button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Cerrar navegación lateral"></button>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button class="icon-button topbar__menu-toggle" id="sidebarToggle" type="button"
+              aria-label="Abrir navegación lateral" aria-controls="appSidebar" aria-expanded="false">
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">Gestión</span>
+              <h1 id="pageTitle">Gestión de Proveedores</h1>
+              <p id="pageSubtitle">Control del ecosistema logístico, cuentas por pagar y rendimiento de suministros de cocina.</p>
+            </div>
+          </div>
+          <div class="topbar__actions">
+            <span class="chip chip--soft" id="pageContextChip">CL</span>
+            <div class="avatar" id="pageAvatar" aria-label="Iniciales del módulo">CL</div>
+          </div>
+        </header>
+
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html" id="breadcrumbHome">Dashboard</a>
+            <span>/</span>
+            <a href="clientes.html">Clientes</a>
+            <span>/</span>
+            <span id="moduleBreadcrumbCurrent">Proveedores</span>
+          </nav>
+
+          <div class="module-stack">
+            <div class="crm-database-container">
+              <!-- CABECERA -->
+              <div class="crm-header">
+                <h2 class="crm-title">Base de Datos de Proveedores</h2>
+                <div class="crm-header-actions">
+                  <button class="btn-agent"><i class="fa-solid fa-wand-magic-sparkles"></i> Sugerir Proveedor IA</button>
+                  <button class="btn-new"><i class="fa-solid fa-plus"></i> Nuevo Registro</button>
+                </div>
+              </div>
+
+              <!-- DASHBOARD KPIs -->
+              <div class="crm-kpis" id="kpi-container">
+                <div class="crm-kpi-card">
+                    <div class="kpi-icon">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <span class="kpi-label">Proveedores Activos</span>
+                        <span class="kpi-value">5</span>
+                    </div>
+                </div>
+                <div class="crm-kpi-card">
+                    <div class="kpi-icon highlight">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <span class="kpi-label">Total Mes Actual</span>
+                        <span class="kpi-value">S/ 13,850.00</span>
+                    </div>
+                </div>
+              </div>
+
+              <!-- BARRA DE HERRAMIENTAS -->
+              <div class="crm-toolbar">
+                <div class="crm-search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="provSearchInput" placeholder="Buscar por nombre o categoría...">
+                </div>
+              </div>
+
+              <!-- CONTENIDO DINÁMICO -->
+              <div id="clients-container">
+                <div id="view-list" class="crm-view-section">
+                  <table class="crm-table">
+                    <thead>
+                      <tr>
+                        <th>PROVEEDOR / CATEGORÍA DE INSUMOS</th>
+                        <th>EMAIL Y CONTACTO</th>
+                        <th>ÚLTIMA COMPRA</th>
+                        <th>TOTAL MES</th>
+                        <th>WHATSAPP STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody id="provTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+
+    <script type="module" src="../scripts/app.js"></script>
+    <script src="proveedores.js"></script>
+    <script src="crm-components.js"></script>
+    <script src="crm-sidebar-demo.js"></script>
+    <script type="module" src="tour-interactivo.js"></script>
+    <script src="../scripts/dalia-widget.js"></script>
+  </body>
+</html>

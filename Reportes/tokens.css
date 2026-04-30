@@ -1,0 +1,42 @@
+/* ── Variables y tokens del módulo Reportes ── */
+
+:root {
+    --rp-primary: #f97316;
+    --rp-primary-hover: #ea580c;
+    --rp-surface: #ffffff;
+    --rp-border: #e5e7eb;
+    --rp-text-main: #111827;
+    --rp-text-muted: #6b7280;
+    --rp-bg-light: #f9fafb;
+
+    --rp-orange: var(--color-accent);
+    --rp-orange2: var(--color-accent-dark);
+    --rp-orange-dim: var(--color-accent-soft);
+    --rp-green: var(--color-success);
+    --rp-green-dim: var(--color-success-soft);
+    --rp-blue: var(--color-info);
+    --rp-blue-dim: var(--color-info-soft);
+    --rp-red: var(--color-red, #ef4444);
+    --rp-red-dim: rgba(239, 68, 68, .15);
+    --rp-yellow: var(--color-warning);
+    --rp-yellow-dim: var(--color-warning-soft);
+
+    --rp-radius: 12px;
+    --rp-font-d: var(--font-display);
+    --rp-font-b: var(--font-body);
+}
+
+body[data-theme="dark"] {
+    --rp-surface: #1e293b;
+    --rp-border: #334155;
+    --rp-text-main: #f8fafc;
+    --rp-text-muted: #94a3b8;
+    --rp-bg-light: #0f172a;
+
+    --color-surface: #1e293b;
+    --color-surface-muted: #0f172a;
+    --color-border: #334155;
+    --color-text: #f8fafc;
+    --color-text-muted: #94a3b8;
+    --rp-orange-dim: rgba(240, 124, 42, 0.25);
+}

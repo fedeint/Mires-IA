@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="../scripts/gtag-config.js"></script>
+    <title>MiRest con IA | Reportes</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="icon" type="image/png" href="../Caja/icon/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="../Pwa/manifest.webmanifest" />
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/dashboard.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="reportes.css" />
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body data-root-path="../" data-page-type="module" data-module-key="reportes">
+    <div class="app-shell">
+      <!-- Sidebar -->
+      <aside class="sidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo</span>
+          </div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+
+      <!-- App main -->
+      <div class="app-main">
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="topbar__copy">
+            <span class="eyebrow" id="pageEyebrow">Análisis</span>
+            <h1 id="pageTitle">Reportes</h1>
+            <p id="pageSubtitle">Métricas y análisis del negocio</p>
+          </div>
+          <div class="topbar__actions">
+            <span class="chip chip--soft" id="rpTime"></span>
+            <div class="avatar" id="pageAvatar" aria-label="Reportes">RP</div>
+          </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a id="breadcrumbHome" href="../index.html" style="color: inherit; text-decoration: none;">Dashboard</a>
+            <span>/</span>
+            <strong id="moduleBreadcrumbCurrent">Generador de Reportes</strong>
+          </nav>
+
+          <!-- Card 1: Configuración del Reporte -->
+          <div class="rp-panel">
+            <div class="rp-panel-header">
+              <div class="rp-panel-title-group">
+                <div class="rp-panel-icon"><i data-lucide="file-text"></i></div>
+                <h2 class="rp-panel-title">Configuración del Reporte</h2>
+              </div>
+            </div>
+            
+            <div class="rp-form-body">
+              <div class="rp-form-group-full">
+                <label class="rp-label"><i data-lucide="bookmark"></i> Usar plantilla</label>
+                <div class="rp-input-select-wrap">
+                  <select class="rp-input">
+                    <option>Sin plantilla</option>
+                    <option>Cierre Semanal</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="rp-form-row">
+                <div class="rp-form-group">
+                  <label class="rp-label"><i data-lucide="calendar"></i> Fecha desde</label>
+                  <input type="date" class="rp-input" value="2026-03-30">
+                </div>
+                <div class="rp-form-group">
+                  <label class="rp-label"><i data-lucide="calendar"></i> Fecha hasta</label>
+                  <input type="date" id="rpInputFechaHasta" class="rp-input" value="2026-03-30">
+                </div>
+                <div class="rp-form-group">
+                  <label class="rp-label"><i data-lucide="file-bar-chart-2"></i> Tipo de reporte</label>
+                  <div class="rp-input-select-wrap">
+                    <select id="rpInputTipo" class="rp-input">
+                      <option>📊 Resumen del Día</option>
+                      <option>📦 Inventario</option>
+                      <option>🔄 Movimientos de Almacén</option>
+                      <option>💸 Gastos</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="rp-form-group">
+                  <label class="rp-label">Nombre (opcional)</label>
+                  <input type="text" class="rp-input" placeholder="Ej: Cierre semanal">
+                </div>
+              </div>
+
+              <div class="rp-form-group-full">
+                <label class="rp-label"><i data-lucide="layers"></i> Secciones del reporte</label>
+                <div class="rp-toggles-grid">
+                  <div class="rp-toggle-item">
+                    <span class="rp-toggle-label">Ventas del día</span>
+                    <label class="rp-switch"><input type="checkbox" checked><span class="rp-slider"></span></label>
+                  </div>
+                  <div class="rp-toggle-item">
+                    <span class="rp-toggle-label">Platos vendidos</span>
+                    <label class="rp-switch"><input type="checkbox" checked><span class="rp-slider"></span></label>
+                  </div>
+                  <div class="rp-toggle-item">
+                    <span class="rp-toggle-label">Mesas atendidas</span>
+                    <label class="rp-switch"><input type="checkbox" checked><span class="rp-slider"></span></label>
+                  </div>
+                  <div class="rp-toggle-item">
+                    <span class="rp-toggle-label">Caja</span>
+                    <label class="rp-switch"><input type="checkbox" checked><span class="rp-slider"></span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rp-form-group-full">
+                <label class="rp-label"><i data-lucide="file-edit"></i> Notas / Observaciones (opcional)</label>
+                <div class="rp-textarea-container">
+                  <textarea class="rp-input" id="notasObservaciones" placeholder="Escribe observaciones, dicta por voz o adjunta una imagen..."></textarea>
+                  <div class="rp-textarea-icons">
+                    <button type="button" id="btnDictarVoz" aria-label="Dictar por voz"><i data-lucide="mic"></i></button>
+                    <button type="button" id="btnAdjuntarImagen" aria-label="Adjuntar imagen"><i data-lucide="image-plus"></i></button>
+                    <input type="file" id="inputFileImage" accept="image/*" style="display: none;">
+                  </div>
+                </div>
+                <div id="imagePreviewContainer" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;"></div>
+              </div>
+
+              <div class="rp-automation">
+                <div class="rp-automation-header">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="clock"></i> Automatización de envío
+                  </div>
+                  <i data-lucide="chevron-up"></i>
+                </div>
+                <div class="rp-automation-body">
+                  <div class="rp-automation-row">
+                    <div class="rp-form-group">
+                      <label class="rp-label">Frecuencia</label>
+                      <div class="rp-input-select-wrap">
+                        <select class="rp-input">
+                          <option>Diario</option>
+                          <option>Semanal</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="rp-form-group">
+                      <label class="rp-label"><i data-lucide="clock"></i> Hora de envío</label>
+                      <input type="time" class="rp-input" value="08:00">
+                    </div>
+                    <div class="rp-form-group">
+                      <label class="rp-label"><i data-lucide="mail"></i> Email</label>
+                      <input type="email" class="rp-input" value="gerente@mirest.com">
+                    </div>
+                    <div class="rp-form-group">
+                      <label class="rp-label"><i data-lucide="message-circle"></i> WhatsApp</label>
+                      <input type="text" class="rp-input" value="+51 999 999 999">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rp-form-footer">
+              <div class="rp-form-actions-left">
+                <button class="rp-btn rp-btn-outline"><i data-lucide="rotate-ccw"></i> Limpiar</button>
+                <button class="rp-btn rp-btn-outline"><i data-lucide="save"></i> Guardar como plantilla</button>
+              </div>
+              <button class="rp-btn rp-btn-primary" id="btnGenerarReporteMain">Generar reporte</button>
+            </div>
+          </div>
+
+          <!-- Card 2: Vista previa del reporte -->
+          <div class="rp-panel">
+            <div class="rp-panel-header">
+              <div class="rp-panel-title-group">
+                <div class="rp-panel-icon"><i data-lucide="eye"></i></div>
+                <h2 class="rp-panel-title">Vista previa del reporte</h2>
+              </div>
+              <div id="reporteHeaderActions" style="display: none; gap: 12px;">
+                <button class="rp-btn rp-btn-primary"><i data-lucide="download"></i> Descargar PDF</button>
+                <button class="rp-btn rp-btn-outline"><i data-lucide="file-spreadsheet"></i> Descargar Excel</button>
+              </div>
+            </div>
+            
+            <div class="rp-preview-wrapper" style="margin: 0; border: none;">
+              <!-- Estado Vacío -->
+              <div id="reporteEmptyState" style="text-align: center; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="width: 64px; height: 64px; background: var(--rp-bg-light, #f9fafb); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                  <i data-lucide="file-text" style="width: 28px; height: 28px; color: var(--rp-text-muted, #9ca3af);"></i>
+                </div>
+                <p style="font-size: 15px; font-weight: 500; color: var(--rp-text-main, #111827); margin-bottom: 8px;">Configura los parámetros y presiona "Generar reporte" para ver la vista previa</p>
+                <p style="font-size: 13px; color: var(--rp-text-muted, #6b7280);">El reporte se mostrará aquí con el formato final de exportación</p>
+              </div>
+
+              <!-- Vista de Reporte -->
+              <div class="rp-paper" id="reporteContent" style="display: none;">
+                <div class="rp-paper-header">
+                  <div class="rp-paper-brand">
+                    <h1>MiRest</h1>
+                    <p>RUC: 20123456789</p>
+                  </div>
+                  <div class="rp-paper-meta">
+                    <span class="rp-badge-orange">Resumen del Día</span>
+                    <p>30/03/2026 — 04:34</p>
+                  </div>
+                </div>
+                
+                <div class="rp-paper-divider"></div>
+                
+                <div class="rp-paper-section">
+                  <div class="rp-paper-section-title">Ventas del Día</div>
+                  <div class="rp-paper-grid">
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">TOTAL VENTAS</div>
+                      <div class="rp-metric-value">S/ 7770</div>
+                    </div>
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">EFECTIVO</div>
+                      <div class="rp-metric-value">S/ 4200</div>
+                    </div>
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">TARJETA</div>
+                      <div class="rp-metric-value">S/ 2800</div>
+                    </div>
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">DELIVERY</div>
+                      <div class="rp-metric-value">S/ 770</div>
+                    </div>
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">PEDIDOS</div>
+                      <div class="rp-metric-value">42</div>
+                    </div>
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">TICKET PROMEDIO</div>
+                      <div class="rp-metric-value">S/ 185</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="rp-paper-section">
+                  <div class="rp-paper-section-title">Platos Vendidos</div>
+                  <div class="rp-paper-table-wrap">
+                    <table class="rp-paper-table">
+                      <thead>
+                        <tr>
+                          <th>Plato</th>
+                          <th class="text-center">Cant.</th>
+                          <th class="text-right">Precio</th>
+                          <th class="text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="4" class="text-center" style="color: var(--color-text-muted); padding: 1.25rem">
+                            Sin platos en el periodo (vista previa; conectar a datos reales).
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="rp-paper-section">
+                  <div class="rp-paper-section-title">Mesas Atendidas</div>
+                  <div class="rp-paper-grid">
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">TOTAL ATENDIDAS</div>
+                      <div class="rp-metric-value">28</div>
+                    </div>
+                    <div class="rp-metric-card" style="grid-column: span 2">
+                      <div class="rp-metric-label">MESA MAYOR VENTA</div>
+                      <div class="rp-metric-value">Mesa 5 — S/ 580</div>
+                    </div>
+                    <div class="rp-metric-card">
+                      <div class="rp-metric-label">OCUPACIÓN</div>
+                      <div class="rp-metric-value">72%</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="rp-paper-section" style="margin-bottom:0">
+                  <div class="rp-paper-section-title">Caja</div>
+                  <div class="rp-caja-list">
+                    <div class="rp-caja-item">
+                      <span>Apertura de caja</span>
+                      <span>S/ 500</span>
+                    </div>
+                    <div class="rp-caja-item">
+                      <span>Ingreso efectivo</span>
+                      <span>S/ 4200</span>
+                    </div>
+                    <div class="rp-caja-item">
+                      <span>Ingreso tarjeta</span>
+                      <span>S/ 2800</span>
+                    </div>
+                    <div class="rp-caja-item">
+                      <span>Egresos</span>
+                      <span class="text-red">- S/ 320</span>
+                    </div>
+                    <div class="rp-caja-item total">
+                      <span>Cierre de caja</span>
+                      <span>S/ 7180</span>
+                    </div>
+                    <div class="rp-caja-item" style="border-bottom:none">
+                      <span class="text-muted" style="color:var(--rp-text-muted)">Diferencia</span>
+                      <span class="text-green">S/ 0</span>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Historial de reportes -->
+          <div class="rp-panel">
+            <div class="rp-panel-header">
+              <div class="rp-panel-title-group">
+                <div class="rp-panel-icon" style="background:none; border:1px solid #fed7aa; border-radius: 50%;"><i style="color:#f97316;" data-lucide="history"></i></div>
+                <div>
+                  <h2 class="rp-panel-title">Historial de reportes</h2>
+                  <p class="rp-panel-subtitle">Reportes generados anteriormente</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style="overflow-x: auto; padding: 0 24px 24px;">
+              <table class="rp-history-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Formato</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Resumen del Día</strong></td>
+                    <td>30/03/2026 — 14:35</td>
+                    <td>Admin</td>
+                    <td><span class="rp-badge-format">PDF</span></td>
+                    <td>
+                      <div class="rp-action-icons">
+                        <button><i data-lucide="download"></i></button>
+                        <button><i data-lucide="copy"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Inventario</strong></td>
+                    <td>29/03/2026 — 09:15</td>
+                    <td>Admin</td>
+                    <td><span class="rp-badge-format excel">Excel</span></td>
+                    <td>
+                      <div class="rp-action-icons">
+                        <button><i data-lucide="download"></i></button>
+                        <button><i data-lucide="copy"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Resumen del Día</strong></td>
+                    <td>29/03/2026 — 18:20</td>
+                    <td>Gerente</td>
+                    <td><span class="rp-badge-format">PDF</span></td>
+                    <td>
+                      <div class="rp-action-icons">
+                        <button><i data-lucide="download"></i></button>
+                        <button><i data-lucide="copy"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Gastos</strong></td>
+                    <td>28/03/2026 — 11:00</td>
+                    <td>Admin</td>
+                    <td><span class="rp-badge-format">PDF</span></td>
+                    <td>
+                      <div class="rp-action-icons">
+                        <button><i data-lucide="download"></i></button>
+                        <button><i data-lucide="copy"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Movimientos de Almacén</strong></td>
+                    <td>27/03/2026 — 16:45</td>
+                    <td>Admin</td>
+                    <td><span class="rp-badge-format excel">Excel</span></td>
+                    <td>
+                      <div class="rp-action-icons">
+                        <button><i data-lucide="download"></i></button>
+                        <button><i data-lucide="copy"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Resumen del Día</strong></td>
+                    <td>27/03/2026 — 19:10</td>
+                    <td>Gerente</td>
+                    <td><span class="rp-badge-format">PDF</span></td>
+                    <td>
+                      <div class="rp-action-icons">
+                        <button><i data-lucide="download"></i></button>
+                        <button><i data-lucide="copy"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <footer class="page-footer">
+            MiRest con IA · <span id="currentYear">2026</span> · Módulo Reportes.
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modal: Generar Reporte -->
+    <div class="rp-modal-overlay" id="generarReporteModal">
+      <div class="rp-modal">
+        <div class="rp-modal__head">
+          <span>Generar Nuevo Reporte</span>
+          <button class="rp-modal__close" id="closeGenerarModal">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="rp-field">
+          <label>Tipo de Reporte</label>
+          <div class="rp-btn-group" id="tipoReporteGroup">
+            <button class="rp-selectable-btn active" data-value="ventas">
+              <i data-lucide="trending-up" style="width:18px;height:18px"></i> Ventas
+            </button>
+            <button class="rp-selectable-btn" data-value="productos">
+              <i data-lucide="package" style="width:18px;height:18px"></i> Productos
+            </button>
+            <button class="rp-selectable-btn" data-value="clientes">
+              <i data-lucide="users" style="width:18px;height:18px"></i> Clientes
+            </button>
+            <button class="rp-selectable-btn" data-value="caja">
+              <i data-lucide="banknote" style="width:18px;height:18px"></i> Caja
+            </button>
+          </div>
+          <input type="hidden" id="rpTipoReporte" value="ventas">
+        </div>
+        <div class="rp-field">
+          <label>Rango de Fechas</label>
+          <div class="rp-btn-group" id="rangoFechasGroup" style="grid-template-columns: repeat(3, 1fr);">
+            <button class="rp-selectable-btn active" data-value="hoy">Hoy</button>
+            <button class="rp-selectable-btn" data-value="semana">Semana</button>
+            <button class="rp-selectable-btn" data-value="mes">Mes</button>
+          </div>
+          <input type="hidden" id="rpRangoFechas" value="hoy">
+        </div>
+        <div class="rp-field">
+          <label>Formato de Exportación</label>
+          <div class="rp-btn-group" id="formatoGroup" style="grid-template-columns: repeat(2, 1fr);">
+            <button class="rp-selectable-btn active" data-value="pdf">
+              <i data-lucide="file-text" style="width:18px;height:18px"></i> PDF
+            </button>
+            <button class="rp-selectable-btn" data-value="xlsx">
+              <i data-lucide="table" style="width:18px;height:18px"></i> Excel
+            </button>
+          </div>
+          <input type="hidden" id="rpFormato" value="pdf">
+        </div>
+        <button class="rp-btn rp-btn--primary" id="btnConfirmarGenerar" style="margin-top: 10px;">
+          <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
+          Generar Reporte
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Confirmar Descarga -->
+    <div class="rp-modal-overlay" id="descargarModal">
+      <div class="rp-modal" style="max-width: 380px;">
+        <div class="rp-modal__head">
+          <span>Descargar Reporte</span>
+          <button class="rp-modal__close" id="closeDescargarModal">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="text-align: center; padding: 20px 0;">
+          <div id="descargarIcon" style="width: 60px; height: 60px; background: var(--rp-orange-dim); border-radius: 50%; display: grid; place-items: center; margin: 0 auto 15px;">
+            <i data-lucide="download" style="width: 30px; height: 30px; color: var(--rp-orange);"></i>
+          </div>
+          <p id="descargarReporteNombre" style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 8px;">Reporte de Ventas del Día</p>
+          <p style="font-size: 12px; color: var(--color-text-soft);">Formato: <span id="descargarReporteFormato">PDF</span></p>
+        </div>
+        <button class="rp-btn rp-btn--primary" id="btnConfirmarDescarga">
+          <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+          Descargar Ahora
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="rp-toast" id="rpToast">
+      <i data-lucide="check-circle" id="rpToastIcon" style="width:24px;height:24px;color:var(--rp-orange)"></i>
+      <span id="rpToastMsg"></span>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+
+    <!-- Shell scripts -->
+    <script type="module" src="../scripts/app.js"></script>
+    <script type="module" src="reportes.js"></script>
+    <script src="../scripts/dalia-widget.js"></script>
+  </body>
+</html>

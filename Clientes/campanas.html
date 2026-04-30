@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <title>MiRest con IA | Campañas de Fidelización</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="crm-sidebar-demo.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="clientes">
+    <div class="app-shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy"><span class="brand-copy__eyebrow">MiRest</span><strong>MiRest con IA</strong><span>Dashboard administrativo</span></div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+      <button class="sidebar-backdrop" id="sidebarBackdrop"></button>
+
+      <div class="app-main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button class="icon-button topbar__menu-toggle" id="sidebarToggle"><i data-lucide="menu"></i></button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">CRM / Campañas y Automatizaciones</span>
+              <h1 id="pageTitle">Campañas de Fidelización</h1>
+              <p id="pageSubtitle">Crea, automatiza y mide estrategias de marketing con IA para reactivar tu demanda.</p>
+            </div>
+          </div>
+          <div class="topbar__actions">
+            <button class="btn-orange-gradient" id="btnNewCampaign"><i class="fa-solid fa-plus"></i> Nueva Campaña</button>
+          </div>
+        </header>
+
+        <main class="module-page" style="padding-top: 0;">
+          <div class="module-stack">
+            
+            <!-- ÁREA CENTRAL: TARJETAS DE CAMPAÑAS ACTIVAS -->
+            <div class="campaigns-grid">
+              <!-- Tarjeta 1 -->
+              <div class="campaign-card">
+                <div class="campaign-header">
+                  <div class="campaign-icon icon-orange"><i class="fa-solid fa-cake-candles"></i></div>
+                  <div class="campaign-title-wrap">
+                    <h3>Cumpleaños</h3>
+                    <span class="campaign-status"><span class="status-dot pulsing"></span> Activa · 42 suscritos</span>
+                  </div>
+                </div>
+                <p class="campaign-desc">Envío automático el día del cumpleaños del cliente con descuento del 15%.</p>
+                <div class="campaign-preview bg-pastel-orange">
+                  <strong>Vista previa WhatsApp:</strong>
+                  ¡Feliz cumpleaños {nombre_cliente}! 🎂 Ven a celebrar con nosotros y disfruta de un 15% de dscto en tu mesa. Validez: 7 días.
+                </div>
+                <div class="campaign-footer">
+                  <i class="fa-regular fa-calendar-check"></i> 8 envíos este mes - 55% respondió
+                </div>
+              </div>
+
+              <!-- Tarjeta 2 -->
+              <div class="campaign-card">
+                <div class="campaign-header">
+                  <div class="campaign-icon icon-blue"><i class="fa-solid fa-receipt"></i></div>
+                  <div class="campaign-title-wrap">
+                    <h3>Post-Factura (Opt-In)</h3>
+                    <span class="campaign-status"><span class="status-dot pulsing"></span> Activa · 186 suscritos</span>
+                  </div>
+                </div>
+                <p class="campaign-desc">Solicitud de reseña y suscripción al club VIP tras la primera visita.</p>
+                <div class="campaign-preview bg-pastel-blue">
+                  <strong>Vista previa WhatsApp:</strong>
+                  Hola {nombre_cliente}, ¡gracias por visitarnos hoy! 🌟 ¿Nos ayudarías con una calificación? Responde "SI" para unirte al Club VIP.
+                </div>
+                <div class="campaign-footer">
+                  <i class="fa-regular fa-paper-plane"></i> 32 envíos esta semana - 40% conversión
+                </div>
+              </div>
+
+              <!-- Tarjeta 3 -->
+              <div class="campaign-card">
+                <div class="campaign-header">
+                  <div class="campaign-icon icon-green"><i class="fa-solid fa-tags"></i></div>
+                  <div class="campaign-title-wrap">
+                    <h3>Días Especiales</h3>
+                    <span class="campaign-status"><span class="status-dot pulsing"></span> Activa · 98 suscritos</span>
+                  </div>
+                </div>
+                <p class="campaign-desc">Promociones para clientes inactivos por más de 30 días.</p>
+                <div class="campaign-preview bg-pastel-green">
+                  <strong>Vista previa WhatsApp:</strong>
+                  ¡Te extrañamos {nombre_cliente}! 🍽️ Tenemos un postre de cortesía esperándote en tu próxima visita este fin de semana.
+                </div>
+                <div class="campaign-footer">
+                  <i class="fa-solid fa-clock-rotate-left"></i> Próximo envío masivo: Viernes 18:00
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL INFERIOR: LOG DE ACTIVIDAD -->
+            <div class="activity-panel">
+              <div class="activity-header">
+                <h3>Actividad Reciente - Últimos envíos WhatsApp</h3>
+                <a href="#" class="link-subtle">Ver todo &rarr;</a>
+              </div>
+              <ul class="activity-list">
+                <li class="activity-item">
+                  <div class="log-time">Hoy 14:32</div>
+                  <div class="log-content">
+                    <div class="log-context"><i class="fa-solid fa-cake-candles"></i> Cumpleaños &rarr; María García Villanueva</div>
+                    <div class="log-status success"><i class="fa-solid fa-check-double"></i> <span>Entregado - respondió: <strong>'¡Gracias! Voy hoy con mi familia'</strong></span></div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="log-time">Hoy 11:15</div>
+                  <div class="log-content">
+                    <div class="log-context"><i class="fa-solid fa-receipt"></i> Post-Factura &rarr; Carlos Mendoza</div>
+                    <div class="log-status success"><i class="fa-solid fa-check-double"></i> <span>Suscripción aceptada (+1 al segmento Ofertas Semanales)</span></div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="log-time">Ayer 20:08</div>
+                  <div class="log-content">
+                    <div class="log-context"><i class="fa-solid fa-tags"></i> Días Especiales &rarr; Ana Rivera</div>
+                    <div class="log-status delivered"><i class="fa-solid fa-check"></i> <span>Entregado - Sin respuesta aún</span></div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- DRAWER: NUEVA CAMPAÑA PASO A PASO -->
+    <div id="campaignDrawerOverlay" class="drawer-overlay"></div>
+    <div id="campaignDrawer" class="campaign-drawer">
+      <header class="drawer-header">
+        <h2>Crear Nueva Campaña</h2>
+        <button id="btnCloseDrawer" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="drawer-body">
+        
+        <!-- Paso 1 -->
+        <div id="step1" class="step-content active">
+          <h3 class="step-title">Paso 1: Selecciona el disparador</h3>
+          <div class="radio-card-list">
+            <label class="radio-card selected"><input type="radio" name="trigger" checked><div class="rc-info"><h4>Fecha Específica</h4><p>Ej. Cumpleaños, aniversarios o eventos.</p></div></label>
+            <label class="radio-card"><input type="radio" name="trigger"><div class="rc-info"><h4>Acción del Cliente</h4><p>Ej. Después de pagar, al dejar de venir 30 días.</p></div></label>
+            <label class="radio-card"><input type="radio" name="trigger"><div class="rc-info"><h4>Envío Manual</h4><p>Envío masivo o push promocional inmediato.</p></div></label>
+          </div>
+        </div>
+
+        <!-- Pasos 2, 3, 4 se inyectan y controlan vía JS -->
+        <div id="step2" class="step-content"><h3 class="step-title">Paso 2: Selecciona la Audiencia</h3><select class="form-control"><option>VIP Inactivos (186)</option><option>Cumpleaños Junio (42)</option><option>Todos los suscritos</option></select></div>
+        <div id="step3" class="step-content"><h3 class="step-title">Paso 3: Plantilla del Mensaje</h3><div class="template-editor"><textarea class="template-textarea" placeholder="Escribe el mensaje de WhatsApp aquí..."></textarea><div class="template-tools"><button type="button" class="tool-btn">{nombre_cliente}</button><button type="button" class="tool-btn">{descuento}</button><button type="button" class="tool-btn">{link_reserva}</button></div></div></div>
+        <div id="step4" class="step-content"><h3 class="step-title">Paso 4: Resumen y Activación</h3><p style="color:#475569; font-size:14px; line-height:1.5;">La campaña se enviará a <strong>VIP Inactivos</strong> basándose en un disparador de <strong>Fecha Específica</strong>.</p></div>
+
+      </div>
+      <footer class="drawer-footer">
+        <button id="btnPrevStep" class="btn-secondary" style="visibility: hidden;">Atrás</button>
+        <button id="btnNextStep" class="btn-orange-gradient">Siguiente Paso</button>
+      </footer>
+    </div>
+
+    <script type="module" src="../scripts/app.js"></script>
+    <script src="crm-components.js"></script>
+    <script src="crm-sidebar-demo.js"></script>
+    <script src="campanas.js"></script>
+    <script type="module" src="tour-interactivo.js"></script>
+  </body>
+</html>

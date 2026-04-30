@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="../scripts/gtag-config.js"></script>
+    <title>MiRest con IA | Soporte</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="../Pwa/manifest.webmanifest" />
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="../styles/mobile.css?v=20260420-mobilev1" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="soporte">
+    <div class="app-shell">
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo</span>
+          </div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+
+      <button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Cerrar navegación lateral"></button>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button
+              class="icon-button topbar__menu-toggle"
+              id="sidebarToggle"
+              type="button"
+              aria-label="Abrir navegación lateral"
+              aria-controls="appSidebar"
+              aria-expanded="false"
+            >
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">Centro de ayuda</span>
+              <h1 id="pageTitle">Soporte</h1>
+              <p id="pageSubtitle">Guías, accesos y contacto para incidencias.</p>
+            </div>
+          </div>
+          <div class="topbar__actions">
+            <span class="chip chip--soft" id="pageContextChip">SP</span>
+            <div class="avatar" id="pageAvatar" aria-label="Soporte">SP</div>
+          </div>
+        </header>
+
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html" id="breadcrumbHome">Dashboard</a>
+            <span>/</span>
+            <span id="moduleBreadcrumbCurrent">Soporte</span>
+          </nav>
+
+          <div class="module-stack">
+            <section class="card" style="padding: var(--space-6); max-width: 720px">
+              <h2 style="margin-bottom: var(--space-3)">¿En qué podemos ayudarte?</h2>
+              <p style="color: var(--color-text-soft); margin-bottom: var(--space-6)">
+                Enlaces útiles. Para invitaciones, permisos o accesos, habla con quien administra las cuentas en tu local.
+              </p>
+              <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-4)">
+                <li class="card" style="padding: var(--space-4); border: 1px solid var(--color-border)">
+                  <strong style="display: flex; align-items: center; gap: var(--space-2)">
+                    <i data-lucide="book-open" style="width: 20px; height: 20px; color: var(--color-accent)"></i>
+                    Activación y contraseña
+                  </strong>
+                  <p style="margin: var(--space-2) 0 0; color: var(--color-text-muted); font-size: 0.9rem">
+                    Si caducó el enlace, pide a quien administra el acceso en tu local un correo nuevo o abre
+                    <a href="../recuperar-contrasena.html">recuperar contraseña</a>.
+                  </p>
+                </li>
+                <li class="card" style="padding: var(--space-4); border: 1px solid var(--color-border)">
+                  <strong style="display: flex; align-items: center; gap: var(--space-2)">
+                    <i data-lucide="log-in" style="width: 20px; height: 20px; color: var(--color-accent)"></i>
+                    Inicio de sesión
+                  </strong>
+                  <p style="margin: var(--space-2) 0 0; color: var(--color-text-muted); font-size: 0.9rem">
+                    <a href="../login.html">Volver al login</a> con el correo aprobado por tu administrador.
+                  </p>
+                </li>
+                <li class="card" style="padding: var(--space-4); border: 1px solid var(--color-border)">
+                  <strong style="display: flex; align-items: center; gap: var(--space-2)">
+                    <i data-lucide="sparkles" style="width: 20px; height: 20px; color: var(--color-accent)"></i>
+                    Asistente DalIA
+                  </strong>
+                  <p style="margin: var(--space-2) 0 0; color: var(--color-text-muted); font-size: 0.9rem">
+                    Si tienes el módulo habilitado, abre <a href="../IA/ia.html">Asistente IA</a> desde el menú o el botón flotante del panel.
+                  </p>
+                </li>
+              </ul>
+            </section>
+          </div>
+
+          <footer class="page-footer">
+            MiRest con IA · <span id="currentYear"></span> · Módulo Soporte.
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+
+    <script type="module" src="../scripts/app.js"></script>
+    <script type="module" src="./soporte.js"></script>
+    <script src="../scripts/dalia-widget.js"></script>
+  </body>
+</html>

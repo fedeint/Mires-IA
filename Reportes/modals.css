@@ -1,0 +1,74 @@
+/* ── Modales ── */
+
+.rp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(5px);
+    display: none;
+    place-items: center;
+    z-index: 200;
+}
+
+.rp-modal-overlay.open {
+    display: grid;
+}
+
+.rp-modal {
+    background: linear-gradient(180deg, var(--color-surface), var(--color-surface-muted));
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 90%;
+    max-width: 480px;
+    animation: rp-modal-in .22s ease-out;
+    box-shadow: var(--shadow-elevated);
+}
+
+@keyframes rp-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.rp-modal__head {
+    font-family: var(--rp-font-d);
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rp-modal__close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.rp-modal__close svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.rp-modal .rp-btn--primary {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 15px;
+    margin-top: 6px;
+    border-radius: 10px;
+}

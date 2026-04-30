@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f07c2a" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q0F5JGJY4B"></script>
+    <script src="../scripts/gtag-config.js"></script>
+    <title>MiRest con IA | Carta de Productos</title>
+    <script>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.theme = localStorage.getItem("mirest-ui-theme") || "light";
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..800&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="../Pwa/manifest.webmanifest" />
+    
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="stylesheet" href="../styles/premium-modules.css" />
+    <link rel="stylesheet" href="../styles/mobile.css?v=20260420-mobilev1" />
+    
+    <link rel="stylesheet" href="productos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body data-root-path="../" data-page-type="module" data-module-key="productos">
+    <div class="app-shell">
+      <aside class="sidebar" id="appSidebar" aria-label="Panel lateral">
+        <div class="sidebar__brand">
+          <div class="brand-mark" aria-hidden="true">IA</div>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">MiRest</span>
+            <strong>MiRest con IA</strong>
+            <span>Dashboard administrativo</span>
+          </div>
+        </div>
+        <nav id="sidebarNav" class="sidebar__nav" aria-label="Navegación principal"></nav>
+      </aside>
+
+      <button
+        class="sidebar-backdrop"
+        id="sidebarBackdrop"
+        type="button"
+        aria-label="Cerrar navegación lateral"
+      ></button>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div class="topbar__lead">
+            <button
+              class="icon-button topbar__menu-toggle"
+              id="sidebarToggle"
+              type="button"
+              aria-label="Abrir navegación lateral"
+              aria-controls="appSidebar"
+              aria-expanded="false"
+            >
+              <i data-lucide="menu"></i>
+            </button>
+
+            <div class="topbar__copy">
+              <span class="eyebrow" id="pageEyebrow">Gestión</span>
+              <h1 id="pageTitle">Productos</h1>
+              <p id="pageSubtitle">Catálogo y disponibilidad comercial</p>
+            </div>
+          </div>
+
+          <div class="topbar__actions">
+            <div class="search-container">
+              <i data-lucide="search"></i>
+              <input type="text" id="productSearch" class="search-input" placeholder="Buscar producto...">
+            </div>
+            <span class="chip chip--soft" id="pageContextChip">PR</span>
+            <div class="avatar" id="pageAvatar" aria-label="Iniciales del módulo">PR</div>
+          </div>
+        </header>
+
+        <main class="module-page">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html" id="breadcrumbHome">Dashboard</a>
+            <span>/</span>
+            <span id="moduleBreadcrumbCurrent">Productos</span>
+          </nav>
+
+          <div class="module-stack">
+            <!-- Métricas del Módulo -->
+            <section class="mod-metrics-grid" id="metricsContainer">
+              <!-- Renderizado dinámico por productos.js -->
+            </section>
+
+            <!-- Filtros de Categoría -->
+            <nav class="categories-filter" id="categoriesContainer">
+              <!-- Renderizado dinámico por productos.js -->
+            </nav>
+
+            <!-- Grid de Productos -->
+            <section class="products-grid" id="productsContainer">
+              <!-- Renderizado dinámico por productos.js -->
+            </section>
+          </div>
+          
+          <footer class="page-footer">
+            MiRest con IA · <span id="currentYear">2026</span> · Módulo de Productos.
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <button id="themeToggle" class="theme-fab" type="button" aria-label="Cambiar tema">
+      <i data-lucide="moon"></i>
+    </button>
+
+    <script type="module" src="../scripts/app.js"></script>
+    <script type="module" src="productos.js"></script>
+    <script src="../scripts/dalia-widget.js"></script>
+  </body>
+</html>
