@@ -1,0 +1,54 @@
+---
+description: MiRest canonico en carpeta mirest
+globs: **/*
+alwaysApply: true
+---
+
+# Arquitectura canonica MiRest (obligatoria)
+
+## Estructura valida del proyecto
+
+Toda implementacion nueva o refactor debe respetar esta estructura:
+
+- `mirest/src/apps/` para entrypoints de aplicaciones (`web`, `pwa`, `dalla-ia`)
+- `mirest/src/modules/<dominio>/` para cada dominio funcional
+- `mirest/src/shared/` para codigo compartido (hooks, lib, navigation, ui, types)
+- `mirest/api/` para backend modular (`routes`, `controllers`, `services`, `middleware`)
+- `mirest/config/` para configuracion de backend y entornos
+- `mirest/supabase/` para migrations, functions y tests
+- `mirest/docs/` para documentacion tecnica
+
+## Reglas de ubicacion de codigo
+
+1. No crear logica de aplicacion en `scripts/` raiz.
+2. No crear modulos de negocio fuera de `mirest/src/modules/`.
+3. No crear APIs fuera de `mirest/api/`.
+4. Todo recurso compartido debe vivir en `mirest/src/shared/`.
+5. No crear nuevas carpetas legacy en la raiz (como `Pedidos/`, `Reportes/`, `Recetas/`, etc.).
+
+## Reglas de imports
+
+1. `mirest/src/modules/*` puede importar solo de:
+   - su propio modulo
+   - `mirest/src/shared/*`
+2. `mirest/src/shared/*` no puede importar desde `mirest/src/modules/*`.
+3. Frontend no importa codigo de `mirest/api/*`; se comunica por HTTP.
+
+## Convenciones de nombres
+
+1. Carpetas en lowercase o kebab-case consistente.
+2. Archivos JS/CSS en kebab-case o `<modulo>.module.js/css` cuando aplique.
+3. No mezclar PascalCase en nombres de carpetas del filesystem.
+
+## Criterio de migracion incremental
+
+1. Mantener funcionamiento durante la migracion.
+2. Si se mueve una ruta critica, dejar puente temporal y luego retirarlo.
+3. Priorizar coherencia en `mirest/` sobre mantener patrones legacy.
+
+## Antipatrones prohibidos
+
+- Duplicar la misma logica en multiples carpetas.
+- Crear otro repo git anidado.
+- Commitear `node_modules`.
+- Mezclar UI, dominio e infraestructura en un solo archivo largo sin separacion.

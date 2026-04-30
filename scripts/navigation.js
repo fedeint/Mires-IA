@@ -21,7 +21,7 @@ export const MODULES = [
     label: "Proveedores",
     short: "PV",
     icon: "truck",
-    path: "Clientes/proveedores.html",
+    path: "mirest/src/modules/clientes/index.html",
     description: "Listado y gestión de proveedores vinculada a compras e inventario.",
     owner: "Gestionado con el CRM / Clientes.",
     handoff: [
@@ -34,7 +34,7 @@ export const MODULES = [
     label: "Almacen",
     short: "AL",
     icon: "package",
-    path: "Almacen/almacen.html",
+    path: "mirest/src/modules/almacen/index.html",
     description: "Control base de stock, insumos y movimientos internos.",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Almacen.",
@@ -49,7 +49,7 @@ export const MODULES = [
     label: "Caja",
     short: "CJ",
     icon: "banknote",
-    path: "Caja/caja.html",
+    path: "mirest/src/modules/caja/index.html",
     description: "Apertura, cierre y flujo operativo de caja para el POS.",
     owner: "Este entry point queda reservado para el frontend definitivo del equipo de Caja.",
     handoff: [
@@ -63,7 +63,7 @@ export const MODULES = [
     label: "Cocina",
     short: "CK",
     icon: "flame",
-    path: "Cocina/cocina.html",
+    path: "mirest/src/modules/cocina/index.html",
     description: "Vista operativa para producción, cola y estado de preparación.",
     owner: "Este entry point queda reservado para el frontend definitivo del equipo de Cocina.",
     handoff: [
@@ -77,7 +77,7 @@ export const MODULES = [
     label: "Clientes",
     short: "CL",
     icon: "users",
-    path: "Clientes/clientes.html",
+    path: "mirest/src/modules/clientes/index.html",
     description: "CRM: base de contactos, campañas, lead scoring, nurturing e inbox.",
     owner:
       "Entry point al submódulo de base de datos; el resto de pantallas vive bajo Clientes/.",
@@ -92,7 +92,7 @@ export const MODULES = [
     label: "Productos",
     short: "PR",
     icon: "tag",
-    path: "productos/productos.html",
+    path: "mirest/src/modules/productos/index.html",
     description: "Gestión detallada de la carta de productos y precios.",
     owner: "Módulo de gestión de productos.",
     handoff: [
@@ -105,7 +105,7 @@ export const MODULES = [
     label: "Facturacion",
     short: "FC",
     icon: "file-text",
-    path: "Facturacion/facturacion.html",
+    path: "mirest/src/modules/facturacion/index.html",
     description: "Comprobantes y control tributario",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Facturacion.",
@@ -120,7 +120,7 @@ export const MODULES = [
     label: "Pedidos",
     short: "PD",
     icon: "shopping-bag",
-    path: "Pedidos/implementacion/Pedidos.html?module=pedidos",
+    path: "mirest/src/modules/pedidos/index.html",
     description: "PWA de operación: salón, delivery, para llevar, cocina y caja en un flujo unificado.",
     owner:
       "Código y assets en Pedidos/implementacion/; manifest PWA local en esa carpeta.",
@@ -135,7 +135,7 @@ export const MODULES = [
     label: "Recetas",
     short: "RC",
     icon: "book-open",
-    path: "Recetas/recetas.html",
+    path: "mirest/src/modules/recetas/index.html",
     description: "Recetas, costos, porciones y estandarización operativa.",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Recetas.",
@@ -150,7 +150,7 @@ export const MODULES = [
     label: "Reportes",
     short: "RP",
     icon: "bar-chart-2",
-    path: "Reportes/reportes.html",
+    path: "mirest/src/modules/reportes/index.html",
     description: "Análisis detallado de ventas, costos y rendimiento operativo.",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Reportes.",
@@ -179,7 +179,7 @@ export const MODULES = [
     label: "Soporte",
     short: "SP",
     icon: "life-buoy",
-    path: "Soporte/soporte.html",
+    path: "mirest/src/modules/soporte/index.html",
     description: "Ayuda, contacto y recursos para resolver incidencias.",
     owner: "Canal único de soporte para equipos operativos.",
     handoff: [
@@ -192,7 +192,7 @@ export const MODULES = [
     label: "Configuración",
     short: "CF",
     icon: "settings",
-    path: "Configuracion/configuracion.html",
+    path: "mirest/src/modules/configuracion/index.html",
     description: "Centro de control del sistema, IA, alertas y permisos.",
     owner: "Administración global.",
     handoff: [
@@ -206,7 +206,7 @@ export const MODULES = [
     label: "Accesos",
     short: "AC",
     icon: "shieldCheck",
-    path: "Accesos/accesos.html",
+    path: "mirest/src/modules/accesos/index.html",
     description: "Gestión de roles y habilitación de usuarios en Supabase.",
     owner: "Módulo exclusivo de administrador.",
     handoff: [
