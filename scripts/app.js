@@ -354,7 +354,7 @@ function initializeModulePage(module) {
   const moduleFolder = module.path.split("/")[0] + "/";
   const sublabel = (document.body.dataset.sublabel || "").trim();
   const subhead = (document.body.dataset.subheadline || "").trim();
-  const almacenHubHref = toHref("Almacen/almacen.html");
+  const almacenHubHref = toHref("mirest/src/modules/almacen/almacen.html");
 
   setText("pageEyebrow", sublabel ? "Módulo · Almacén" : "Módulo");
   if (sublabel) {

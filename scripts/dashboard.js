@@ -125,7 +125,7 @@ function buildChecklistItems(snapshot) {
   if (snapshot.activeOrders > 0) {
     items.push({
       text: `${snapshot.activeOrders} pedido(s) activo(s)`,
-      href: toHref("Pedidos/implementacion/Pedidos.html?module=pedidos"),
+      href: toHref("mirest/src/modules/pedidos/implementacion/Pedidos.html?module=pedidos"),
       icon: "list-checks",
       priority: snapshot.activeOrders >= 8 ? "alta" : "media",
     });
@@ -134,7 +134,7 @@ function buildChecklistItems(snapshot) {
   if (snapshot.atRiskStockCount > 0) {
     items.push({
       text: `${snapshot.atRiskStockCount} insumo(s) en alerta de stock`,
-      href: toHref("Almacen/almacen.html"),
+      href: toHref("mirest/src/modules/almacen/almacen.html"),
       icon: "package",
       priority: "alta",
     });
@@ -143,7 +143,7 @@ function buildChecklistItems(snapshot) {
   if (snapshot.openCashSessions > 0) {
     items.push({
       text: `Caja abierta (${snapshot.openCashSessions}) cerrar al fin del turno`,
-      href: toHref("Caja/caja.html"),
+      href: toHref("mirest/src/modules/caja/caja.html"),
       icon: "receipt",
       priority: "media",
     });
