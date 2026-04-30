@@ -37,6 +37,21 @@ function dismissBootLoader() {
   el.setAttribute("aria-busy", "false");
 }
 
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 1023px)").matches;
+}
+
+function syncBottomNavViewportDisplay() {
+  const isMobile = isMobileViewport();
+  const nav = document.getElementById("mirestBottomNav");
+  const sheet = document.getElementById("mirestBottomSheet");
+  const backdrop = document.getElementById("mirestBottomSheetBackdrop");
+
+  if (nav) nav.style.display = isMobile ? "grid" : "none";
+  if (sheet) sheet.style.display = isMobile ? "block" : "none";
+  if (backdrop && !isMobile) backdrop.classList.remove("is-open");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const pageType = document.body.dataset.pageType || "dashboard";
   const activeKey = document.body.dataset.moduleKey || "dashboard";
@@ -137,7 +152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   renderSidebar(document.getElementById("sidebarNav"), activeKey, userRole, userPermissions);
-  renderBottomNavigation({
+  const bottomNavOptions = {
     activeKey,
     userRole,
     permissions: userPermissions,
@@ -153,6 +168,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       const loginHref = resolveLoginHref(rootPath);
       window.location.href = loginHref;
     },
+  };
+
+  const ensureBottomNavigationMounted = () => {
+    if (!isMobileViewport()) {
+      syncBottomNavViewportDisplay();
+      return;
+    }
+    if (!document.getElementById("mirestBottomNav")) {
+      renderBottomNavigation(bottomNavOptions);
+    }
+    syncBottomNavViewportDisplay();
+  };
+
+  renderBottomNavigation(bottomNavOptions);
+  syncBottomNavViewportDisplay();
+
+  let bottomNavRaf = 0;
+  const scheduleBottomNavSync = () => {
+    if (bottomNavRaf) return;
+    bottomNavRaf = window.requestAnimationFrame(() => {
+      bottomNavRaf = 0;
+      ensureBottomNavigationMounted();
+    });
+  };
+
+  window.addEventListener("resize", scheduleBottomNavSync, { passive: true });
+  window.addEventListener("orientationchange", scheduleBottomNavSync, { passive: true });
+  window.addEventListener("pageshow", ensureBottomNavigationMounted);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") ensureBottomNavigationMounted();
   });
   initializeThemeToggle(document.getElementById("themeToggle"));
   initializeResponsiveSidebar(pageType);

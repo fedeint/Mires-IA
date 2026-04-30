@@ -1,0 +1,116 @@
+---
+alwaysApply: true
+---
+
+---
+description: Arquitectura modular MiRest — reglas de estructura, capas e imports
+globs: **/*.js, **/*.ts, **/*.mjs, **/*.cjs
+alwaysApply: true
+---
+
+# Arquitectura Modular MiRest
+
+## Estructura de carpetas canónica
+
+```
+raíz/
+├── apps/
+│   ├── web/                  ← PWA Vanilla JS (frontend principal)
+│   │   ├── core/             ← bootstrap, state, auth, routing
+│   │   ├── modules/          ← un módulo por dominio de negocio
+│   │   │   ├── pedidos/
+│   │   │   ├── cocina/
+│   │   │   ├── caja/
+│   │   │   ├── delivery/
+│   │   │   ├── dashboard/
+│   │   │   ├── almacen/
+│   │   │   ├── ventas/
+│   │   │   └── reportes-embed/
+│   │   └── styles/           ← tokens.css, base.css, components.css
+│   │
+│   ├── server/               ← Express API (ex-Pedidos/backend)
+│   │   ├── api/              ← rutas HTTP
+│   │   ├── services/         ← lógica de negocio
+│   │   ├── repositories/     ← acceso a datos
+│   │   └── domain/           ← entidades y tipos
+│   │
+│   └── reportes/             ← React+Vite (app independiente)
+│       └── src/
+│
+├── packages/
+│   ├── shared/               ← código compartido entre apps
+│   │   ├── schemas/          ← Zod schemas
+│   │   ├── constants/        ← constantes de dominio
+│   │   └── utils/            ← helpers puros sin side effects
+│   │
+│   └── ui-tokens/            ← design tokens compartidos
+│
+├── supabase/                 ← migrations, functions, tests (sin cambios)
+├── scripts/                  ← SOLO scripts de tooling/CI, no lógica de app
+└── docs/                     ← documentación técnica
+```
+
+## Regla 1 — Cada módulo es una isla
+
+Cada carpeta dentro de `apps/web/modules/<nombre>/` debe contener:
+```
+modules/pedidos/
+├── index.js          ← único punto de entrada público
+├── pedidos.js        ← lógica del módulo
+├── pedidos.css       ← estilos del módulo (si los tiene)
+└── pedidos.test.js   ← tests del módulo (si los tiene)
+```
+
+**NUNCA** pongas lógica de un módulo en otro módulo directamente.
+Si dos módulos comparten algo, ese algo va a `packages/shared/`.
+
+## Regla 2 — Jerarquía de imports (no se puede violar)
+
+```
+apps/web/modules/*  →  puede importar de: apps/web/core, packages/shared
+apps/web/core       →  puede importar de: packages/shared
+apps/server/*       →  puede importar de: packages/shared
+packages/shared     →  NO puede importar de apps/
+```
+
+**Prohibido:**
+- Un módulo importando de otro módulo directamente
+- `apps/web` importando de `apps/server` (usan la API HTTP)
+- `packages/shared` importando de cualquier `apps/`
+
+## Regla 3 — Convenciones de naming
+
+| Qué               | Formato          | Ejemplo                    |
+|-------------------|------------------|----------------------------|
+| Carpetas          | kebab-case       | `order-state/`             |
+| Archivos JS/TS    | kebab-case       | `order-state.js`           |
+| Archivos CSS      | kebab-case       | `pedidos.css`              |
+| Constantes        | SCREAMING_SNAKE  | `MAX_ITEMS_POR_PEDIDO`     |
+| Funciones         | camelCase        | `crearPedido()`            |
+| Clases/Schemas    | PascalCase       | `PedidoSchema`             |
+
+**Sin excepción:** todo en lowercase en el sistema de archivos.
+Renombrar `Pedidos/` → `pedidos/`, `Reportes/` → `reportes/`, etc.
+
+## Regla 4 — Módulo nuevo = checklist
+
+Cuando se crea un módulo en `apps/web/modules/<nombre>/`:
+
+1. ✅ Tiene `index.js` que exporta la función de inicialización
+2. ✅ La función de init recibe `{ state, config }` como parámetros
+3. ✅ No accede a `window.*` globals directamente — usa el bridge del core
+4. ✅ Sus estilos están en `<nombre>.css` dentro de la misma carpeta
+5. ✅ Registrado en `apps/web/core/modular-app.js`
+6. ✅ Si necesita API, usa el cliente HTTP de `packages/shared/`
+
+## Regla 5 — Scripts raíz = solo tooling
+
+La carpeta `scripts/` en la raíz es EXCLUSIVAMENTE para:
+- Scripts de CI/CD
+- Scripts de migración/deployment
+- Scripts de build/generación de código
+
+**Nunca** en `scripts/` raíz:
+- Lógica de módulos de la aplicación
+- Código que se ejecuta en el browser
+- Helpers de UI

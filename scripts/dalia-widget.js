@@ -6,6 +6,15 @@
 (function () {
   // ── Detectar root path desde el body ──────────────────────────────────────
   const ROOT = document.body.dataset.rootPath || "../";
+  const rootNormalized = ROOT.endsWith("/") ? ROOT : `${ROOT}/`;
+
+  function buildScriptUrl(fileName) {
+    // Evita duplicar "/scripts/scripts/" cuando ROOT ya apunta al directorio scripts.
+    if (/\/scripts\/$/i.test(rootNormalized)) {
+      return rootNormalized + fileName;
+    }
+    return `${rootNormalized}scripts/${fileName}`;
+  }
 
   // ── Helpers de credenciales (mismo localStorage que ia.js) ────────────────
   const getProvider  = () => localStorage.getItem("mirest_ai_provider") || "";
@@ -597,7 +606,7 @@
   // ── Inicializar: respeta tenants.dalla_activo_por_modulo (vía mirest-dallia-visibility.js) ─
   async function bootDalia() {
     try {
-      const { shouldShowDallAForCurrentPage } = await import(ROOT + "scripts/mirest-dallia-visibility.js");
+      const { shouldShowDallAForCurrentPage } = await import(buildScriptUrl("mirest-dallia-visibility.js"));
       const ok = await shouldShowDallAForCurrentPage();
       if (!ok) return;
     } catch (e) {

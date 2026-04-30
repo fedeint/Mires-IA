@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     data: { session },
   } = await supabase.auth.getSession();
   if (session) {
-    window.location.replace("./index.html");
+    window.location.replace("/mirest/src/apps/web/index.html");
     return;
   }
 
@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       submitBtn.innerHTML = `${ICON.check} ¡Bienvenido!`;
       setTimeout(() => {
-        window.location.replace("./index.html");
+        window.location.replace("/mirest/src/apps/web/index.html");
       }, 300);
     }
   });

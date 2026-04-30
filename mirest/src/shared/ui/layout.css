@@ -1,0 +1,9 @@
+﻿.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+.app-main {
+  padding: 16px;
+}
