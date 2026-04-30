@@ -45,6 +45,9 @@ app.use(
 
 // Sirve frontend modular y activos existentes del repo durante la transición.
 app.use(express.static(repoRoot));
+app.use("/mirest/src/modules/scripts", express.static(path.join(repoRoot, "scripts")));
+app.use("/mirest/src/modules/styles", express.static(path.join(repoRoot, "styles")));
+app.use("/mirest/src/modules/Pwa", express.static(path.join(repoRoot, "Pwa")));
 
 app.get("/health", (_req, res) => {
   res.json({

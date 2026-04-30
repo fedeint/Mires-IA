@@ -1,6 +1,6 @@
 import { APP_ROLE_TO_SHELL } from "./mirest-role-maps.js";
 
-/** Solo luna/sol para el FAB de tema: evita cargar auth-inline-icons.js en todos los mâ”œâ”‚dulos. */
+/** Solo luna/sol para el FAB de tema: evita cargar auth-inline-icons.js en todos los mâ??â??dulos. */
 function iconThemeFab(isDark) {
   const moon =
     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="auth-icon" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
@@ -20,11 +20,11 @@ export const MODULES = [
     label: "Proveedores",
     short: "PV",
     icon: "truck",
-    path: "mirest/src/modules/clientes/index.html",
-    description: "Listado y gestiâ”œâ”‚n de proveedores vinculada a compras e inventario.",
+    path: "mirest/src/modules/clientes/proveedores.html",
+    description: "Listado y gestiâ??â??n de proveedores vinculada a compras e inventario.",
     owner: "Gestionado con el CRM / Clientes.",
     handoff: [
-      "Mantener ruta bajo Clientes/ coherente con almacâ”œÂ®n y recetas.",
+      "Mantener ruta bajo Clientes/ coherente con almacâ??Â®n y recetas.",
       "Sincronizar con datos reales al integrar Supabase.",
     ],
   },
@@ -33,12 +33,12 @@ export const MODULES = [
     label: "Almacen",
     short: "AL",
     icon: "package",
-    path: "mirest/src/modules/almacen/index.html",
+    path: "mirest/src/modules/almacen/almacen.html",
     description: "Control base de stock, insumos y movimientos internos.",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Almacen.",
     handoff: [
-      "Diseâ”œâ–’ar el layout interno del mâ”œâ”‚dulo dentro de la carpeta Almacen.",
+      "Diseâ??â??ar el layout interno del mâ??â??dulo dentro de la carpeta Almacen.",
       "Consumir tokens globales antes de crear estilos adicionales.",
       "Mantener el regreso al dashboard y respetar el shell visual compartido.",
     ],
@@ -48,13 +48,13 @@ export const MODULES = [
     label: "Caja",
     short: "CJ",
     icon: "banknote",
-    path: "mirest/src/modules/caja/index.html",
+    path: "mirest/src/modules/caja/caja.html",
     description: "Apertura, cierre y flujo operativo de caja para el POS.",
     owner: "Este entry point queda reservado para el frontend definitivo del equipo de Caja.",
     handoff: [
-      "Implementar la vista operativa de caja sin tocar la navegaciâ”œâ”‚n global.",
+      "Implementar la vista operativa de caja sin tocar la navegaciâ??â??n global.",
       "Usar componentes compartidos para botones, cards y badges.",
-      "Mantener esta pâ”œÃ­gina como acceso directo desde el dashboard raâ”œÂ¡z.",
+      "Mantener esta pâ??Ã­gina como acceso directo desde el dashboard raâ??Â¡z.",
     ],
   },
   {
@@ -62,12 +62,12 @@ export const MODULES = [
     label: "Cocina",
     short: "CK",
     icon: "flame",
-    path: "mirest/src/modules/cocina/index.html",
-    description: "Vista operativa para producciâ”œâ”‚n, cola y estado de preparaciâ”œâ”‚n.",
+    path: "mirest/src/modules/cocina/cocina.html",
+    description: "Vista operativa para producciâ??â??n, cola y estado de preparaciâ??â??n.",
     owner: "Este entry point queda reservado para el frontend definitivo del equipo de Cocina.",
     handoff: [
-      "Preparar una UI orientada a velocidad operativa y lectura râ”œÃ­pida.",
-      "Reutilizar el sistema de layout y tipografâ”œÂ¡a compartido.",
+      "Preparar una UI orientada a velocidad operativa y lectura râ??Ã­pida.",
+      "Reutilizar el sistema de layout y tipografâ??Â¡a compartido.",
       "Conservar breadcrumb y retorno al dashboard en toda vista nueva.",
     ],
   },
@@ -76,14 +76,14 @@ export const MODULES = [
     label: "Clientes",
     short: "CL",
     icon: "users",
-    path: "mirest/src/modules/clientes/index.html",
-    description: "CRM: base de contactos, campaâ”œâ–’as, lead scoring, nurturing e inbox.",
+    path: "mirest/src/modules/clientes/clientes.html",
+    description: "CRM: base de contactos, campaâ??â??as, lead scoring, nurturing e inbox.",
     owner:
-      "Entry point al submâ”œâ”‚dulo de base de datos; el resto de pantallas vive bajo Clientes/.",
+      "Entry point al submâ??â??dulo de base de datos; el resto de pantallas vive bajo Clientes/.",
     handoff: [
-      "Mantener data-root-path y mâ”œâ”‚dulo activo en subpâ”œÃ­ginas (dashboard CRM, campaâ”œâ–’as, etc.).",
+      "Mantener data-root-path y mâ??â??dulo activo en subpâ??Ã­ginas (dashboard CRM, campaâ??â??as, etc.).",
       "Reutilizar tokens y componentes compartidos del root.",
-      "Navegaciâ”œâ”‚n a otras apps del ecosistema vâ”œÂ¡a sidebar o enlaces cruzados coherentes.",
+      "Navegaciâ??â??n a otras apps del ecosistema vâ??Â¡a sidebar o enlaces cruzados coherentes.",
     ],
   },
   {
@@ -91,9 +91,9 @@ export const MODULES = [
     label: "Productos",
     short: "PR",
     icon: "tag",
-    path: "mirest/src/modules/productos/index.html",
-    description: "Gestiâ”œâ”‚n detallada de la carta de productos y precios.",
-    owner: "Mâ”œâ”‚dulo de gestiâ”œâ”‚n de productos.",
+    path: "mirest/src/modules/productos/productos.html",
+    description: "Gestiâ??â??n detallada de la carta de productos y precios.",
+    owner: "Mâ??â??dulo de gestiâ??â??n de productos.",
     handoff: [
       "Implementar la vista de productos usando el Design System.",
       "Asegurar la consistencia con la paleta de colores premium.",
@@ -104,7 +104,7 @@ export const MODULES = [
     label: "Facturacion",
     short: "FC",
     icon: "file-text",
-    path: "mirest/src/modules/facturacion/index.html",
+    path: "mirest/src/modules/facturacion/facturacion.html",
     description: "Comprobantes y control tributario",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Facturacion.",
@@ -119,13 +119,13 @@ export const MODULES = [
     label: "Pedidos",
     short: "PD",
     icon: "shopping-bag",
-    path: "mirest/src/modules/pedidos/index.html",
-    description: "PWA de operaciâ”œâ”‚n: salâ”œâ”‚n, delivery, para llevar, cocina y caja en un flujo unificado.",
+    path: "mirest/src/modules/pedidos/implementacion/Pedidos.html?module=pedidos",
+    description: "PWA de operaciâ??â??n: salâ??â??n, delivery, para llevar, cocina y caja en un flujo unificado.",
     owner:
-      "Câ”œâ”‚digo y assets en Pedidos/implementacion/; manifest PWA local en esa carpeta.",
+      "Câ??â??digo y assets en Pedidos/implementacion/; manifest PWA local en esa carpeta.",
     handoff: [
       "Preparar vistas internas orientadas a velocidad y trazabilidad.",
-      "Reutilizar estados, chips y estructura visual del design system del mâ”œâ”‚dulo.",
+      "Reutilizar estados, chips y estructura visual del design system del mâ??â??dulo.",
       "Mantener bootstrap y contratos alineados con el backend/Supabase cuando el flujo unifique.",
     ],
   },
@@ -134,13 +134,13 @@ export const MODULES = [
     label: "Recetas",
     short: "RC",
     icon: "book-open",
-    path: "mirest/src/modules/recetas/index.html",
-    description: "Recetas, costos, porciones y estandarizaciâ”œâ”‚n operativa.",
+    path: "mirest/src/modules/recetas/recetas.html",
+    description: "Recetas, costos, porciones y estandarizaciâ??â??n operativa.",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Recetas.",
     handoff: [
-      "Construir la base del mâ”œâ”‚dulo manteniendo consistencia con el shell global.",
-      "Modelar jerarquâ”œÂ¡as limpias para recetas, insumos y costos.",
+      "Construir la base del mâ??â??dulo manteniendo consistencia con el shell global.",
+      "Modelar jerarquâ??Â¡as limpias para recetas, insumos y costos.",
       "Mantener las mejoras compartidas dentro de la capa global del proyecto.",
     ],
   },
@@ -149,14 +149,14 @@ export const MODULES = [
     label: "Reportes",
     short: "RP",
     icon: "bar-chart-2",
-    path: "mirest/src/modules/reportes/index.html",
-    description: "Anâ”œÃ­lisis detallado de ventas, costos y rendimiento operativo.",
+    path: "mirest/src/modules/reportes/reportes.html",
+    description: "Anâ??Ã­lisis detallado de ventas, costos y rendimiento operativo.",
     owner:
       "Este entry point queda reservado para el frontend definitivo del equipo de Reportes.",
     handoff: [
-      "Implementar visualizaciones de datos y dashboards analâ”œÂ¡ticos.",
-      "Utilizar el sistema de tokens para grâ”œÃ­ficos y tablas.",
-      "Asegurar la navegaciâ”œâ”‚n fluida entre diferentes tipos de reportes.",
+      "Implementar visualizaciones de datos y dashboards analâ??Â¡ticos.",
+      "Utilizar el sistema de tokens para grâ??Ã­ficos y tablas.",
+      "Asegurar la navegaciâ??â??n fluida entre diferentes tipos de reportes.",
     ],
   },
   {
@@ -165,12 +165,12 @@ export const MODULES = [
     short: "IA",
     icon: "zap",
     path: "IA/ia.html",
-    description: "Inteligencia artificial centralizada para gestiâ”œâ”‚n y anâ”œÃ­lisis.",
-    owner: "Mâ”œâ”‚dulo de IA basado en Gemini Live para control total del proyecto.",
+    description: "Inteligencia artificial centralizada para gestiâ??â??n y anâ??Ã­lisis.",
+    owner: "Mâ??â??dulo de IA basado en Gemini Live para control total del proyecto.",
     handoff: [
-      "Integrar WebSocket para comunicaciâ”œâ”‚n multimodal en tiempo real.",
-      "Implementar function calling para que la IA interactâ”œâ•‘e con otros mâ”œâ”‚dulos.",
-      "Mantener la estâ”œÂ®tica naranja/noche con efectos de audio visuales.",
+      "Integrar WebSocket para comunicaciâ??â??n multimodal en tiempo real.",
+      "Implementar function calling para que la IA interactâ??â??e con otros mâ??â??dulos.",
+      "Mantener la estâ??Â®tica naranja/noche con efectos de audio visuales.",
     ],
   },
   {
@@ -178,26 +178,26 @@ export const MODULES = [
     label: "Soporte",
     short: "SP",
     icon: "life-buoy",
-    path: "mirest/src/modules/soporte/index.html",
+    path: "mirest/src/modules/soporte/soporte.html",
     description: "Ayuda, contacto y recursos para resolver incidencias.",
-    owner: "Canal â”œâ•‘nico de soporte para equipos operativos.",
+    owner: "Canal â??â??nico de soporte para equipos operativos.",
     handoff: [
-      "Centralizar FAQs y enlaces â”œâ•‘tiles.",
+      "Centralizar FAQs y enlaces â??â??tiles.",
       "Mantener coherencia con el shell y tokens globales.",
     ],
   },
   {
     key: "configuracion",
-    label: "Configuraciâ”œâ”‚n",
+    label: "Configuraciâ??â??n",
     short: "CF",
     icon: "settings",
-    path: "mirest/src/modules/configuracion/index.html",
+    path: "mirest/src/modules/configuracion/configuracion.html",
     description: "Centro de control del sistema, IA, alertas y permisos.",
-    owner: "Administraciâ”œâ”‚n global.",
+    owner: "Administraciâ??â??n global.",
     handoff: [
-      "Permite activar/desactivar mâ”œâ”‚dulos",
-      "Configuraciâ”œâ”‚n de alertas e IA",
-      "Gestiâ”œâ”‚n de Restaurante y horarios."
+      "Permite activar/desactivar mâ??â??dulos",
+      "Configuraciâ??â??n de alertas e IA",
+      "Gestiâ??â??n de Restaurante y horarios."
     ],
   },
   {
@@ -205,9 +205,9 @@ export const MODULES = [
     label: "Accesos",
     short: "AC",
     icon: "shieldCheck",
-    path: "mirest/src/modules/accesos/index.html",
-    description: "Gestiâ”œâ”‚n de roles y habilitaciâ”œâ”‚n de usuarios en Supabase.",
-    owner: "Mâ”œâ”‚dulo exclusivo de administrador.",
+    path: "mirest/src/modules/accesos/accesos.html",
+    description: "Gestiâ??â??n de roles y habilitaciâ??â??n de usuarios en Supabase.",
+    owner: "Mâ??â??dulo exclusivo de administrador.",
     handoff: [
       "Crear y suspender credenciales.",
       "Asignar roles a las nuevas cuentas.",
@@ -232,7 +232,7 @@ const NAV_MODULE_KEYS = new Set(["dashboard", "accesos", ...MODULES.map((m) => m
 const ADMIN_MODULE_KEYS = MODULES
   .filter((item) => item.key !== "accesos")
   .map((item) => item.key);
-/** Mâ”œâ”‚dulo Accesos: visible para quienes gestionen usuarios (incl. admin, no solo superadmin). */
+/** Mâ??â??dulo Accesos: visible para quienes gestionen usuarios (incl. admin, no solo superadmin). */
 const ADMIN_MODULE_KEYS_WITH_ACCESOS = [...ADMIN_MODULE_KEYS, "accesos"];
 
 const STORAGE_KEY = "mirest-ui-theme";
@@ -261,14 +261,14 @@ export function formatCurrentDate() {
 export function getGreeting() {
   const hour = new Date().getHours();
 
-  if (hour < 12) return "Buenos dâ”œÂ¡as";
+  if (hour < 12) return "Buenos dâ??Â¡as";
   if (hour < 19) return "Buenas tardes";
   return "Buenas noches";
 }
 
-/** Permisos de funciâ”œâ”‚n (no son entradas de menâ”œâ•‘); se marcan en Accesos junto a los mâ”œâ”‚dulos. */
+/** Permisos de funciâ??â??n (no son entradas de menâ??â??); se marcan en Accesos junto a los mâ??â??dulos. */
 export const FEATURE_CAJA_MESEROS = "caja_meseros";
-/** Almacâ”œÂ®n en solo consulta (perfil Chef). */
+/** Almacâ??Â®n en solo consulta (perfil Chef). */
 export const FEATURE_ALMACEN_LECTURA = "almacen_lectura";
 /** Productos en solo consulta (perfil Marketing). */
 export const FEATURE_PRODUCTOS_LECTURA = "productos_lectura";
@@ -277,11 +277,11 @@ export const FEATURE_ACCESS_ITEMS = [
   {
     key: FEATURE_CAJA_MESEROS,
     label: "Caja: meseros y ranking",
-    description: "Muestra el panel de meseros y el ranking del dâ”œÂ¡a dentro de Caja.",
+    description: "Muestra el panel de meseros y el ranking del dâ??Â¡a dentro de Caja.",
   },
   {
     key: FEATURE_ALMACEN_LECTURA,
-    label: "Almacâ”œÂ®n: solo lectura",
+    label: "Almacâ??Â®n: solo lectura",
     description: "Consulta stock e insumos sin movimientos de ajuste (pensado para cocina).",
   },
   {
@@ -295,7 +295,7 @@ export function getAssignablePermissionKeys() {
   return [...MODULES.map((m) => m.key), ...FEATURE_ACCESS_ITEMS.map((f) => f.key)];
 }
 
-/** Comprueba permisos extra o comodâ”œÂ¡n * (superadmin). */
+/** Comprueba permisos extra o comodâ??Â¡n * (superadmin). */
 export function hasFeaturePermission(permissions, featureKey) {
   const perms = Array.isArray(permissions) ? permissions : [];
   if (perms.includes("*")) return true;
@@ -307,9 +307,9 @@ export const ROLE_PERMISSIONS = {
   admin: ADMIN_MODULE_KEYS_WITH_ACCESOS,
   /** Caja, Pedidos, Clientes (+ soporte). */
   caja: ["caja", "pedidos", "clientes", "soporte"],
-  /** Cocina, Almacâ”œÂ®n, Recetas; almacâ”œÂ®n con lectura reforzada vâ”œÂ¡a almacen_lectura. */
+  /** Cocina, Almacâ??Â®n, Recetas; almacâ??Â®n con lectura reforzada vâ??Â¡a almacen_lectura. */
   chef: ["cocina", "almacen", "recetas", "soporte", "almacen_lectura"],
-  /** PWA Pedidos: salâ”œâ”‚n + delivery; mesas y canales van dentro de Pedidos. */
+  /** PWA Pedidos: salâ??â??n + delivery; mesas y canales van dentro de Pedidos. */
   pedidos: ["pedidos", "soporte"],
   almacen: ["almacen", "proveedores", "recetas", "soporte"],
   marketing: ["reportes", "clientes", "productos", "soporte", "productos_lectura"],
@@ -356,12 +356,12 @@ export function isSuperadminRole(role) {
   return role === "superadmin";
 }
 
-/** Puede abrir mâ”œâ”‚dulo Accesos (lista de usuarios, roles, mâ”œâ”‚dulos) Ã”Ã‡Ã¶ superadmin o admin. */
+/** Puede abrir mâ??â??dulo Accesos (lista de usuarios, roles, mâ??â??dulos) Ã?Ã?Ã¶ superadmin o admin. */
 export function isAccesosManagerRole(role) {
   return role === "superadmin" || role === "admin";
 }
 
-/** Mâ”œâ”‚dulo Configuraciâ”œâ”‚n: solo admin y superadmin; operativos se redirigen. */
+/** Mâ??â??dulo Configuraciâ??â??n: solo admin y superadmin; operativos se redirigen. */
 export function canAccessConfiguracion(role) {
   return role === "superadmin" || role === "admin";
 }
@@ -394,7 +394,7 @@ export function getRoleLabel(role) {
     case "caja": return "Caja";
     case "chef": return "Chef / Cocina";
     case "pedidos": return "Pedidos";
-    case "almacen": return "Almacâ”œÂ®n";
+    case "almacen": return "Almacâ??Â®n";
     case "marketing": return "Marketing";
     case "soporte": return "Soporte";
     case "demo": return "Cuenta demo";
@@ -417,7 +417,7 @@ export function renderSidebar(target, activeKey, userRole = "admin", permissions
       </div>
     </section>
     <section class="sidebar-group">
-      <span class="sidebar-group__label">Mâ”œâ”‚dulos</span>
+      <span class="sidebar-group__label">Mâ??â??dulos</span>
       <div class="sidebar-list">
         ${moduleItems.map((item) => renderNavItem(item, activeKey)).join("")}
       </div>
@@ -430,7 +430,7 @@ export function renderSidebar(target, activeKey, userRole = "admin", permissions
             <i data-lucide="log-out" style="width:20px;height:20px;color:var(--color-accent)"></i>
           </span>
           <span class="nav-item__text">
-            <strong>Cerrar sesiâ”œâ”‚n</strong>
+            <strong>Cerrar sesiâ??â??n</strong>
           </span>
         </button>
       </div>
@@ -454,7 +454,7 @@ function renderNavItem(item, activeKey) {
       <span class="nav-item__text">
         <strong>${item.label}</strong>
       </span>
-      <span class="nav-item__arrow" aria-hidden="true">Ã”Ã‡â•‘</span>
+      <span class="nav-item__arrow" aria-hidden="true">Ã?Ã?â??</span>
     </a>
   `;
 }
@@ -463,7 +463,7 @@ export function initializeThemeToggle(button) {
   const storedTheme = localStorage.getItem(STORAGE_KEY);
   const initialTheme = storedTheme || document.body.dataset.theme || "light";
 
-  // Siempre aplicamos el tema al cargar, haya botâ”œâ”‚n o no
+  // Siempre aplicamos el tema al cargar, haya botâ??â??n o no
   applyTheme(initialTheme, button);
 
   if (button) {
